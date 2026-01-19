@@ -1,19 +1,16 @@
-// region données initiales et helpers
+// =====================================================
+//  DONNÉES ET CONFIGURATION
+// =====================================================
 
-/* =========================
-       Données
-    ========================== */
 const state = {
   activeSlide: 0,
   slides: [
     { id: cryptoId(), elements: [
-      // un petit contenu de départ
       { id: cryptoId(), type:"text", x:90, y:80, w:520, h:70, html:"Titre de la slide" },
       { id: cryptoId(), type:"shape", x:90, y:190, w:420, h:160 },
       { id: cryptoId(), type:"button", x:90, y:380, w:220, h:50, html:"Clique ici" },
     ]}
   ]
-
 };
 
 const slideEl   = document.getElementById("slide");
@@ -23,20 +20,25 @@ const zoomChip  = document.getElementById("zoomChip");
 
 let selectedId = null;
 
-/* =========================
-    Helpers
-========================== */
+// =====================================================
+//  HELPERS
+// =====================================================
+
 function cryptoId(){
   return (crypto?.randomUUID?.() || ("id_" + Math.random().toString(16).slice(2)));
 }
 
-function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+function clamp(n, a, b){ 
+  return Math.max(a, Math.min(b, n)); 
+}
 
 function getActive(){
   return state.slides[state.activeSlide];
 }
 
-function px(n){ return Math.round(n) + "px"; }
+function px(n){ 
+  return Math.round(n) + "px"; 
+}
 
 function clearSelection(){
   selectedId = null;
@@ -48,16 +50,17 @@ function select(id){
   render();
 }
 
-function getSelected(){
-  const s = getActive();
-  return s.elements.find(e => e.id === selectedId) || null;
+function getZoom(){
+  const m = slideEl.style.transform.match(/scale\(([\d.]+)\)/);
+  return m ? parseFloat(m[1]) : 1;
 }
-// endregion
 
-// region rendu
-/* =========================
-    Rendu
-========================== */
+function setZoom(z){
+  z = clamp(z, .35, 2);
+  slideEl.style.transformOrigin = "middle top";
+  slideEl.style.transform = `scale(${z})`;
+  zoomChip.textContent = `Zoom: ${Math.round(z*100)}%`;
+}
 function render(){
   // Render slide elements
   slideEl.querySelectorAll(".el").forEach(n => n.remove());
@@ -91,9 +94,54 @@ function render(){
     }
 
     if (e.type === "image"){
-      node.innerHTML = `<div style="padding:12px;text-align:center;line-height:1.2">
-        IMAGE<br><span style="font-size:12px;font-weight:600;color:#9ca3af">dépose une vraie image plus tard</span>
-      </div>`;
+      if (e.imageData){
+        // afficher l'image réelle
+        node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:cover;">`;
+      } else{
+        // afficher le placeholder
+        node.innerHTML = `<div style="padding:12px;text-align:center;line-height:1.2;cursor:pointer;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+          <span style="font-size:24px;margin-bottom:8px;">📸</span>
+          <span style="font-size:13px;font-weight:600;color:#007bff">Dépose une image</span>
+          <span style="font-size:11px;color:#999;margin-top:4px">ou clique pour parcourir</span>
+        </div>`;
+      }
+
+      // autoriser le drag & drop d'images
+      node.style.cursor = "pointer";
+      
+      node.addEventListener("dragover", (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        node.style.opacity = "0.7";
+        node.style.background = "rgba(0,123,255,0.1)";
+      });
+      
+      node.addEventListener("dragleave", (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        node.style.opacity = "1";
+        node.style.background = "";
+      });
+      
+      node.addEventListener("drop", (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        node.style.opacity = "1";
+        node.style.background = "";
+        
+        const files = ev.dataTransfer.files;
+        if (files.length > 0) {
+          const file = files[0];
+          if (file.type.startsWith("image/")) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              e.imageData = event.target.result;
+              render();
+            };
+            reader.readAsDataURL(file);
+          }
+        }
+      });
     }
 
     // handles
@@ -165,7 +213,11 @@ function render(){
         node.style.fontSize = "8px";
         node.style.overflow = "hidden";
       } else if (e.type === "image"){
-        node.innerHTML = `<div style="font-size:6px;padding:2px;">IMG</div>`;
+        if (e.imageData) {
+          node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:cover;">`;
+        } else {
+          node.innerHTML = `<div style="font-size:6px;padding:2px;">📸</div>`;
+        }
       }
 
       miniDiv.appendChild(node);
@@ -177,29 +229,14 @@ function render(){
     h.addEventListener("mousedown", (ev)=> startResize(ev, h.closest(".el")?.dataset?.id, h.dataset.handle));
   });
 
-  // update zoom indicator based on CSS scale (if any)
+  // update zoom indicator
   const z = getZoom();
   zoomChip.textContent = `Zoom: ${Math.round(z*100)}%`;
 }
 
-function getZoom(){
-  const m = slideEl.style.transform.match(/scale\(([\d.]+)\)/);
-  return m ? parseFloat(m[1]) : 1;
-}
-
-function setZoom(z){
-  z = clamp(z, .35, 2);
-  slideEl.style.transformOrigin = "top left";
-  slideEl.style.transform = `scale(${z})`;
-  zoomChip.textContent = `Zoom: ${Math.round(z*100)}%`;
-}
-// endregion
-
-
-// region interactions
-/* =========================
-    Drag & Drop depuis la sidebar
-========================== */
+// =====================================================
+//  DRAG & DROP - AJOUTER ÉLÉMENTS
+// =====================================================
 document.querySelectorAll(".tool").forEach(tool => {
   tool.addEventListener("dragstart", (ev) => {
     ev.dataTransfer.setData("text/plain", tool.dataset.tool);
@@ -256,8 +293,6 @@ function addFromTool(toolType, x, y){
   } else if (toolType === "image"){
     el = { ...base, type:"image", w: 360, h: 240 };
   } else if (toolType === "twoCols"){
-    // ajoute un mini-layout
-    const gid = cryptoId();
     s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-360,0,820), y: clamp(y-140,0,460), w: 420, h: 60, html:"Titre (2 colonnes)" });
     s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-360,0,820), y: clamp(y-70,0,470), w: 420, h: 120, html:"Texte descriptif…" });
     s.elements.push({ id: cryptoId(), type:"image", x: clamp(x+80,0,600), y: clamp(y-140,0,300), w: 320, h: 240 });
@@ -273,13 +308,10 @@ function addFromTool(toolType, x, y){
     selectedId = el.id;
   }
 }
-// endregion
 
-// region déplacement
-
-/* =========================
-    Déplacement d'élément
-========================== */
+// =====================================================
+//  DÉPLACEMENT D'ÉLÉMENTS
+// =====================================================
 let move = null;
 
 function startMove(ev, id){
@@ -334,14 +366,9 @@ function endMove(){
   move = null;
 }
 
-// endregion
-
-
-// region redimensionnement
-
-/* =========================
-    Resize
-========================== */
+// =====================================================
+//  REDIMENSIONNEMENT D'ÉLÉMENTS
+// =====================================================
 let resize = null;
 
 function startResize(ev, id, handle){
@@ -396,13 +423,9 @@ function endResize(){
   resize = null;
 }
 
-// endregion
-
-// region UI actions
-
-/* =========================
-    UI actions
-========================== */
+// =====================================================
+//  ACTIONS UI - SUPPRESSION, SÉLECTION, CLAVIER
+// =====================================================
 // click outside to unselect
 slideEl.addEventListener("mousedown", (ev)=>{
   if (ev.target === slideEl || ev.target.classList.contains("drop-hint")){
@@ -433,7 +456,9 @@ function deleteSelected(){
   render();
 }
 
-// parse HTML slide file and extract elements
+// =====================================================
+//  IMPORT/EXPORT - FICHIERS HTML
+// =====================================================
 function parseSlideHTML(htmlContent) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlContent, 'text/html');
@@ -556,6 +581,10 @@ fileInput.addEventListener('change', (ev)=>{
     ev.target.value = ''; // reset input
   }
 });
+
+// =====================================================
+//  GESTION DES SLIDES
+// =====================================================
 
 // add slide
 document.getElementById("addSlideBtn").addEventListener("click", ()=>{
@@ -700,8 +729,9 @@ document.getElementById("workspace").addEventListener("wheel", (ev)=>{
   setZoom(getZoom() + delta);
 }, { passive:false });
 
-// init
+// =====================================================
+//  INITIALISATION
+// =====================================================
+
 render();
 setZoom(1);
-
-// endregion UI actions
