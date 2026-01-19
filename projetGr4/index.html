@@ -8,14 +8,13 @@
   </head>
   <body>
     <div id="app"></div>
-    <button id="openTest">Ouvrir test.html</button>
+    <button id="openTest">Ouvrir editor.html</button>
+
     <script type="module">
       const btn = document.getElementById("openTest");
-
       btn.addEventListener("click", () => {
-        window.location.href = `${import.meta.env.BASE_URL}Editor.html`;
+        window.location.href = `${import.meta.env.BASE_URL}editor.html`;
       });
     </script>
-    <script type="module" src="/src/main.js"></script>
   </body>
 </html>
