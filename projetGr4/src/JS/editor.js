@@ -378,6 +378,130 @@
       render();
     }
 
+    // parse HTML slide file and extract elements
+    function parseSlideHTML(htmlContent) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlContent, 'text/html');
+      const elements = [];
+
+      const slideElements = doc.querySelectorAll('.slide-element');
+      
+      slideElements.forEach(el => {
+        const style = el.getAttribute('style') || '';
+        
+        // Extract position and size from inline styles
+        const leftMatch = style.match(/left:\s*(\d+)px/);
+        const topMatch = style.match(/top:\s*(\d+)px/);
+        const widthMatch = style.match(/width:\s*(\d+)px/);
+        const heightMatch = style.match(/height:\s*(\d+)px/);
+        
+        const x = leftMatch ? parseInt(leftMatch[1]) : 0;
+        const y = topMatch ? parseInt(topMatch[1]) : 0;
+        const w = widthMatch ? parseInt(widthMatch[1]) : 240;
+        const h = heightMatch ? parseInt(heightMatch[1]) : 54;
+        
+        // Determine element type from class
+        let type = 'text';
+        let html = '';
+        
+        if (el.classList.contains('text-element')) {
+          type = 'text';
+          const p = el.querySelector('p');
+          html = p ? p.innerHTML : 'Texte';
+        } else if (el.classList.contains('button-element')) {
+          type = 'button';
+          html = el.innerHTML.trim();
+        } else if (el.classList.contains('image-element')) {
+          type = 'image';
+          html = '';
+        } else if (el.classList.contains('shape-element')) {
+          type = 'shape';
+          html = '';
+        }
+        
+        elements.push({
+          id: cryptoId(),
+          type,
+          x,
+          y,
+          w,
+          h,
+          html
+        });
+      });
+      
+      return elements;
+    }
+
+    // load slides from files
+    function loadSlidesFromFiles(files) {
+      const fileArray = Array.from(files).filter(f => f.name.endsWith('.html'));
+      
+      if (fileArray.length === 0) {
+        alert('No HTML files selected');
+        return;
+      }
+      
+      // Sort files by name to load in order
+      fileArray.sort((a, b) => a.name.localeCompare(b.name));
+      
+      let loadedCount = 0;
+      
+      fileArray.forEach((file, index) => {
+        const reader = new FileReader();
+        
+        reader.onload = (e) => {
+          try {
+            const htmlContent = e.target.result;
+            const elements = parseSlideHTML(htmlContent);
+            
+            // Replace or add slide
+            if (index === 0) {
+              // First file: replace current slide
+              state.slides[state.activeSlide] = {
+                id: cryptoId(),
+                elements
+              };
+            } else {
+              // Subsequent files: add as new slides
+              state.slides.push({
+                id: cryptoId(),
+                elements
+              });
+            }
+            
+            loadedCount++;
+            
+            // Once all files are loaded, render
+            if (loadedCount === fileArray.length) {
+              state.activeSlide = 0;
+              selectedId = null;
+              render();
+              thumbsEl.scrollLeft = 0;
+              alert(`✓ Loaded ${fileArray.length} slide(s)`);
+            }
+          } catch (error) {
+            console.error('Error parsing file:', file.name, error);
+          }
+        };
+        
+        reader.readAsText(file);
+      });
+    }
+
+    // open folder button
+    const fileInput = document.getElementById('fileInput');
+    document.getElementById('openFolderBtn').addEventListener('click', ()=>{
+      fileInput.click();
+    });
+    
+    fileInput.addEventListener('change', (ev)=>{
+      if (ev.target.files.length > 0) {
+        loadSlidesFromFiles(ev.target.files);
+        ev.target.value = ''; // reset input
+      }
+    });
+
     // add slide
     document.getElementById("addSlideBtn").addEventListener("click", ()=>{
       state.slides.push({ id: cryptoId(), elements: [] });
@@ -400,16 +524,86 @@
       thumbsEl.scrollLeft = thumbsEl.scrollWidth;
     });
 
-    // export JSON
+    // generate HTML for a slide
+    function generateSlideHTML(slideIndex) {
+      const slide = state.slides[slideIndex];
+      const baseCSS = `
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: white; }
+      .slide-container { position: relative; width: 960px; height: 540px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+      .slide-element { position: absolute; }
+      .text-element, .button-element { display: flex; align-items: center; justify-content: center; }
+      .shape-element { border: 2px solid #333; border-radius: 4px; }
+      .image-element { border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; background: #f5f5f5; color: #999; }
+      .button-element { background: #007bff; color: white; border: none; cursor: pointer; border-radius: 4px; font-weight: 600; }
+      .button-element:hover { background: #0056b3; }
+      h1, h2, h3, h4, h5, h6 { margin: 0; }
+      p { margin: 0; }
+    </style>
+      `;
+
+      let htmlContent = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slide ${slideIndex + 1}</title>
+  ${baseCSS}
+</head>
+<body>
+  <div class="slide-container">
+`;
+
+      slide.elements.forEach(el => {
+        const style = `style="left: ${el.x}px; top: ${el.y}px; width: ${el.w || 240}px; height: ${el.h || 54}px;"`;
+        
+        if (el.type === "text") {
+          htmlContent += `    <div class="slide-element text-element" ${style}>\n      <p>${el.html || "Texte"}</p>\n    </div>\n`;
+        } else if (el.type === "button") {
+          htmlContent += `    <button class="slide-element button-element" ${style}>${el.html || "Bouton"}</button>\n`;
+        } else if (el.type === "image") {
+          htmlContent += `    <div class="slide-element image-element" ${style}>\n      <img src="" alt="Image placeholder" style="max-width: 100%; max-height: 100%; object-fit: cover;">\n    </div>\n`;
+        } else if (el.type === "shape") {
+          htmlContent += `    <div class="slide-element shape-element" ${style}></div>\n`;
+        }
+      });
+
+      htmlContent += `  </div>
+</body>
+</html>`;
+
+      return htmlContent;
+    }
+
+    // export all slides as HTML files to download
     document.getElementById("exportBtn").addEventListener("click", ()=>{
-      const data = JSON.stringify(state, null, 2);
-      const blob = new Blob([data], {type:"application/json"});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "slides.json";
-      a.click();
-      URL.revokeObjectURL(url);
+      if (state.slides.length === 1) {
+        // Single slide: download directly
+        const html = generateSlideHTML(0);
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'slide.html';
+        a.click();
+        URL.revokeObjectURL(url);
+      } else {
+        // Multiple slides: download each one with slight delay
+        state.slides.forEach((slide, index) => {
+          const html = generateSlideHTML(index);
+          const blob = new Blob([html], { type: 'text/html' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `slide-${index + 1}.html`;
+          
+          setTimeout(() => {
+            a.click();
+            URL.revokeObjectURL(url);
+          }, index * 300);
+        });
+      }
     });
 
     // fit
