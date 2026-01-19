@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mini Canva — Éditeur de diapos</title>
+  <link rel="stylesheet" href="src/css/style.css"> 
+</head>
+
+<body>
+  <div class="app">
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="top">
+        <div class="brand">
+          <h1>Éditeur de diapos</h1>
+          <div class="pill">Drag & Drop</div>
+        </div>
+        <div class="search">
+          <input id="toolSearch" type="text" placeholder="Rechercher un outil (texte, forme…)" />
+        </div>
+      </div>
+
+      <div class="tool-groups" id="toolGroups">
+        <div class="group" data-group="Basique">
+          <div class="group-title">Basique</div>
+
+          <div class="tool" draggable="true" data-tool="text">
+            <div class="icon">T</div>
+            <div class="meta"><b>Texte</b><span>Ajoute un titre</span></div>
+          </div>
+
+          <div class="tool" draggable="true" data-tool="shape">
+            <div class="icon">⬛</div>
+            <div class="meta"><b>Forme</b><span>Rectangle dégradé</span></div>
+          </div>
+
+          <div class="tool" draggable="true" data-tool="button">
+            <div class="icon">⦿</div>
+            <div class="meta"><b>Bouton</b><span>Pill call-to-action</span></div>
+          </div>
+
+          <div class="tool" draggable="true" data-tool="image">
+            <div class="icon">🖼</div>
+            <div class="meta"><b>Image</b><span>Bloc image (placeholder)</span></div>
+          </div>
+        </div>
+
+        <div class="group" data-group="Mise en page">
+          <div class="group-title">Mise en page</div>
+
+          <div class="tool" draggable="true" data-tool="twoCols">
+            <div class="icon">▦</div>
+            <div class="meta"><b>2 colonnes</b><span>Texte + visuel</span></div>
+          </div>
+
+          <div class="tool" draggable="true" data-tool="titleSubtitle">
+            <div class="icon">≡</div>
+            <div class="meta"><b>Titre + sous-titre</b><span>En-tête simple</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom">
+        <button class="btn" id="deleteBtn" title="Suppr (Del)">Supprimer</button>
+        <button class="btn primary" id="addSlideBtn">+ Slide</button>
+      </div>
+    </aside>
+
+    <!-- MAIN CANVAS -->
+    <main class="main">
+      <div class="topbar">
+        <div class="left">
+          <span class="title">Projet :</span>
+          <span class="chip">Sans titre</span>
+          <span class="chip" id="zoomChip">Zoom: 100%</span>
+        </div>
+        <div class="right">
+          <button class="btn" id="fitBtn">Ajuster</button>
+          <button class="btn" id="exportBtn">Exporter (JSON)</button>
+        </div>
+      </div>
+
+      <div class="workspace" id="workspace">
+        <div class="stage">
+          <div class="slide-wrap">
+            <div class="slide" id="slide" aria-label="Diapo">
+              <div class="drop-hint"></div>
+              <!-- elements injected here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- BOTTOM SLIDES -->
+    <section class="slidesbar">
+      <div class="header">
+        <div>Slides</div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <span class="chip">Clique pour sélectionner</span>
+          <button class="btn" id="dupSlideBtn">Dupliquer</button>
+        </div>
+      </div>
+      <div class="thumbs" id="thumbs"></div>
+    </section>
+  </div>
+<script type="module" src="src/JS/editor.js"></script>
+</body>
+</html>
