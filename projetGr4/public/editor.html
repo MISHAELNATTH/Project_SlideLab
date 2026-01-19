@@ -63,6 +63,8 @@
 
       <div class="bottom">
         <button class="btn" id="deleteBtn" title="Suppr (Del)">Supprimer</button>
+        <button class="btn" id="openFolderBtn">📁 Ouvrir</button>
+        <input type="file" id="fileInput" multiple accept=".html" style="display:none;">
         <button class="btn primary" id="addSlideBtn">+ Slide</button>
       </div>
     </aside>
@@ -77,7 +79,7 @@
         </div>
         <div class="right">
           <button class="btn" id="fitBtn">Ajuster</button>
-          <button class="btn" id="exportBtn">Exporter (JSON)</button>
+          <button class="btn" id="exportBtn">Exporter Slide</button>
         </div>
       </div>
 
@@ -103,6 +105,7 @@
         </div>
       </div>
       <div class="thumbs" id="thumbs"></div>
+      <div class="mini"></div>  <!-- This is empty -->
     </section>
   </div>
 <script type="module" src="src/JS/editor.js"></script>
