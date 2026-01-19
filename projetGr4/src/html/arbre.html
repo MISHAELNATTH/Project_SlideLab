@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connecteur de Rectangles</title>
+    <link rel="stylesheet" href="/src/css/arbreStyle.css">
+</head>
+<body>
+
+    <!-- Canvas Area -->
+    <main id="canvas" class="canvas-area" onmousedown="deselectAll(event)">
+        <!-- SVG Layer for connections -->
+        <svg id="svg-layer">
+            <!-- Paths will be injected here -->
+        </svg>
+
+        <!-- HTML Layer for Nodes will be injected here via JS -->
+        <div id="nodes-layer"></div>
+        
+        <div class="help-text">
+            Cliquez sur un rectangle pour l'éditer. Glissez pour déplacer.
+        </div>
+        
+        <button onclick="createNode()" class="btn-add">
+            + Ajouter un Rectangle
+        </button>
+    </main>
+
+    <!-- Sidebar Properties Panel -->
+    <aside class="sidebar" id="sidebar">
+        
+        <div class="sidebar-header">
+            <h2 class="sidebar-title">Propriétés</h2>
+            <p class="sidebar-subtitle" id="sidebar-subtitle">Aucune sélection</p>
+        </div>
+
+        <div id="properties-content" class="sidebar-content">
+            <!-- Content injected via JS -->
+            <div class="sidebar-empty">
+                <p>Sélectionnez un rectangle pour voir ses options.</p>
+            </div>
+        </div>
+
+    </aside>
+
+    <script src="/src/JS/arbre.js"></script>
+</body>
+</html>
