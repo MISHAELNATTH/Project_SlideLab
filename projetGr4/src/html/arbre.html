@@ -9,7 +9,7 @@
 <body>
 
     <!-- Canvas Area -->
-    <main id="canvas" class="canvas-area" onmousedown="deselectAll(event)">
+    <main id="canvas" class="canvas-area">
         <!-- SVG Layer for connections -->
         <svg id="svg-layer">
             <!-- Paths will be injected here -->
@@ -22,9 +22,7 @@
             Cliquez sur un rectangle pour l'éditer. Glissez pour déplacer.
         </div>
         
-        <button onclick="createNode()" class="btn-add">
-            + Ajouter un Rectangle
-        </button>
+        <button id="btnAdd" class="btn-add">+ Ajouter un Rectangle</button>
     </main>
 
     <!-- Sidebar Properties Panel -->
@@ -44,6 +42,6 @@
 
     </aside>
 
-    <script src="/src/JS/arbre.js"></script>
+    <script type="module" src="/src/JS/arbre.js"></script>
 </body>
 </html>
