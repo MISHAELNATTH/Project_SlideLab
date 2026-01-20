@@ -467,10 +467,53 @@ function deleteSelected(){
 
 
 
+
+
 // =====================================================
 //  INITIALISATION
 // =====================================================
 
+/* =========================
+   RESIZABLE BOTTOM BAR
+========================== */
+const resizerY = document.getElementById("resizerY");
+
+if (resizerY) {
+  resizerY.addEventListener("mousedown", initDragBottom);
+}
+
+function initDragBottom(e) {
+  e.preventDefault();
+  window.addEventListener("mousemove", doDragBottom);
+  window.addEventListener("mouseup", stopDragBottom);
+  resizerY.classList.add("resizing");
+  // Force cursor globally during drag to prevent flickering
+  document.body.style.cursor = "ns-resize";
+}
+
+function doDragBottom(e) {
+  // Calculate available height from bottom of screen
+  // Window Height - Mouse Y Position - App Bottom Padding (14px)
+  const availableH = window.innerHeight;
+  let newH = availableH - e.clientY - 14;
+  
+  // Limits to prevent breaking the layout
+  const minH = 100; // Minimum height for bottom bar
+  const maxH = availableH * 0.6; // Maximum 60% of screen height
+
+  if (newH < minH) newH = minH;
+  if (newH > maxH) newH = maxH;
+
+  // Update the CSS variable. The CSS Grid will automatically adjust the top part (1fr).
+  document.documentElement.style.setProperty('--bottom-h', Math.round(newH) + "px");
+}
+
+function stopDragBottom() {
+  window.removeEventListener("mousemove", doDragBottom);
+  window.removeEventListener("mouseup", stopDragBottom);
+  resizerY.classList.remove("resizing");
+  document.body.style.cursor = "";
+}
 
 render();
 setZoom(1);

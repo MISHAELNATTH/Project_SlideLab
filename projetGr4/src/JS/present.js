@@ -2,10 +2,20 @@ import { thumbsEl, state, zoomChip, cryptoId, setSelectedId, render} from './edi
 /* =========================
    MODE PRÉSENTATION
 ========================== */
-const presentBtn = document.getElementById("presentBtn");
+
 let presentationIndex = 0;
 
-presentBtn.addEventListener("click", startPresentation);
+// Helper function to format pixels (was missing previously)
+function px(n) {
+  return Math.round(n) + "px";
+}
+
+const presentBtn = document.getElementById("presentBtn");
+if (presentBtn) {
+  presentBtn.addEventListener('click', startPresentation);
+}
+
+
 
 function startPresentation() {
   // 1. Create Container Overlay
@@ -30,7 +40,11 @@ function startPresentation() {
   document.body.appendChild(overlay);
 
   // 3. Handle Fullscreen
-  if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+  if (document.documentElement.requestFullscreen) {
+    document.documentElement.requestFullscreen().catch(e => {
+      console.warn("Fullscreen request denied:", e);
+    });
+  }
 
   // 4. Render Initial Slide
   presentationIndex = state.activeSlide; // Start from currently selected slide
@@ -38,13 +52,28 @@ function startPresentation() {
   fitPresentationToScreen(slideContainer);
 
   // 5. Events (Resize & Navigation)
-  window.addEventListener("resize", () => fitPresentationToScreen(slideContainer));
+  // We attach these AFTER rendering to ensure they exist
+  window.addEventListener("resize", onWindowResize);
   document.addEventListener("keydown", handlePresentationKeys);
+  document.addEventListener("fullscreenchange", onFullscreenChange);
 
   // Cleanup on exit
-  document.addEventListener("fullscreenchange", () => {
-    if (!document.fullscreenElement) closePresentation();
-  });
+  //document.addEventListener("fullscreenchange", () => {
+  //  if (!document.fullscreenElement) closePresentation();
+  //});
+}
+
+// Separate function for resize to easily remove it later
+function onWindowResize() {
+  const container = document.getElementById("presentation-slide");
+  if (container) fitPresentationToScreen(container);
+}
+
+// Separate function for fullscreen change
+function onFullscreenChange() {
+  if (!document.fullscreenElement) {
+    closePresentation();
+  }
 }
 
 function closePresentation() {
@@ -52,6 +81,8 @@ function closePresentation() {
   if (overlay) overlay.remove();
   document.removeEventListener("keydown", handlePresentationKeys);
   // Optional: Restore window size logic if needed
+  window.removeEventListener("resize", onWindowResize);
+  document.removeEventListener("fullscreenchange", onFullscreenChange);
 }
 
 function handlePresentationKeys(ev) {
@@ -126,11 +157,12 @@ function renderPresentationSlide(index, container) {
         };
       }
     } else if (e.type === "image") {
-       node.innerHTML = `<div style="width:100%;height:100%;background:#eee;display:flex;align-items:center;justify-content:center;color:#aaa;">IMAGE</div>`;
-    } else if (e.type === "shape") {
-       // Styles are usually handled by CSS class .shape, ensuring it looks right
-    }
-
+       if (e.imageData) {
+         node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:cover;">`;
+       } else {
+         node.innerHTML = `<div style="width:100%;height:100%;background:#eee;display:flex;align-items:center;justify-content:center;color:#aaa;">IMAGE</div>`;
+       }
+      }
     container.appendChild(node);
   });
 }
