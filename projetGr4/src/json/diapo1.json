@@ -26,8 +26,43 @@
       "buttons": []
     },
     {
-      "id": 5,
-      "label": "Rectangle 6",
+      "id": 7,
+      "label": "Rectangle 8",
+      "x": 100,
+      "y": 100,
+      "buttons": []
+    },
+    {
+      "id": 8,
+      "label": "Rectangle 9",
+      "x": 100,
+      "y": 100,
+      "buttons": []
+    },
+    {
+      "id": 9,
+      "label": "Rectangle 10",
+      "x": 100,
+      "y": 100,
+      "buttons": []
+    },
+    {
+      "id": 10,
+      "label": "Rectangle 11",
+      "x": 100,
+      "y": 100,
+      "buttons": []
+    },
+    {
+      "id": 11,
+      "label": "Rectangle 12",
+      "x": 100,
+      "y": 100,
+      "buttons": []
+    },
+    {
+      "id": 12,
+      "label": "Rectangle 13",
       "x": 100,
       "y": 100,
       "buttons": []

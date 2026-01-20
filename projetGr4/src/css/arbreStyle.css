@@ -107,6 +107,13 @@ body {
 .btn-add:active {
   animation: pop-glow 0.25s ease-out;
 }
+.btn-add:hover {
+  background-color: #f1f5f9;
+}
+.btn-add:active {
+  background-color: #e2e8f0;
+  animation: pop-glow 0.25s ease-out;
+}
 
 /* Import Button */
 .btn-imp {
@@ -151,6 +158,14 @@ body {
 .btn-imp:active {
   animation: pop-glow 0.25s ease-out;
 }
+.btn-imp:hover {
+  background-color: #f1f5f9;
+}
+.btn-imp:active {
+  background-color: #e2e8f0;
+  animation: pop-glow 0.25s ease-out;
+}
+
 
 /* Save Button */
 .btn-save {
@@ -191,6 +206,14 @@ body {
 .btn-save:active {
   animation: pop-glow 0.25s ease-out;
 }
+.btn-save:hover {
+  background-color: #f1f5f9;
+}
+.btn-save:active {
+  background-color: #e2e8f0;
+  animation: pop-glow 0.25s ease-out;
+}
+
 
 /* Help Text */
 .help-text {
