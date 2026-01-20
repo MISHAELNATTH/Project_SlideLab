@@ -13,11 +13,6 @@ import { generateId } from "./utils/ids.js";
 
 import { jsonToNodes } from "./io/json.js";
 import { downloadJson, loadFromLocalStorage, saveToLocalStorage } from "./io/persistence.js";
-import { loadSlidesFromPptEditorLocalStorage } from "./io/pptEditorProject.js";
-import { slidesToNodes, resolveCollisions } from "./io/slidesToNodes.js";
-import { saveAllSlidesMeta } from "./io/saveSlideMeta.js";
-
-
 
 // Projet courant (tu pourras changer en diapo2, diapo3, etc.)
 const PROJECT_NAME = "diapo1";
@@ -110,20 +105,17 @@ export async function initArbre() {
     onRenderAll: () => renderer.renderAll(),
   });
 
-// ---- CHARGEMENT depuis ppt_editor_project_v1 ----
-  const slides = loadSlidesFromPptEditorLocalStorage();
+  // ---- CHARGEMENT PROJET ----
+  const nodes = await loadProjectNodes(PROJECT_NAME);
 
-  if (slides && slides.length > 0) {
-    const nodes = slidesToNodes(slides);
-    resolveCollisions(nodes, 100);
-
+  if (nodes && nodes.length > 0) {
     store.setNodes(nodes);
     store.setSelectedNodeId(null);
 
     const maxId = Math.max(...nodes.map((n) => n.id));
     store.setNextNodeId(maxId + 1);
   } else {
-    // fallback si rien trouvé
+    // état par défaut
     store.getNodes()[0].buttons = [
       { id: generateId(), target: null },
       { id: generateId(), target: null },
@@ -155,21 +147,9 @@ export async function initArbre() {
     dom.btnAdd.addEventListener("click", () => actions.createNode());
   }
 
-  // Retour vers l'editor
-  if (dom.btnEdit) {
-    dom.btnEdit.addEventListener("click", () => {window.location.href = "../html/editor.html";  });
-  }
-
   // Sauvegarder (écrase src/json/diapo1.json en DEV)
   if (dom.btnSave) {
-    dom.btnSave.addEventListener("click", async () => {
-      try {
-        const out = await saveAllSlidesMeta(store);
-        console.log("save slide-meta:", out);
-      } catch (e) {
-        console.error("save slide-meta failed:", e);
-      }
-    });
+    dom.btnSave.addEventListener("click", () => saveProject(store, PROJECT_NAME));
   }
 
   // (Optionnel) Import JSON depuis un fichier local
