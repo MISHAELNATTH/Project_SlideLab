@@ -3,26 +3,151 @@
     {
       "id": 1,
       "label": "Rectangle 1",
-      "x": 228.86269478543187,
-      "y": 286.3853251013568,
+      "x": 86.86269478543187,
+      "y": 426.3853251013568,
       "buttons": [
-        2,
+        4,
         3,
+        4,
+        null,
         null
       ]
     },
     {
       "id": 2,
       "label": "Rectangle 3",
-      "x": 672.78664986593,
-      "y": 195.07872994276119,
-      "buttons": []
+      "x": 732.78664986593,
+      "y": 160.07872994276119,
+      "buttons": [
+        1
+      ]
     },
     {
       "id": 3,
       "label": "Rectangle 4",
-      "x": 954.8626947854318,
-      "y": 132.38532510135678,
+      "x": 863.8626947854318,
+      "y": 379.3853251013568,
+      "buttons": []
+    },
+    {
+      "id": 4,
+      "label": "Rectangle 5",
+      "x": 441.8626947854318,
+      "y": 593.3853251013568,
+      "buttons": [
+        2
+      ]
+    },
+    {
+      "id": 5,
+      "label": "Rectangle 6",
+      "x": 100,
+      "y": 100,
+      "buttons": []
+    },
+    {
+      "id": 6,
+      "label": "Rectangle 7",
+      "x": 100,
+      "y": 100,
+      "buttons": []
+    },
+    {
+      "id": 7,
+      "label": "Rectangle 8",
+      "x": 100,
+      "y": 100,
+      "buttons": []
+    },
+    {
+      "id": 8,
+      "label": "Rectangle 9",
+      "x": 100,
+      "y": 100,
+      "buttons": []
+    },
+    {
+      "id": 9,
+      "label": "Rectangle 10",
+      "x": 100,
+      "y": 100,
+      "buttons": []
+    },
+    {
+      "id": 12,
+      "label": "Rectangle 13",
+      "x": 100,
+      "y": 100,
+      "buttons": []
+    },
+    {
+      "id": 13,
+      "label": "Rectangle 14",
+      "x": 100,
+      "y": 100,
+      "buttons": []
+    },
+    {
+      "id": 14,
+      "label": "Rectangle 15",
+      "x": 100,
+      "y": 100,
+      "buttons": []
+    },
+    {
+      "id": 15,
+      "label": "Rectangle 16",
+      "x": 100,
+      "y": 100,
+      "buttons": []
+    },
+    {
+      "id": 16,
+      "label": "Rectangle 17",
+      "x": 100,
+      "y": 100,
+      "buttons": []
+    },
+    {
+      "id": 17,
+      "label": "Rectangle 18",
+      "x": 100,
+      "y": 100,
+      "buttons": []
+    },
+    {
+      "id": 18,
+      "label": "Rectangle 19",
+      "x": 100,
+      "y": 100,
+      "buttons": []
+    },
+    {
+      "id": 19,
+      "label": "Rectangle 20",
+      "x": 100,
+      "y": 100,
+      "buttons": []
+    },
+    {
+      "id": 20,
+      "label": "Rectangle 21",
+      "x": 100,
+      "y": 100,
+      "buttons": []
+    },
+    {
+      "id": 21,
+      "label": "Rectangle 22",
+      "x": 100,
+      "y": 100,
+      "buttons": []
+    },
+    {
+      "id": 22,
+      "label": "Rectangle 23",
+      "x": 100,
+      "y": 100,
       "buttons": []
     }
   ]
