@@ -553,9 +553,15 @@ function stopDragBottom() {
 render();
 setZoom(1);
 
+
+
 // =====================================================
 //  IMPORTS DES MODULES DÉPENDANTS (après initialisation)
 // =====================================================
 import './imporExport.js';
 import './present.js';
 import './slides.js';
+
+import { initContextMenu } from './contextMenu.js';
+
+initContextMenu(); // Initialize context menu
