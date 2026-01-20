@@ -9,6 +9,9 @@
       --shadow:0 20px 60px rgba(0,0,0,.45);
       --radius:16px;
       --manuela:#0c1626;
+
+      /* 1. DEFINE THE VARIABLE HEIGHT */
+      --bottom-h: 170px;
     }
 
     *{box-sizing:border-box}
@@ -27,16 +30,19 @@
     .app{
       display:grid;
       grid-template-columns: 320px 1fr;
-      grid-template-rows: 1fr 170px; /* bas: thumbnails */
+      /*grid-template-rows: 1fr 170px; /* bas: thumbnails */
+      /* 2. UPDATED ROWS: Main Content | Resizer Handle (auto) | Bottom Bar (variable) */
+      grid-template-rows: 1fr auto var(--bottom-h);
       height:100vh;
-      gap:14px;
+      gap:0 14px;
       padding:14px;
     }
 
     /* Barre d'outils gauche */
     .sidebar{
       grid-column:1;
-      grid-row:1 / span 2;
+      /* 4. UPDATED: Span all 3 rows (Top, Resizer, Bottom) */
+      grid-row:1 / span 3;
       background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--border);
       border-radius: var(--radius);
@@ -182,6 +188,36 @@
       display:flex;
       flex-direction:column;
     }
+
+    /* 5. NEW RESIZER STYLE */
+    .resizer-y {
+      grid-column: 2;
+      grid-row: 2; /* Placed in the middle 'auto' row */
+      height: 14px; /* Acts as visual spacing */
+      cursor: ns-resize;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      /* Optional: make it subtly visible on hover so user knows it's grabby */
+      transition: background 0.2s;
+    }
+    .resizer-y:hover {
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+    }
+    /* A little handle line */
+    .resizer-y::after {
+      content: "";
+      width: 40px; 
+      height: 3px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 2px;
+    }
+    .resizer-y.resizing::after, .resizer-y:hover::after {
+      background: var(--accent);
+    }
+
 
     .topbar{
       display:flex;
@@ -342,7 +378,8 @@
     /* Bottom slides bar */
     .slidesbar{
       grid-column:2;
-      grid-row:2;
+      /* 6. UPDATED: Placed in row 3 */
+      grid-row:3;
       border:1px solid var(--border);
       border-radius: var(--radius);
       background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
@@ -413,10 +450,11 @@
       .app{
         height:auto;
         grid-template-columns: 1fr;
-        grid-template-rows: auto auto auto;
+        grid-template-rows: auto auto auto auto;
       }
       .sidebar{grid-column:1; grid-row:1}
       .main{grid-column:1; grid-row:2}
+      .resizer-y{display:none;} /* Hide resizer on mobile */
       .slidesbar{grid-column:1; grid-row:3}
       .slide-wrap{transform:none}
       .slide{width: 92vw; height: calc(92vw * 9/16)}
