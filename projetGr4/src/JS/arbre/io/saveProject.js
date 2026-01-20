@@ -26,5 +26,5 @@ export async function saveProjectJson(store, projectName = "diapo1") {
 
   // PROD ou fallback
   saveToLocalStorage(store.getNodes());
-  downloadJson(store.getNodes(), `${projectName}.json`);
+  //downloadJson(store.getNodes(), `${projectName}.json`);
 }

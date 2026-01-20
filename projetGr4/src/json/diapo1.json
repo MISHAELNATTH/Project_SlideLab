@@ -49,22 +49,22 @@
     {
       "id": 10,
       "label": "Rectangle 11",
-      "x": 100,
-      "y": 100,
+      "x": 369,
+      "y": 69,
       "buttons": []
     },
     {
       "id": 11,
       "label": "Rectangle 12",
-      "x": 100,
-      "y": 100,
+      "x": 24,
+      "y": 240,
       "buttons": []
     },
     {
       "id": 14,
       "label": "Rectangle 15",
-      "x": 100,
-      "y": 100,
+      "x": 646,
+      "y": 198,
       "buttons": []
     }
   ]
