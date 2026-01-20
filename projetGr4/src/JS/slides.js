@@ -1,14 +1,5 @@
-// slides.js
-import {
-  thumbsEl,
-  state,
-  cryptoId,
-  setSelectedId,
-  render,
-  setZoom,
-  getZoom,
-  getActive
-} from "./editor.js";
+import { saveProjectToLocal } from "./storage.js";
+import {thumbsEl, render, state, cryptoId, setSelectedId, setZoom, getZoom, getActive} from "./editor.js";
 
 // =====================================================
 //  HELPERS (local)
@@ -365,3 +356,31 @@ document.getElementById("workspace").addEventListener(
   },
   { passive: false }
 );
+
+// --- Bouton "Sauvegarder" ---
+const saveLocalBtn = document.getElementById("saveLocalBtn");
+if (saveLocalBtn) {
+  saveLocalBtn.addEventListener("click", () => {
+    saveProjectToLocal(state);
+    // petit feedback visuel simple
+    saveLocalBtn.textContent = "✓ Sauvegardé";
+    setTimeout(() => (saveLocalBtn.textContent = "Sauvegarder"), 900);
+  });
+}
+
+// --- Bouton "Arborescence" (sauvegarde puis navigate) ---
+const goTreeBtn = document.getElementById("goTreeBtn");
+if (goTreeBtn) {
+  goTreeBtn.addEventListener("click", () => {
+    saveProjectToLocal(state);
+
+    // navigation comme tu fais déjà ailleurs avec BASE_URL
+    const base = import.meta.env.BASE_URL || "/";
+    const target = import.meta.env.DEV
+      ? "src/html/arbre.html"
+      : "src/html/arbre.html";
+
+    window.location.href = `${base}${target}`;
+  });
+}
+

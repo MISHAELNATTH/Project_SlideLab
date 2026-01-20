@@ -1,106 +1,116 @@
 // =====================================================
-//  DONNÉES ET CONFIGURATION
+//  IMPORTS (TOUJOURS EN HAUT)
 // =====================================================
+import { loadProjectFromLocal, saveProjectToLocal } from "./storage.js";
+import "./imporExport.js";
+import "./present.js";
+import "./slides.js";
+import { initContextMenu } from "./contextMenu.js";
 
+// =====================================================
+//  HELPERS (AVANT state)
+// =====================================================
+export function cryptoId() {
+  return (crypto?.randomUUID?.() || ("id_" + Math.random().toString(16).slice(2)));
+}
+
+function clamp(n, a, b) {
+  return Math.max(a, Math.min(b, n));
+}
+
+function px(n) {
+  return Math.round(n) + "px";
+}
+
+// =====================================================
+//  DOM (AVANT render / AVANT init)
+// =====================================================
+export const slideEl  = document.getElementById("slide");
+export const thumbsEl = document.getElementById("thumbs");
+export const searchEl = document.getElementById("toolSearch");
+export const zoomChip = document.getElementById("zoomChip");
+
+// =====================================================
+//  STATE (après cryptoId)
+// =====================================================
 export const state = {
   activeSlide: 0,
   slides: [
-    { id: cryptoId(), elements: [
-      { id: cryptoId(), type:"text", x:90, y:80, w:520, h:70, html:"Titre de la slide" },
-      { id: cryptoId(), type:"shape", x:90, y:190, w:420, h:160 },
-      { id: cryptoId(), type:"button", x:90, y:380, w:220, h:50, html:"Clique ici" },
-    ]}
+    {
+      id: cryptoId(),
+      elements: [
+        { id: cryptoId(), type:"text",   x:90, y:80,  w:520, h:70,  html:"Titre de la slide" },
+        { id: cryptoId(), type:"shape",  x:90, y:190, w:420, h:160 },
+        { id: cryptoId(), type:"button", x:90, y:380, w:220, h:50,  html:"Clique ici" },
+      ]
+    }
   ]
 };
 
 // =====================================================
-//  SAUVEGARDE/CHARGEMENT (localStorage)
+//  SELECTION
 // =====================================================
+export let selectedId = null;
+export function setSelectedId(id) { selectedId = id; }
+export function getSelectedId() { return selectedId; }
 
+// =====================================================
+//  SLIDE HELPERS
+// =====================================================
+export function getActive() {
+  return state.slides[state.activeSlide];
+}
+
+// =====================================================
+//  ZOOM
+// =====================================================
+export function getZoom() {
+  const m = slideEl?.style?.transform?.match(/scale\(([\d.]+)\)/);
+  return m ? parseFloat(m[1]) : 1;
+}
+
+export function setZoom(z) {
+  z = clamp(z, 0.35, 2);
+  // "center top" (pas "middle top")
+  slideEl.style.transformOrigin = "center top";
+  slideEl.style.transform = `scale(${z})`;
+  if (zoomChip) zoomChip.textContent = `Zoom: ${Math.round(z * 100)}%`;
+}
+
+// =====================================================
+//  PERSISTENCE (UNIFIÉE: storage.js)
+// =====================================================
 export function saveState() {
   try {
-    localStorage.setItem('slides_state', JSON.stringify(state));
-    console.log('✓ État sauvegardé');
+    saveProjectToLocal(state);
+    console.log("✓ État sauvegardé (localStorage)");
   } catch (e) {
-    console.error('Erreur lors de la sauvegarde:', e);
+    console.error("Erreur lors de la sauvegarde:", e);
   }
 }
 
 export function loadState() {
   try {
-    const saved = localStorage.getItem('slides_state');
-    if (saved) {
-      const loaded = JSON.parse(saved);
-      state.activeSlide = loaded.activeSlide;
-      state.slides = loaded.slides;
-      console.log('✓ État restauré');
-      return true;
-    }
+    const saved = loadProjectFromLocal();
+    if (!saved) return false;
+
+    state.slides = saved.slides ?? state.slides;
+    state.activeSlide = saved.activeSlide ?? 0;
+
+    console.log("✓ État restauré (localStorage)");
+    return true;
   } catch (e) {
-    console.error('Erreur lors du chargement:', e);
+    console.error("Erreur lors du chargement:", e);
+    return false;
   }
-  return false;
-}
-
-export const slideEl   = document.getElementById("slide");
-export const thumbsEl  = document.getElementById("thumbs");
-export const searchEl  = document.getElementById("toolSearch");
-export const zoomChip  = document.getElementById("zoomChip");
-
-export let selectedId = null;
-
-export function setSelectedId(id) {
-  selectedId = id;
-}
-
-export function getSelectedId() {
-  return selectedId;
 }
 
 // =====================================================
-//  HELPERS
+//  RENDER (NE DOIT PAS ÊTRE APPELÉ AVANT slideEl)
 // =====================================================
+export function render() {
+  if (!slideEl || !thumbsEl) return;
 
-export function cryptoId(){
-  return (crypto?.randomUUID?.() || ("id_" + Math.random().toString(16).slice(2)));
-}
-
-function clamp(n, a, b){ 
-  return Math.max(a, Math.min(b, n)); 
-}
-
-export function getActive(){
-  return state.slides[state.activeSlide];
-}
-
-function px(n){ 
-  return Math.round(n) + "px"; 
-}
-
-function clearSelection(){
-  selectedId = null;
-  render();
-}
-
-function select(id){
-  selectedId = id;
-  render();
-}
-
-export function getZoom(){
-  const m = slideEl.style.transform.match(/scale\(([\d.]+)\)/);
-  return m ? parseFloat(m[1]) : 1;
-}
-
-export function setZoom(z){
-  z = clamp(z, .35, 2);
-  slideEl.style.transformOrigin = "middle top";
-  slideEl.style.transform = `scale(${z})`;
-  zoomChip.textContent = `Zoom: ${Math.round(z*100)}%`;
-}
-// Charger l'état sauvegardé si disponible
-loadState();
-export function render(){
   // Render slide elements
   slideEl.querySelectorAll(".el").forEach(n => n.remove());
   const s = getActive();
@@ -112,7 +122,7 @@ export function render(){
     node.style.left = px(e.x);
     node.style.top  = px(e.y);
 
-    if (e.type === "shape" || e.type === "image"){
+    if (e.type === "shape" || e.type === "image") {
       node.style.width  = px(e.w);
       node.style.height = px(e.h);
     } else {
@@ -120,54 +130,39 @@ export function render(){
       node.style.height = px(e.h || 54);
     }
 
-    if (e.type === "text"){
+    if (e.type === "text" || e.type === "button") {
       node.contentEditable = "true";
       node.spellcheck = false;
-      node.innerHTML = e.html || "Texte";
+      node.innerHTML = e.html || (e.type === "text" ? "Texte" : "Bouton");
     }
 
-    if (e.type === "button"){
-      node.contentEditable = "true";
-      node.spellcheck = false;
-      node.innerHTML = e.html || "Bouton";
-    }
-
-    if (e.type === "image"){
-      if (e.imageData){
-        // afficher l'image réelle
+    if (e.type === "image") {
+      if (e.imageData) {
         node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:cover;">`;
-      } else{
-        // afficher le placeholder
+      } else {
         node.innerHTML = `<div style="padding:12px;text-align:center;line-height:1.2;cursor:pointer;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;">
           <span style="font-size:24px;margin-bottom:8px;">📸</span>
           <span style="font-size:13px;font-weight:600;color:#007bff">Dépose une image</span>
           <span style="font-size:11px;color:#999;margin-top:4px">ou clique pour parcourir</span>
         </div>`;
       }
-
-      // autoriser le drag & drop d'images
       node.style.cursor = "pointer";
-      
+
       node.addEventListener("dragover", (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
+        ev.preventDefault(); ev.stopPropagation();
         node.style.opacity = "0.7";
         node.style.background = "rgba(0,123,255,0.1)";
       });
-      
       node.addEventListener("dragleave", (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
+        ev.preventDefault(); ev.stopPropagation();
         node.style.opacity = "1";
         node.style.background = "";
       });
-      
       node.addEventListener("drop", (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
+        ev.preventDefault(); ev.stopPropagation();
         node.style.opacity = "1";
         node.style.background = "";
-        
+
         const files = ev.dataTransfer.files;
         if (files.length > 0) {
           const file = files[0];
@@ -193,12 +188,12 @@ export function render(){
 
     // select
     node.addEventListener("mousedown", (ev)=>{
-      // si on clique une poignée -> géré par resize
       if (ev.target.classList.contains("handle")) return;
-      select(e.id);
+      selectedId = e.id;
+      render();
     });
 
-    // drag move element
+    // IMPORTANT: startMove doit exister plus bas dans ton fichier (tu le gardes)
     node.addEventListener("mousedown", (ev)=> startMove(ev, e.id));
 
     slideEl.appendChild(node);
@@ -223,345 +218,61 @@ export function render(){
     });
     thumbsEl.appendChild(t);
 
-    // render thumbnail preview
-    const miniDiv = t.querySelector('.mini');
-    const scale = 0.12; // scale factor for thumbnail
-    
+    // thumbnail preview
+    const miniDiv = t.querySelector(".mini");
+    const scale = 0.12;
+
     sl.elements.forEach(e => {
       const node = document.createElement("div");
       node.className = "el " + e.type;
       node.style.left = px(e.x * scale);
-      node.style.top = px(e.y * scale);
+      node.style.top  = px(e.y * scale);
       node.style.pointerEvents = "none";
       node.style.opacity = "0.8";
 
-      if (e.type === "shape" || e.type === "image"){
-        node.style.width = px(e.w * scale);
+      if (e.type === "shape" || e.type === "image") {
+        node.style.width  = px(e.w * scale);
         node.style.height = px(e.h * scale);
       } else {
-        node.style.width = px((e.w || 240) * scale);
+        node.style.width  = px((e.w || 240) * scale);
         node.style.height = px((e.h || 54) * scale);
       }
 
-      if (e.type === "text"){
-        node.innerHTML = e.html || "Texte";
+      if (e.type === "text" || e.type === "button") {
+        node.innerHTML = e.html || (e.type === "text" ? "Texte" : "Bouton");
         node.style.fontSize = "8px";
         node.style.overflow = "hidden";
-      } else if (e.type === "button"){
-        node.innerHTML = e.html || "Bouton";
-        node.style.fontSize = "8px";
-        node.style.overflow = "hidden";
-      } else if (e.type === "image"){
-        if (e.imageData) {
-          node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:cover;">`;
-        } else {
-          node.innerHTML = `<div style="font-size:6px;padding:2px;">📸</div>`;
-        }
+      } else if (e.type === "image") {
+        node.innerHTML = e.imageData
+          ? `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:cover;">`
+          : `<div style="font-size:6px;padding:2px;">📸</div>`;
       }
 
       miniDiv.appendChild(node);
     });
   });
 
-  // attach resize listeners after nodes exist
-  slideEl.querySelectorAll(".el.selected .handle").forEach(h=>{
-    h.addEventListener("mousedown", (ev)=> startResize(ev, h.closest(".el")?.dataset?.id, h.dataset.handle));
-  });
-
   // update zoom indicator
   const z = getZoom();
-  zoomChip.textContent = `Zoom: ${Math.round(z*100)}%`;
+  if (zoomChip) zoomChip.textContent = `Zoom: ${Math.round(z*100)}%`;
+
   // auto-save
   saveState();
 }
 
 // =====================================================
-//  DRAG & DROP - AJOUTER ÉLÉMENTS
+//  INITIALISATION (APRES TOUT)
 // =====================================================
-document.querySelectorAll(".tool").forEach(tool => {
-  tool.addEventListener("dragstart", (ev) => {
-    ev.dataTransfer.setData("text/plain", tool.dataset.tool);
-    ev.dataTransfer.effectAllowed = "copy";
-  });
-});
+function init() {
+  // 1) Charge projet sauvegardé (si dispo)
+  loadState();
 
-slideEl.addEventListener("dragover", (ev)=>{
-  ev.preventDefault();
-  slideEl.classList.add("dragover");
-  ev.dataTransfer.dropEffect = "copy";
-});
-
-slideEl.addEventListener("dragleave", ()=>{
-  slideEl.classList.remove("dragover");
-});
-
-slideEl.addEventListener("drop", (ev)=>{
-  ev.preventDefault();
-  slideEl.classList.remove("dragover");
-
-  const toolType = ev.dataTransfer.getData("text/plain");
-  if (!toolType) return;
-
-  // position relative to slide (account for zoom)
-  const rect = slideEl.getBoundingClientRect();
-  const z = getZoom();
-  const x = (ev.clientX - rect.left) / z;
-  const y = (ev.clientY - rect.top) / z;
-
-  addFromTool(toolType, x, y);
+  // 2) Render
   render();
-});
+  setZoom(1);
 
-function addFromTool(toolType, x, y){
-  const s = getActive();
-
-  const base = {
-    id: cryptoId(),
-    x: clamp(x - 80, 0, 960-40),
-    y: clamp(y - 20, 0, 540-40),
-    w: 260,
-    h: 60,
-  };
-
-  let el = null;
-
-  if (toolType === "text"){
-    el = { ...base, type:"text", w: 520, h: 70, html:"Nouveau texte" };
-  } else if (toolType === "shape"){
-    el = { ...base, type:"shape", w: 320, h: 180 };
-  } else if (toolType === "button"){
-    el = { ...base, type:"button", w: 220, h: 54, html:"Bouton" };
-  } else if (toolType === "image"){
-    el = { ...base, type:"image", w: 360, h: 240 };
-  } else if (toolType === "twoCols"){
-    s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-360,0,820), y: clamp(y-140,0,460), w: 420, h: 60, html:"Titre (2 colonnes)" });
-    s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-360,0,820), y: clamp(y-70,0,470), w: 420, h: 120, html:"Texte descriptif…" });
-    s.elements.push({ id: cryptoId(), type:"image", x: clamp(x+80,0,600), y: clamp(y-140,0,300), w: 320, h: 240 });
-    return;
-  } else if (toolType === "titleSubtitle"){
-    s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-320,0,600), y: clamp(y-120,0,460), w: 700, h: 70, html:"Titre" });
-    s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-320,0,600), y: clamp(y-40,0,490), w: 700, h: 60, html:"Sous-titre" });
-    return;
-  }
-
-  if (el){
-    s.elements.push(el);
-    selectedId = el.id;
-  }
+  // 3) Context menu
+  initContextMenu();
 }
 
-// =====================================================
-//  DÉPLACEMENT D'ÉLÉMENTS
-// =====================================================
-let move = null;
-
-function startMove(ev, id){
-  const target = ev.target.closest(".el");
-  if (!target) return;
-  if (ev.target.classList.contains("handle")) return;
-
-  // évite de déplacer pendant l'édition de texte si on sélectionne un curseur
-  const isEditable = (target.classList.contains("text") || target.classList.contains("button"));
-  if (isEditable && document.activeElement === target && window.getSelection()?.type === "Range") {
-    // user is selecting text
-    return;
-  }
-
-  select(id);
-
-  const z = getZoom();
-  const s = getActive();
-  const el = s.elements.find(e => e.id === id);
-  if (!el) return;
-
-  const startX = ev.clientX;
-  const startY = ev.clientY;
-
-  move = {
-    id,
-    startX, startY,
-    origX: el.x, origY: el.y,
-    zoom: z
-  };
-
-  window.addEventListener("mousemove", onMove);
-  window.addEventListener("mouseup", endMove, { once:true });
-}
-
-function onMove(ev){
-  if (!move) return;
-  const s = getActive();
-  const el = s.elements.find(e => e.id === move.id);
-  if (!el) return;
-
-  const dx = (ev.clientX - move.startX) / move.zoom;
-  const dy = (ev.clientY - move.startY) / move.zoom;
-
-  el.x = clamp(move.origX + dx, 0, 960 - 10);
-  el.y = clamp(move.origY + dy, 0, 540 - 10);
-  render();
-}
-
-function endMove(){
-  window.removeEventListener("mousemove", onMove);
-  move = null;
-}
-
-// =====================================================
-//  REDIMENSIONNEMENT D'ÉLÉMENTS
-// =====================================================
-let resize = null;
-
-function startResize(ev, id, handle){
-  ev.stopPropagation();
-  ev.preventDefault();
-  select(id);
-
-  const z = getZoom();
-  const s = getActive();
-  const el = s.elements.find(e => e.id === id);
-  if (!el) return;
-
-  resize = {
-    id, handle,
-    startX: ev.clientX,
-    startY: ev.clientY,
-    origX: el.x, origY: el.y, origW: el.w || 240, origH: el.h || 54,
-    zoom: z
-  };
-
-  window.addEventListener("mousemove", onResize);
-  window.addEventListener("mouseup", endResize, { once:true });
-}
-
-function onResize(ev){
-  if (!resize) return;
-  const s = getActive();
-  const el = s.elements.find(e => e.id === resize.id);
-  if (!el) return;
-
-  const dx = (ev.clientX - resize.startX) / resize.zoom;
-  const dy = (ev.clientY - resize.startY) / resize.zoom;
-
-  let x = resize.origX, y = resize.origY, w = resize.origW, h = resize.origH;
-
-  // handles: tl,tr,bl,br
-  if (resize.handle.includes("r")) w = clamp(resize.origW + dx, 40, 960);
-  if (resize.handle.includes("l")) { w = clamp(resize.origW - dx, 40, 960); x = resize.origX + dx; }
-  if (resize.handle.includes("b")) h = clamp(resize.origH + dy, 30, 540);
-  if (resize.handle.includes("t")) { h = clamp(resize.origH - dy, 30, 540); y = resize.origY + dy; }
-
-  // clamp to slide bounds
-  x = clamp(x, 0, 960 - 20);
-  y = clamp(y, 0, 540 - 20);
-
-  el.x = x; el.y = y; el.w = w; el.h = h;
-  render();
-}
-
-function endResize(){
-  window.removeEventListener("mousemove", onResize);
-  resize = null;
-}
-
-// =====================================================
-//  ACTIONS UI - SUPPRESSION, SÉLECTION, CLAVIER
-// =====================================================
-// click outside to unselect
-slideEl.addEventListener("mousedown", (ev)=>{
-  if (ev.target === slideEl || ev.target.classList.contains("drop-hint")){
-    clearSelection();
-  }
-});
-
-// delete selected
-document.getElementById("deleteBtn").addEventListener("click", deleteSelected);
-window.addEventListener("keydown", (ev)=>{
-  if (ev.key === "Delete" || ev.key === "Backspace"){
-    // ne pas supprimer si on écrit dans un editable
-    const a = document.activeElement;
-    if (a && (a.classList?.contains("text") || a.classList?.contains("button"))) return;
-    deleteSelected();
-  }
-  // zoom shortcuts
-  if ((ev.ctrlKey || ev.metaKey) && (ev.key === "+" || ev.key === "=")){ ev.preventDefault(); setZoom(getZoom()+0.1); }
-  if ((ev.ctrlKey || ev.metaKey) && (ev.key === "-" )){ ev.preventDefault(); setZoom(getZoom()-0.1); }
-  if ((ev.ctrlKey || ev.metaKey) && (ev.key === "0" )){ ev.preventDefault(); setZoom(1); }
-});
-
-function deleteSelected(){
-  if (!selectedId) return;
-  const s = getActive();
-  s.elements = s.elements.filter(e => e.id !== selectedId);
-  selectedId = null;
-  render();
-}
-
-
-
-
-
-
-// =====================================================
-//  INITIALISATION
-// =====================================================
-
-/* =========================
-   RESIZABLE BOTTOM BAR
-========================== */
-const resizerY = document.getElementById("resizerY");
-
-if (resizerY) {
-  resizerY.addEventListener("mousedown", initDragBottom);
-}
-
-function initDragBottom(e) {
-  e.preventDefault();
-  window.addEventListener("mousemove", doDragBottom);
-  window.addEventListener("mouseup", stopDragBottom);
-  resizerY.classList.add("resizing");
-  // Force cursor globally during drag to prevent flickering
-  document.body.style.cursor = "ns-resize";
-}
-
-function doDragBottom(e) {
-  // Calculate available height from bottom of screen
-  // Window Height - Mouse Y Position - App Bottom Padding (14px)
-  const availableH = window.innerHeight;
-  let newH = availableH - e.clientY - 14;
-  
-  // Limits to prevent breaking the layout
-  const minH = 100; // Minimum height for bottom bar
-  const maxH = availableH * 0.6; // Maximum 60% of screen height
-
-  if (newH < minH) newH = minH;
-  if (newH > maxH) newH = maxH;
-
-  // Update the CSS variable. The CSS Grid will automatically adjust the top part (1fr).
-  document.documentElement.style.setProperty('--bottom-h', Math.round(newH) + "px");
-}
-
-function stopDragBottom() {
-  window.removeEventListener("mousemove", doDragBottom);
-  window.removeEventListener("mouseup", stopDragBottom);
-  resizerY.classList.remove("resizing");
-  document.body.style.cursor = "";
-}
-
-
-
-render();
-setZoom(1);
-
-
-
-// =====================================================
-//  IMPORTS DES MODULES DÉPENDANTS (après initialisation)
-// =====================================================
-import './imporExport.js';
-import './present.js';
-import './slides.js';
-
-import { initContextMenu } from './contextMenu.js';
-
-initContextMenu(); // Initialize context menu
+init();

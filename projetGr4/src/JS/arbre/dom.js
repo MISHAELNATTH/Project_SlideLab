@@ -10,6 +10,7 @@ export function getDom() {
   const btnSave = document.getElementById("btnSave");
   const btnLoad = document.getElementById("btnLoad");
   const fileImport = document.getElementById("fileImport");
+  const btnEdit = document.getElementById("btnEdit");
 
   if (!nodesLayer || !svgLayer || !sidebarContent || !sidebarSubtitle || !canvasEl) {
     throw new Error(
@@ -27,5 +28,6 @@ export function getDom() {
     btnSave,
     btnLoad,
     fileImport,
+    btnEdit,
   };
 }
