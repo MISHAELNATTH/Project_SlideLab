@@ -13,6 +13,35 @@ export const state = {
   ]
 };
 
+// =====================================================
+//  SAUVEGARDE/CHARGEMENT (localStorage)
+// =====================================================
+
+export function saveState() {
+  try {
+    localStorage.setItem('slides_state', JSON.stringify(state));
+    console.log('✓ État sauvegardé');
+  } catch (e) {
+    console.error('Erreur lors de la sauvegarde:', e);
+  }
+}
+
+export function loadState() {
+  try {
+    const saved = localStorage.getItem('slides_state');
+    if (saved) {
+      const loaded = JSON.parse(saved);
+      state.activeSlide = loaded.activeSlide;
+      state.slides = loaded.slides;
+      console.log('✓ État restauré');
+      return true;
+    }
+  } catch (e) {
+    console.error('Erreur lors du chargement:', e);
+  }
+  return false;
+}
+
 export const slideEl   = document.getElementById("slide");
 export const thumbsEl  = document.getElementById("thumbs");
 export const searchEl  = document.getElementById("toolSearch");
@@ -69,6 +98,8 @@ export function setZoom(z){
   slideEl.style.transform = `scale(${z})`;
   zoomChip.textContent = `Zoom: ${Math.round(z*100)}%`;
 }
+// Charger l'état sauvegardé si disponible
+loadState();
 export function render(){
   // Render slide elements
   slideEl.querySelectorAll(".el").forEach(n => n.remove());
@@ -240,6 +271,8 @@ export function render(){
   // update zoom indicator
   const z = getZoom();
   zoomChip.textContent = `Zoom: ${Math.round(z*100)}%`;
+  // auto-save
+  saveState();
 }
 
 // =====================================================
@@ -514,6 +547,8 @@ function stopDragBottom() {
   resizerY.classList.remove("resizing");
   document.body.style.cursor = "";
 }
+
+
 
 render();
 setZoom(1);
