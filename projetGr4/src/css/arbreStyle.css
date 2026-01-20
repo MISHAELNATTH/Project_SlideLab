@@ -99,22 +99,30 @@ body {
         box-shadow: var(--shadow-lg);
     }
 
-@keyframes pop {
-    0% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.08);
-    }
-
-    100% {
-        transform: scale(1);
-    }
+@keyframes pop-glow {
+  0% {
+    transform: scale(1);
+    box-shadow: var(--shadow-md);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 12px rgba(0, 150, 255, 0.4);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: var(--shadow-md);
+  }
 }
 
 .btn-add:active {
-    animation: pop 0.15s ease-out;
+  animation: pop-glow 0.25s ease-out;
+}
+.btn-add:hover {
+  background-color: #f1f5f9;
+}
+.btn-add:active {
+  background-color: #e2e8f0;
+  animation: pop-glow 0.25s ease-out;
 }
 
 /* Import Button */
@@ -138,6 +146,36 @@ body {
     .btn-imp:hover {
         background-color: #f8fafc;
     }
+    .btn-imp:hover {
+    background-color: #f8fafc;
+    box-shadow: var(--shadow-lg);
+}
+@keyframes pop-glow {
+  0% {
+    transform: scale(1);
+    box-shadow: var(--shadow-md);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 12px rgba(0, 150, 255, 0.4);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.btn-imp:active {
+  animation: pop-glow 0.25s ease-out;
+}
+.btn-imp:hover {
+  background-color: #f1f5f9;
+}
+.btn-imp:active {
+  background-color: #e2e8f0;
+  animation: pop-glow 0.25s ease-out;
+}
+
 
 /* Save Button */
 .btn-save {
@@ -160,6 +198,32 @@ body {
     .btn-save:hover {
         background-color: #f8fafc;
     }
+    @keyframes pop-glow {
+  0% {
+    transform: scale(1);
+    box-shadow: var(--shadow-md);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 12px rgba(0, 150, 255, 0.4);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.btn-save:active {
+  animation: pop-glow 0.25s ease-out;
+}
+.btn-save:hover {
+  background-color: #f1f5f9;
+}
+.btn-save:active {
+  background-color: #e2e8f0;
+  animation: pop-glow 0.25s ease-out;
+}
+
 
 /* Help Text */
 .help-text {
