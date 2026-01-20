@@ -80,8 +80,31 @@ body {
     z-index: 20;
 }
 
-.btn-add:hover {
-    background-color: #f8fafc;
+    .btn-add:hover {
+        background-color: #f8fafc;
+    }
+
+    .btn-add:hover {
+        background-color: #f8fafc;
+        box-shadow: var(--shadow-lg);
+    }
+
+@keyframes pop {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.08);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.btn-add:active {
+    animation: pop 0.15s ease-out;
 }
 
 /* Import Button */
@@ -102,9 +125,9 @@ body {
     z-index: 20;
 }
 
-.btn-imp:hover {
-    background-color: #f8fafc;
-}
+    .btn-imp:hover {
+        background-color: #f8fafc;
+    }
 
 /* Save Button */
 .btn-save {
@@ -124,9 +147,9 @@ body {
     z-index: 20;
 }
 
-.btn-save:hover {
-    background-color: #f8fafc;
-}
+    .btn-save:hover {
+        background-color: #f8fafc;
+    }
 
 /* Help Text */
 .help-text {
@@ -180,18 +203,18 @@ body {
     transition: box-shadow 0.2s, border-color 0.2s;
 }
 
-.node:active {
-    cursor: grabbing;
-}
+    .node:active {
+        cursor: grabbing;
+    }
 
-.node:hover {
-    box-shadow: var(--shadow-md);
-}
+    .node:hover {
+        box-shadow: var(--shadow-md);
+    }
 
-.node.selected {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 2px var(--color-primary-light);
-}
+    .node.selected {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 2px var(--color-primary-light);
+    }
 
 .node-title {
     font-weight: 700;
@@ -213,9 +236,9 @@ body {
     transition: background-color 0.2s;
 }
 
-.port.connected {
-    background-color: var(--color-primary-hover);
-}
+    .port.connected {
+        background-color: var(--color-primary-hover);
+    }
 
 /* Connections */
 path.connection-line {
@@ -225,10 +248,10 @@ path.connection-line {
     pointer-events: none;
 }
 
-path.connection-line.active {
-    stroke: var(--color-primary);
-    stroke-width: 3px;
-}
+    path.connection-line.active {
+        stroke: var(--color-primary);
+        stroke-width: 3px;
+    }
 
 /* --- Sidebar Styling --- */
 
@@ -266,12 +289,12 @@ path.connection-line.active {
     padding: 40px 0;
 }
 
-.sidebar-empty svg {
-    width: 64px;
-    height: 64px;
-    opacity: 0.5;
-    margin-bottom: 16px;
-}
+    .sidebar-empty svg {
+        width: 64px;
+        height: 64px;
+        opacity: 0.5;
+        margin-bottom: 16px;
+    }
 
 /* Form Elements in Sidebar */
 .form-group {
@@ -296,10 +319,10 @@ path.connection-line.active {
     outline: none;
 }
 
-.form-input:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 1px var(--color-primary);
-}
+    .form-input:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 1px var(--color-primary);
+    }
 
 .form-row {
     display: flex;
@@ -379,9 +402,9 @@ path.connection-line.active {
     background-color: var(--color-border);
 }
 
-.status-dot.active {
-    background-color: var(--color-primary);
-}
+    .status-dot.active {
+        background-color: var(--color-primary);
+    }
 
 .select-input {
     width: 100%;
@@ -393,9 +416,9 @@ path.connection-line.active {
     outline: none;
 }
 
-.select-input:focus {
-    border-color: var(--color-primary);
-}
+    .select-input:focus {
+        border-color: var(--color-primary);
+    }
 
 .text-blue {
     color: var(--color-primary-hover);
@@ -416,21 +439,24 @@ path.connection-line.active {
     transition: background-color 0.2s;
 }
 
-.btn-delete:hover {
-    background-color: #fee2e2;
-}
+    .btn-delete:hover {
+        background-color: #fee2e2;
+    }
 
 /* Scrollbar */
 ::-webkit-scrollbar {
     width: 6px;
 }
+
 ::-webkit-scrollbar-track {
     background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
     background: #cbd5e1;
     border-radius: 3px;
 }
-::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
-}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
