@@ -108,6 +108,8 @@ export function setZoom(z){
 // =====================================================
 //  RENDER
 // =====================================================
+
+loadState();
 export function render(){
   const s = getActive();
   
@@ -367,6 +369,9 @@ export function render(){
   // update zoom indicator
   const z = getZoom();
   zoomChip.textContent = `Zoom: ${Math.round(z*100)}%`;
+
+  // auto save
+  saveState();
 }
 
 // =====================================================
