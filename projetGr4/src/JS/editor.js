@@ -5,11 +5,15 @@
 export const state = {
   activeSlide: 0,
   slides: [
-    { id: cryptoId(), elements: [
-      { id: cryptoId(), type:"text", x:90, y:80, w:520, h:70, html:"Titre de la slide" },
-      { id: cryptoId(), type:"shape", x:90, y:190, w:420, h:160 },
-      { id: cryptoId(), type:"button", x:90, y:380, w:220, h:50, html:"Clique ici" },
-    ]}
+    { 
+      id: cryptoId(), 
+      backgroundColor: "#ffffff",
+      backgroundGradient: "",
+      elements: [
+        { id: cryptoId(), type:"text", x:90, y:80, w:520, h:70, html:"Titre de la slide", color: "#111827", fontSize: 28, fontWeight: 800, fontFamily: "Arial", textAlign: "left" },
+        { id: cryptoId(), type:"shape", x:90, y:190, w:420, h:160, shapeType: "rectangle", fillColor: "#7c5cff", borderColor: "#37d6ff", opacity: 1 },
+        { id: cryptoId(), type:"button", x:90, y:380, w:220, h:50, html:"Clique ici", color: "#ffffff", fontSize: 16, fontWeight: 700, fontFamily: "Arial", textAlign: "center" },
+      ]}
   ]
 };
 
@@ -98,16 +102,29 @@ export function setZoom(z){
   slideEl.style.transform = `scale(${z})`;
   zoomChip.textContent = `Zoom: ${Math.round(z*100)}%`;
 }
-// Charger l'état sauvegardé si disponible
-loadState();
+
+// =====================================================
+//  RENDER
+// =====================================================
 export function render(){
+  const s = getActive();
+  
+  // Apply slide background
+  if (s.backgroundGradient) {
+    slideEl.style.background = s.backgroundGradient;
+  } else {
+    slideEl.style.background = s.backgroundColor || "#ffffff";
+  }
+  
   // Render slide elements
   slideEl.querySelectorAll(".el").forEach(n => n.remove());
-  const s = getActive();
 
   s.elements.forEach(e => {
     const node = document.createElement("div");
     node.className = "el " + e.type + (e.id === selectedId ? " selected" : "");
+    if (e.shapeType) {
+      node.classList.add(e.shapeType);
+    }
     node.dataset.id = e.id;
     node.style.left = px(e.x);
     node.style.top  = px(e.y);
@@ -120,16 +137,31 @@ export function render(){
       node.style.height = px(e.h || 54);
     }
 
-    if (e.type === "text"){
+    // Apply text styles
+    if (e.type === "text" || e.type === "button"){
       node.contentEditable = "true";
       node.spellcheck = false;
-      node.innerHTML = e.html || "Texte";
+      node.innerHTML = e.html || (e.type === "text" ? "Texte" : "Bouton");
+      if (e.color) node.style.color = e.color;
+      if (e.fontSize) node.style.fontSize = px(e.fontSize);
+      if (e.fontWeight) node.style.fontWeight = e.fontWeight;
+      if (e.fontFamily) node.style.fontFamily = e.fontFamily;
+      if (e.textAlign) node.style.textAlign = e.textAlign;
+      
+      // Add text formatting toolbar
+      const toolbar = createTextToolbar(e);
+      node.appendChild(toolbar);
     }
 
-    if (e.type === "button"){
-      node.contentEditable = "true";
-      node.spellcheck = false;
-      node.innerHTML = e.html || "Bouton";
+    // Apply shape styles
+    if (e.type === "shape"){
+      if (e.fillColor) node.style.background = e.fillColor;
+      if (e.borderColor) node.style.borderColor = e.borderColor;
+      if (e.opacity !== undefined) node.style.opacity = e.opacity;
+      
+      // Add shape controls
+      const controls = createShapeControls(e);
+      node.appendChild(controls);
     }
 
     if (e.type === "image"){
@@ -158,7 +190,8 @@ export function render(){
         // Placeholder
         innerContent = `<div style="padding:12px;text-align:center;line-height:1.2;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;">
           <span style="font-size:24px;margin-bottom:8px;">📸</span>
-          <span style="font-size:13px;font-weight:600;color:#007bff">Dépose ou double-clique</span>
+          <span style="font-size:13px;font-weight:600;color:#007bff">Dépose une image</span>
+          <span style="font-size:11px;color:#999;margin-top:4px">ou double-clique pour parcourir</span>
         </div>`;
       }
       wrapper.innerHTML = innerContent;
@@ -167,6 +200,26 @@ export function render(){
       // autoriser le drag & drop d'images
       node.style.cursor = "pointer";
       
+      // Double-click to add image
+      node.addEventListener("dblclick", () => {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+        input.onchange = (ev) => {
+          const file = ev.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              e.imageData = event.target.result;
+              render();
+            };
+            reader.readAsDataURL(file);
+          }
+        };
+        input.click();
+      });
+      
+      // Drag & drop
       node.addEventListener("dragover", (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
@@ -268,7 +321,7 @@ export function render(){
 
     // render thumbnail preview
     const miniDiv = t.querySelector('.mini');
-    const scale = 0.12; // scale factor for thumbnail
+    const scale = 0.12;
     
     sl.elements.forEach(e => {
       const node = document.createElement("div");
@@ -314,8 +367,211 @@ export function render(){
   // update zoom indicator
   const z = getZoom();
   zoomChip.textContent = `Zoom: ${Math.round(z*100)}%`;
-  // auto-save
-  saveState();
+}
+
+// =====================================================
+//  TOOLBARS
+// =====================================================
+function createTextToolbar(element) {
+  const toolbar = document.createElement("div");
+  toolbar.className = "text-toolbar";
+  toolbar.addEventListener("mousedown", (ev) => ev.stopPropagation());
+  toolbar.addEventListener("click", (ev) => ev.stopPropagation());
+  
+  // Color picker
+  const colorInput = document.createElement("input");
+  colorInput.type = "color";
+  colorInput.value = element.color || "#111827";
+  colorInput.title = "Couleur du texte";
+  colorInput.addEventListener("input", (e) => {
+    element.color = e.target.value;
+    render();
+  });
+  
+  // Font family
+  const fontSelect = document.createElement("select");
+  fontSelect.innerHTML = `
+    <option value="Arial" ${element.fontFamily === "Arial" ? "selected" : ""}>Arial</option>
+    <option value="Georgia" ${element.fontFamily === "Georgia" ? "selected" : ""}>Georgia</option>
+    <option value="Times New Roman" ${element.fontFamily === "Times New Roman" ? "selected" : ""}>Times New Roman</option>
+    <option value="Courier New" ${element.fontFamily === "Courier New" ? "selected" : ""}>Courier New</option>
+    <option value="Verdana" ${element.fontFamily === "Verdana" ? "selected" : ""}>Verdana</option>
+  `;
+  fontSelect.addEventListener("change", (e) => {
+    element.fontFamily = e.target.value;
+    render();
+  });
+  
+  // Font size
+  const sizeInput = document.createElement("input");
+  sizeInput.type = "number";
+  sizeInput.value = element.fontSize || 28;
+  sizeInput.min = 8;
+  sizeInput.max = 120;
+  sizeInput.style.width = "60px";
+  sizeInput.addEventListener("change", (e) => {
+    element.fontSize = parseInt(e.target.value);
+    render();
+  });
+  
+  // Bold
+  const boldBtn = document.createElement("button");
+  boldBtn.innerHTML = "B";
+  boldBtn.title = "Gras";
+  boldBtn.className = element.fontWeight === "bold" || element.fontWeight >= 700 ? "active" : "";
+  boldBtn.addEventListener("click", () => {
+    element.fontWeight = element.fontWeight === "bold" || element.fontWeight >= 700 ? 400 : 700;
+    render();
+  });
+  
+  // Italic
+  const italicBtn = document.createElement("button");
+  italicBtn.innerHTML = "I";
+  italicBtn.title = "Italique";
+  italicBtn.style.fontStyle = "italic";
+  italicBtn.addEventListener("click", () => {
+    element.fontStyle = element.fontStyle === "italic" ? "normal" : "italic";
+    render();
+  });
+  
+  // Alignment
+  const alignLeft = document.createElement("button");
+  alignLeft.innerHTML = "⫷";
+  alignLeft.title = "Aligner à gauche";
+  alignLeft.className = element.textAlign === "left" ? "active" : "";
+  alignLeft.addEventListener("click", () => {
+    element.textAlign = "left";
+    render();
+  });
+  
+  const alignCenter = document.createElement("button");
+  alignCenter.innerHTML = "≡";
+  alignCenter.title = "Centrer";
+  alignCenter.className = element.textAlign === "center" ? "active" : "";
+  alignCenter.addEventListener("click", () => {
+    element.textAlign = "center";
+    render();
+  });
+  
+  const alignRight = document.createElement("button");
+  alignRight.innerHTML = "⫸";
+  alignRight.title = "Aligner à droite";
+  alignRight.className = element.textAlign === "right" ? "active" : "";
+  alignRight.addEventListener("click", () => {
+    element.textAlign = "right";
+    render();
+  });
+  
+  toolbar.appendChild(colorInput);
+  toolbar.appendChild(fontSelect);
+  toolbar.appendChild(sizeInput);
+  toolbar.appendChild(document.createElement("div")).className = "divider";
+  toolbar.appendChild(boldBtn);
+  toolbar.appendChild(italicBtn);
+  toolbar.appendChild(document.createElement("div")).className = "divider";
+  toolbar.appendChild(alignLeft);
+  toolbar.appendChild(alignCenter);
+  toolbar.appendChild(alignRight);
+  
+  return toolbar;
+}
+window.addEventListener("unhandledrejection", (e) => {
+  console.warn("Unhandled promise rejection:", e.reason);
+});
+
+function createShapeControls(element) {
+  const controls = document.createElement("div");
+  controls.className = "shape-controls";
+  controls.addEventListener("mousedown", (ev) => ev.stopPropagation());
+  controls.addEventListener("click", (ev) => ev.stopPropagation());
+  
+  
+  // Shape type selector
+  const shapeGroup = document.createElement("div");
+  shapeGroup.className = "control-group";
+  
+  const shapeLabel = document.createElement("label");
+  shapeLabel.textContent = "Forme:";
+  
+  const shapeSelect = document.createElement("select");
+  shapeSelect.innerHTML = `
+    <option value="rectangle" ${element.shapeType === "rectangle" ? "selected" : ""}>Rectangle</option>
+    <option value="circle" ${element.shapeType === "circle" ? "selected" : ""}>Cercle</option>
+    <option value="triangle" ${element.shapeType === "triangle" ? "selected" : ""}>Triangle</option>
+    <option value="star" ${element.shapeType === "star" ? "selected" : ""}>Étoile</option>
+    <option value="diamond" ${element.shapeType === "diamond" ? "selected" : ""}>Losange</option>
+  `;
+  shapeSelect.addEventListener("change", (e) => {
+    element.shapeType = e.target.value;
+    render();
+  });
+  
+  shapeGroup.appendChild(shapeLabel);
+  shapeGroup.appendChild(shapeSelect);
+  
+  // Fill color
+  const fillGroup = document.createElement("div");
+  fillGroup.className = "control-group";
+  
+  const fillLabel = document.createElement("label");
+  fillLabel.textContent = "Remplissage:";
+  
+  const fillColor = document.createElement("input");
+  fillColor.type = "color";
+  fillColor.value = element.fillColor || "#7c5cff";
+  fillColor.addEventListener("input", (e) => {
+    element.fillColor = e.target.value;
+    render();
+  });
+  
+  fillGroup.appendChild(fillLabel);
+  fillGroup.appendChild(fillColor);
+  
+  // Border color
+  const borderGroup = document.createElement("div");
+  borderGroup.className = "control-group";
+  
+  const borderLabel = document.createElement("label");
+  borderLabel.textContent = "Bordure:";
+  
+  const borderColor = document.createElement("input");
+  borderColor.type = "color";
+  borderColor.value = element.borderColor || "#37d6ff";
+  borderColor.addEventListener("input", (e) => {
+    element.borderColor = e.target.value;
+    render();
+  });
+  
+  borderGroup.appendChild(borderLabel);
+  borderGroup.appendChild(borderColor);
+  
+  // Opacity
+  const opacityGroup = document.createElement("div");
+  opacityGroup.className = "control-group";
+  
+  const opacityLabel = document.createElement("label");
+  opacityLabel.textContent = "Opacité:";
+  
+  const opacitySlider = document.createElement("input");
+  opacitySlider.type = "range";
+  opacitySlider.min = 0;
+  opacitySlider.max = 1;
+  opacitySlider.step = 0.1;
+  opacitySlider.value = element.opacity !== undefined ? element.opacity : 1;
+  opacitySlider.addEventListener("input", (e) => {
+    element.opacity = parseFloat(e.target.value);
+    render();
+  });
+  
+  opacityGroup.appendChild(opacityLabel);
+  opacityGroup.appendChild(opacitySlider);
+  
+  controls.appendChild(shapeGroup);
+  controls.appendChild(fillGroup);
+  controls.appendChild(borderGroup);
+  controls.appendChild(opacityGroup);
+  
+  return controls;
 }
 
 // =====================================================
@@ -369,21 +625,21 @@ function addFromTool(toolType, x, y){
   let el = null;
 
   if (toolType === "text"){
-    el = { ...base, type:"text", w: 520, h: 70, html:"Nouveau texte" };
+    el = { ...base, type:"text", w: 520, h: 70, html:"Nouveau texte", color: "#111827", fontSize: 28, fontWeight: 800, fontFamily: "Arial", textAlign: "left" };
   } else if (toolType === "shape"){
-    el = { ...base, type:"shape", w: 320, h: 180 };
+    el = { ...base, type:"shape", w: 320, h: 180, shapeType: "rectangle", fillColor: "#7c5cff", borderColor: "#37d6ff", opacity: 1 };
   } else if (toolType === "button"){
-    el = { ...base, type:"button", w: 220, h: 54, html:"Bouton" };
+    el = { ...base, type:"button", w: 220, h: 54, html:"Bouton", color: "#ffffff", fontSize: 16, fontWeight: 700, fontFamily: "Arial", textAlign: "center" };
   } else if (toolType === "image"){
     el = { ...base, type:"image", w: 360, h: 240 };
   } else if (toolType === "twoCols"){
-    s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-360,0,820), y: clamp(y-140,0,460), w: 420, h: 60, html:"Titre (2 colonnes)" });
-    s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-360,0,820), y: clamp(y-70,0,470), w: 420, h: 120, html:"Texte descriptif…" });
+    s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-360,0,820), y: clamp(y-140,0,460), w: 420, h: 60, html:"Titre (2 colonnes)", color: "#111827", fontSize: 28, fontWeight: 800, fontFamily: "Arial", textAlign: "left" });
+    s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-360,0,820), y: clamp(y-70,0,470), w: 420, h: 120, html:"Texte descriptif…", color: "#111827", fontSize: 18, fontWeight: 400, fontFamily: "Arial", textAlign: "left" });
     s.elements.push({ id: cryptoId(), type:"image", x: clamp(x+80,0,600), y: clamp(y-140,0,300), w: 320, h: 240 });
     return;
   } else if (toolType === "titleSubtitle"){
-    s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-320,0,600), y: clamp(y-120,0,460), w: 700, h: 70, html:"Titre" });
-    s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-320,0,600), y: clamp(y-40,0,490), w: 700, h: 60, html:"Sous-titre" });
+    s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-320,0,600), y: clamp(y-120,0,460), w: 700, h: 70, html:"Titre", color: "#111827", fontSize: 36, fontWeight: 800, fontFamily: "Arial", textAlign: "left" });
+    s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-320,0,600), y: clamp(y-40,0,490), w: 700, h: 60, html:"Sous-titre", color: "#111827", fontSize: 24, fontWeight: 400, fontFamily: "Arial", textAlign: "left" });
     return;
   }
 
@@ -401,12 +657,17 @@ let move = null;
 function startMove(ev, id){
   const target = ev.target.closest(".el");
   if (!target) return;
+
+  // IMPORTANT: si on clique dans un bandeau, on ne drag pas
+  if (ev.target.closest(".text-toolbar") || ev.target.closest(".shape-controls")) {
+    return;
+  }
+
   if (ev.target.classList.contains("handle")) return;
 
   // évite de déplacer pendant l'édition de texte si on sélectionne un curseur
   const isEditable = (target.classList.contains("text") || target.classList.contains("button"));
   if (isEditable && document.activeElement === target && window.getSelection()?.type === "Range") {
-    // user is selecting text
     return;
   }
 
@@ -540,6 +801,15 @@ function deleteSelected(){
   render();
 }
 
+// =====================================================
+//  BACKGROUND CONTROLS
+// =====================================================
+document.getElementById("bgColorPicker").addEventListener("input", (ev) => {
+  const s = getActive();
+  s.backgroundColor = ev.target.value;
+  s.backgroundGradient = "";
+  render();
+});
 
 
 /* =========================
@@ -556,7 +826,6 @@ function initDragBottom(e) {
   window.addEventListener("mousemove", doDragBottom);
   window.addEventListener("mouseup", stopDragBottom);
   resizerY.classList.add("resizing");
-  // Force cursor globally during drag to prevent flickering
   document.body.style.cursor = "ns-resize";
 }
 
