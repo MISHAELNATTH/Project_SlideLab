@@ -2,7 +2,7 @@
 //  DONNÉES ET CONFIGURATION
 // =====================================================
 
-const state = {
+export const state = {
   activeSlide: 0,
   slides: [
     { id: cryptoId(), elements: [
@@ -13,18 +13,55 @@ const state = {
   ]
 };
 
-const slideEl   = document.getElementById("slide");
-const thumbsEl  = document.getElementById("thumbs");
-const searchEl  = document.getElementById("toolSearch");
-const zoomChip  = document.getElementById("zoomChip");
+// =====================================================
+//  SAUVEGARDE/CHARGEMENT (localStorage)
+// =====================================================
 
-let selectedId = null;
+export function saveState() {
+  try {
+    localStorage.setItem('slides_state', JSON.stringify(state));
+    console.log('✓ État sauvegardé');
+  } catch (e) {
+    console.error('Erreur lors de la sauvegarde:', e);
+  }
+}
+
+export function loadState() {
+  try {
+    const saved = localStorage.getItem('slides_state');
+    if (saved) {
+      const loaded = JSON.parse(saved);
+      state.activeSlide = loaded.activeSlide;
+      state.slides = loaded.slides;
+      console.log('✓ État restauré');
+      return true;
+    }
+  } catch (e) {
+    console.error('Erreur lors du chargement:', e);
+  }
+  return false;
+}
+
+export const slideEl   = document.getElementById("slide");
+export const thumbsEl  = document.getElementById("thumbs");
+export const searchEl  = document.getElementById("toolSearch");
+export const zoomChip  = document.getElementById("zoomChip");
+
+export let selectedId = null;
+
+export function setSelectedId(id) {
+  selectedId = id;
+}
+
+export function getSelectedId() {
+  return selectedId;
+}
 
 // =====================================================
 //  HELPERS
 // =====================================================
 
-function cryptoId(){
+export function cryptoId(){
   return (crypto?.randomUUID?.() || ("id_" + Math.random().toString(16).slice(2)));
 }
 
@@ -32,7 +69,7 @@ function clamp(n, a, b){
   return Math.max(a, Math.min(b, n)); 
 }
 
-function getActive(){
+export function getActive(){
   return state.slides[state.activeSlide];
 }
 
@@ -50,18 +87,20 @@ function select(id){
   render();
 }
 
-function getZoom(){
+export function getZoom(){
   const m = slideEl.style.transform.match(/scale\(([\d.]+)\)/);
   return m ? parseFloat(m[1]) : 1;
 }
 
-function setZoom(z){
+export function setZoom(z){
   z = clamp(z, .35, 2);
   slideEl.style.transformOrigin = "middle top";
   slideEl.style.transform = `scale(${z})`;
   zoomChip.textContent = `Zoom: ${Math.round(z*100)}%`;
 }
-function render(){
+// Charger l'état sauvegardé si disponible
+loadState();
+export function render(){
   // Render slide elements
   slideEl.querySelectorAll(".el").forEach(n => n.remove());
   const s = getActive();
@@ -232,6 +271,8 @@ function render(){
   // update zoom indicator
   const z = getZoom();
   zoomChip.textContent = `Zoom: ${Math.round(z*100)}%`;
+  // auto-save
+  saveState();
 }
 
 // =====================================================
@@ -456,282 +497,110 @@ function deleteSelected(){
   render();
 }
 
-// =====================================================
-//  IMPORT/EXPORT - FICHIERS HTML
-// =====================================================
-function parseSlideHTML(htmlContent) {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(htmlContent, 'text/html');
-  const elements = [];
 
-  const slideElements = doc.querySelectorAll('.slide-element');
-  
-  slideElements.forEach(el => {
-    const style = el.getAttribute('style') || '';
-    
-    // Extract position and size from inline styles
-    const leftMatch = style.match(/left:\s*(\d+)px/);
-    const topMatch = style.match(/top:\s*(\d+)px/);
-    const widthMatch = style.match(/width:\s*(\d+)px/);
-    const heightMatch = style.match(/height:\s*(\d+)px/);
-    
-    const x = leftMatch ? parseInt(leftMatch[1]) : 0;
-    const y = topMatch ? parseInt(topMatch[1]) : 0;
-    const w = widthMatch ? parseInt(widthMatch[1]) : 240;
-    const h = heightMatch ? parseInt(heightMatch[1]) : 54;
-    
-    // Determine element type from class
-    let type = 'text';
-    let html = '';
-    
-    if (el.classList.contains('text-element')) {
-      type = 'text';
-      const p = el.querySelector('p');
-      html = p ? p.innerHTML : 'Texte';
-    } else if (el.classList.contains('button-element')) {
-      type = 'button';
-      html = el.innerHTML.trim();
-    } else if (el.classList.contains('image-element')) {
-      type = 'image';
-      html = '';
-    } else if (el.classList.contains('shape-element')) {
-      type = 'shape';
-      html = '';
-    }
-    
-    elements.push({
-      id: cryptoId(),
-      type,
-      x,
-      y,
-      w,
-      h,
-      html
-    });
-  });
-  
-  return elements;
+
+/* =========================
+   RESIZABLE BOTTOM BAR
+========================== */
+const resizerY = document.getElementById("resizerY");
+
+if (resizerY) {
+  resizerY.addEventListener("mousedown", initDragBottom);
 }
 
-// load slides from files
-function loadSlidesFromFiles(files) {
-  const fileArray = Array.from(files).filter(f => f.name.endsWith('.html'));
-  
-  if (fileArray.length === 0) {
-    alert('No HTML files selected');
-    return;
-  }
-  
-  // Sort files by name to load in order
-  fileArray.sort((a, b) => a.name.localeCompare(b.name));
-  
-  let loadedCount = 0;
-  
-  fileArray.forEach((file, index) => {
-    const reader = new FileReader();
-    
-    reader.onload = (e) => {
-      try {
-        const htmlContent = e.target.result;
-        const elements = parseSlideHTML(htmlContent);
-        
-        // Replace or add slide
-        if (index === 0) {
-          // First file: replace current slide
-          state.slides[state.activeSlide] = {
-            id: cryptoId(),
-            elements
-          };
-        } else {
-          // Subsequent files: add as new slides
-          state.slides.push({
-            id: cryptoId(),
-            elements
-          });
-        }
-        
-        loadedCount++;
-        
-        // Once all files are loaded, render
-        if (loadedCount === fileArray.length) {
-          state.activeSlide = 0;
-          selectedId = null;
-          render();
-          thumbsEl.scrollLeft = 0;
-          alert(`✓ Loaded ${fileArray.length} slide(s)`);
-        }
-      } catch (error) {
-        console.error('Error parsing file:', file.name, error);
-      }
-    };
-    
-    reader.readAsText(file);
-  });
+function initDragBottom(e) {
+  e.preventDefault();
+  window.addEventListener("mousemove", doDragBottom);
+  window.addEventListener("mouseup", stopDragBottom);
+  resizerY.classList.add("resizing");
+  // Force cursor globally during drag to prevent flickering
+  document.body.style.cursor = "ns-resize";
 }
 
-// open folder button
-const fileInput = document.getElementById('fileInput');
-document.getElementById('openFolderBtn').addEventListener('click', ()=>{
-  fileInput.click();
-});
+function doDragBottom(e) {
+  // Calculate available height from bottom of screen
+  // Window Height - Mouse Y Position - App Bottom Padding (14px)
+  const availableH = window.innerHeight;
+  let newH = availableH - e.clientY - 14;
+  
+  // Limits to prevent breaking the layout
+  const minH = 50; // Minimum height for bottom bar
+  const maxH = availableH * 0.6; // Maximum 60% of screen height
 
-fileInput.addEventListener('change', (ev)=>{
-  if (ev.target.files.length > 0) {
-    loadSlidesFromFiles(ev.target.files);
-    ev.target.value = ''; // reset input
-  }
-});
+  if (newH < minH) newH = minH;
+  if (newH > maxH) newH = maxH;
 
-// =====================================================
-//  GESTION DES SLIDES
-// =====================================================
-
-// add slide
-document.getElementById("addSlideBtn").addEventListener("click", ()=>{
-  state.slides.push({ id: cryptoId(), elements: [] });
-  state.activeSlide = state.slides.length - 1;
-  selectedId = null;
-  render();
-  thumbsEl.scrollLeft = thumbsEl.scrollWidth;
-});
-
-// duplicate slide
-document.getElementById("dupSlideBtn").addEventListener("click", ()=>{
-  const s = getActive();
-  const clone = JSON.parse(JSON.stringify(s));
-  clone.id = cryptoId();
-  clone.elements.forEach(e => e.id = cryptoId());
-  state.slides.splice(state.activeSlide+1, 0, clone);
-  state.activeSlide++;
-  selectedId = null;
-  render();
-  thumbsEl.scrollLeft = thumbsEl.scrollWidth;
-});
-
-// generate HTML for a slide
-function generateSlideHTML(slideIndex) {
-  const slide = state.slides[slideIndex];
-  const baseCSS = `
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: white; }
-  .slide-container { position: relative; width: 960px; height: 540px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-  .slide-element { position: absolute; }
-  .text-element, .button-element { display: flex; align-items: center; justify-content: center; }
-  .shape-element { border: 2px solid #333; border-radius: 4px; }
-  .image-element { border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; background: #f5f5f5; color: #999; }
-  .button-element { background: #007bff; color: white; border: none; cursor: pointer; border-radius: 4px; font-weight: 600; }
-  .button-element:hover { background: #0056b3; }
-  h1, h2, h3, h4, h5, h6 { margin: 0; }
-  p { margin: 0; }
-</style>
-  `;
-
-  let htmlContent = `<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Slide ${slideIndex + 1}</title>
-${baseCSS}
-</head>
-<body>
-<div class="slide-container">
-`;
-
-  slide.elements.forEach(el => {
-    const style = `style="left: ${el.x}px; top: ${el.y}px; width: ${el.w || 240}px; height: ${el.h || 54}px;"`;
-    
-    if (el.type === "text") {
-      htmlContent += `    <div class="slide-element text-element" ${style}>\n      <p>${el.html || "Texte"}</p>\n    </div>\n`;
-    } else if (el.type === "button") {
-      htmlContent += `    <button class="slide-element button-element" ${style}>${el.html || "Bouton"}</button>\n`;
-    } else if (el.type === "image") {
-      htmlContent += `    <div class="slide-element image-element" ${style}>\n      <img src="" alt="Image placeholder" style="max-width: 100%; max-height: 100%; object-fit: cover;">\n    </div>\n`;
-    } else if (el.type === "shape") {
-      htmlContent += `    <div class="slide-element shape-element" ${style}></div>\n`;
-    }
-  });
-
-  htmlContent += `  </div>
-</body>
-</html>`;
-
-  return htmlContent;
+  // Update the CSS variable. The CSS Grid will automatically adjust the top part (1fr).
+  document.documentElement.style.setProperty('--bottom-h', Math.round(newH) + "px");
 }
 
-// export all slides as HTML files to download
-document.getElementById("exportBtn").addEventListener("click", ()=>{
-  if (state.slides.length === 1) {
-    // Single slide: download directly
-    const html = generateSlideHTML(0);
-    const blob = new Blob([html], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'slide.html';
-    a.click();
-    URL.revokeObjectURL(url);
-  } else {
-    // Multiple slides: download each one with slight delay
-    state.slides.forEach((slide, index) => {
-      const html = generateSlideHTML(index);
-      const blob = new Blob([html], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `slide-${index + 1}.html`;
-      
-      setTimeout(() => {
-        a.click();
-        URL.revokeObjectURL(url);
-      }, index * 300);
-    });
-  }
-});
+function stopDragBottom() {
+  window.removeEventListener("mousemove", doDragBottom);
+  window.removeEventListener("mouseup", stopDragBottom);
+  resizerY.classList.remove("resizing");
+  document.body.style.cursor = "";
+}
 
-// fit
-document.getElementById("fitBtn").addEventListener("click", ()=>{
-  // fit slide in workspace width
-  const workspace = document.getElementById("workspace");
-  const w = workspace.clientWidth - 120; // margins
-  const z = clamp(w / 960, .35, 1.2);
-  setZoom(z);
-});
+/* =========================
+   RESIZABLE side BAR
+========================== */
+const resizerX = document.getElementById("resizerX");
 
-// tool search
-searchEl.addEventListener("input", ()=>{
-  const q = searchEl.value.trim().toLowerCase();
-  document.querySelectorAll(".tool").forEach(t=>{
-    const text = t.innerText.toLowerCase();
-    t.style.display = text.includes(q) ? "" : "none";
-  });
-});
+if (resizerX) {
+  resizerX.addEventListener("mousedown", initDragSide);
+}
 
-// persist editable content back to state
-slideEl.addEventListener("input", (ev)=>{
-  const elNode = ev.target.closest(".el");
-  if (!elNode) return;
-  const id = elNode.dataset.id;
-  const s = getActive();
-  const e = s.elements.find(x => x.id === id);
-  if (!e) return;
-  if (e.type === "text" || e.type === "button"){
-    e.html = elNode.innerHTML;
-  }
-});
+let dragStartX = 0;
+let dragStartWidth = 0;
 
-// basic zoom with trackpad wheel + ctrl
-document.getElementById("workspace").addEventListener("wheel", (ev)=>{
-  if (!(ev.ctrlKey || ev.metaKey)) return;
-  ev.preventDefault();
-  const delta = -Math.sign(ev.deltaY) * 0.06;
-  setZoom(getZoom() + delta);
-}, { passive:false });
+function initDragSide(e) {
+  e.preventDefault();
+  dragStartX = e.clientX;
+  dragStartWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sidebar-w'));
+  window.addEventListener("mousemove", doDragSide);
+  window.addEventListener("mouseup", stopDragSide);
+  resizerX.classList.add("resizing");
+  // Force cursor globally during drag to prevent flickering
+  document.body.style.cursor = "ew-resize";
+}
 
-// =====================================================
-//  INITIALISATION
-// =====================================================
+function doDragSide(e) {
+  // Calculate the change in mouse position
+  const dx = e.clientX - dragStartX;
+  let newW = dragStartWidth + dx;
+  
+  // Limits to prevent breaking the layout
+  const minW = 155; // Minimum width for sidebar
+  const maxW = window.innerWidth * 0.5; // Maximum 50% of screen width
+
+  if (newW < minW) newW = minW;
+  if (newW > maxW) newW = maxW;
+
+  // Update the CSS variable. The CSS Grid will automatically adjust the right part (1fr).
+  document.documentElement.style.setProperty('--sidebar-w', Math.round(newW) + "px");
+}
+
+function stopDragSide() {
+  window.removeEventListener("mousemove", doDragSide);
+  window.removeEventListener("mouseup", stopDragSide);
+  resizerX.classList.remove("resizing");
+  document.body.style.cursor = "";
+}
+
+
 
 render();
 setZoom(1);
+
+
+
+// =====================================================
+//  IMPORTS DES MODULES DÉPENDANTS (après initialisation)
+// =====================================================
+import './imporExport.js';
+import './present.js';
+import './slides.js';
+
+import { initContextMenu } from './contextMenu.js';
+
+initContextMenu(); // Initialize context menu
