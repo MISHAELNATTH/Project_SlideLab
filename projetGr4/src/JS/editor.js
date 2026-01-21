@@ -133,17 +133,36 @@ export function render(){
     }
 
     if (e.type === "image"){
+      // if (e.imageData){
+      //   // afficher l'image réelle
+      //   node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:cntain;">`;
+      // } else{
+      //   // afficher le placeholder
+      //   node.innerHTML = `<div style="padding:12px;text-align:center;line-height:1.2;cursor:pointer;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+      //     <span style="font-size:24px;margin-bottom:8px;">📸</span>
+      //     <span style="font-size:13px;font-weight:600;color:#007bff">Dépose une image</span>
+      //     <span style="font-size:11px;color:#999;margin-top:4px">ou clique pour parcourir</span>
+      //   </div>`;
+      // }
+
+      // We wrap the content in a wrapper to handle 'overflow:hidden' and 'border-radius'
+      // while allowing the handles (children of 'node') to sit outside visible area.
+      const wrapper = document.createElement('div');
+      wrapper.className = "el-img-wrapper";
+      
+      let innerContent = "";
       if (e.imageData){
-        // afficher l'image réelle
-        node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:cover;">`;
+        // Changed object-fit to contain to fit image without cropping
+        innerContent = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:contain;">`;
       } else{
-        // afficher le placeholder
-        node.innerHTML = `<div style="padding:12px;text-align:center;line-height:1.2;cursor:pointer;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+        // Placeholder
+        innerContent = `<div style="padding:12px;text-align:center;line-height:1.2;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;">
           <span style="font-size:24px;margin-bottom:8px;">📸</span>
-          <span style="font-size:13px;font-weight:600;color:#007bff">Dépose une image</span>
-          <span style="font-size:11px;color:#999;margin-top:4px">ou clique pour parcourir</span>
+          <span style="font-size:13px;font-weight:600;color:#007bff">Dépose ou double-clique</span>
         </div>`;
       }
+      wrapper.innerHTML = innerContent;
+      node.appendChild(wrapper);
 
       // autoriser le drag & drop d'images
       node.style.cursor = "pointer";
@@ -180,6 +199,30 @@ export function render(){
             reader.readAsDataURL(file);
           }
         }
+      });
+
+      // 2. Double Click to Upload
+      node.addEventListener("dblclick", (ev) => {
+        ev.stopPropagation(); // prevent other dblclick handlers
+        
+        // Create a temporary file input
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+        
+        input.onchange = (event) => {
+          const file = event.target.files[0];
+          if (file && file.type.startsWith("image/")) {
+            const reader = new FileReader();
+            reader.onload = (loadEvent) => {
+              e.imageData = loadEvent.target.result;
+              render();
+            };
+            reader.readAsDataURL(file);
+          }
+        };
+        
+        input.click();
       });
     }
 
@@ -253,7 +296,7 @@ export function render(){
         node.style.overflow = "hidden";
       } else if (e.type === "image"){
         if (e.imageData) {
-          node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:cover;">`;
+          node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:contain;">`;
         } else {
           node.innerHTML = `<div style="font-size:6px;padding:2px;">📸</div>`;
         }

@@ -156,7 +156,7 @@ function exportBaseCSS() {
   .el.image img{
     width:100%;
     height:100%;
-    object-fit:cover;
+    object-fit:contain;  /* --- newly added to fit the image --- */
     display:block;
   }
 </style>
