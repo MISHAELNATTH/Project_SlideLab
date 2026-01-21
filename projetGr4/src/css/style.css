@@ -899,3 +899,96 @@ body{
   color: var(--muted);
   font-size: 12px;
 }
+
+
+/*        ACCUEIL            */
+/* ========================= */
+
+
+.home {
+  min-height: 100vh;
+  background:
+    radial-gradient(900px 600px at 30% 10%, rgba(124,92,255,.28), transparent 60%),
+    radial-gradient(700px 500px at 80% 20%, rgba(55,214,255,.18), transparent 60%),
+    var(--bg);
+  display: grid;
+  grid-template-rows: auto 1fr auto auto;
+  padding: 28px 32px;
+}
+
+/* Signature haut droite */
+.home-signature {
+  justify-self: end;
+  font-style: italic;
+  font-size: 13px;
+  color: rgba(255,255,255,.45);
+  letter-spacing: .08em;
+}
+
+/* Centre */
+.home-center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.home-title {
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0 0 12px;
+}
+
+.home-subtitle {
+  font-size: 17px;
+  color: var(--muted);
+  max-width: 520px;
+}
+
+/* Boutons bas */
+.home-actions {
+  display: flex;
+  justify-content: center;
+  gap: 22px;
+  margin-bottom: 24px;
+}
+
+.home-btn {
+  padding: 18px 38px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+/* Bouton principal */
+.home-btn.primary {
+  background: linear-gradient(135deg, #7c5cff, #37d6ff);
+  color: white;
+  box-shadow: 0 18px 45px rgba(124,92,255,.45);
+}
+
+/* Bouton secondaire */
+.home-btn.secondary {
+  background: rgba(255,255,255,.08);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.home-btn:hover {
+  transform: translateY(-3px);
+}
+
+/* Citation */
+.home-quote {
+  justify-self: center;
+  font-style: italic;
+  font-size: 12px;
+  color: rgba(103, 29, 29, 0.4);
+  letter-spacing: .02em;
+  opacity: .75;
+}
