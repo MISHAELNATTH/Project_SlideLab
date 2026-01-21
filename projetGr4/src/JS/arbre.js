@@ -132,7 +132,7 @@ function deselectAll(e) {
   ) {
     selectedNodeId = null;
     render();
-    renderSidebar();
+    //renderSidebar();
   }
 }
 
@@ -380,7 +380,7 @@ function startDrag(e, nodeId) {
 
   selectedNodeId = nodeId;
   render();
-  renderSidebar();
+  //renderSidebar();
 
   isDragging = true;
   draggedNodeId = nodeId;
