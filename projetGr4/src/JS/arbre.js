@@ -141,7 +141,7 @@ function updateLabel(newLabel) {
   if (!node) return;
   node.label = newLabel;
   render();
-  renderSidebar();
+ // renderSidebar();
 }
 
 // --- Rendering ---
