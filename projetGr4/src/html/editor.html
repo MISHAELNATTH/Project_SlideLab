@@ -77,8 +77,21 @@
           <span class="chip">Sans titre</span>
           <span class="chip" id="zoomChip">Zoom: 100%</span>
         </div>
+        <div class="center">
+          <div class="background-controls">
+            <span class="label">Fond :</span>
+            <input type="color" id="bgColorPicker" value="#ffffff" title="Couleur de fond">
+            <select id="bgGradientSelect" title="Dégradé">
+              <option value="">Sans dégradé</option>
+              <option value="linear-gradient(135deg, #667eea 0%, #764ba2 100%)">Violet</option>
+              <option value="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">Rose</option>
+              <option value="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">Bleu</option>
+              <option value="linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)">Vert</option>
+              <option value="linear-gradient(135deg, #fa709a 0%, #fee140 100%)">Orange</option>
+            </select>
+          </div>
+        </div>
         <div class="right">
-          <button class="btn" id="saveBtn">Sauvegarder</button>
           <button class="btn" id="fitBtn">Ajuster</button>
           <button class="btn" id="exportBtn">Exporter Slide</button>
           <button class="btn" id="presentBtn">Presenter</button>

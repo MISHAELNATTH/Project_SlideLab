@@ -262,12 +262,45 @@ body{
   border-bottom:1px solid var(--border);
   background: rgba(0,0,0,.12);
 }
-.topbar .left, .topbar .right{
+.topbar .left, .topbar .right, .topbar .center{
   display:flex; align-items:center; gap:10px;
 }
 .topbar .title{
   font-size:13px;
   color:var(--muted);
+}
+
+/* Background controls */
+.background-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.background-controls .label {
+  font-size: 12px;
+  color: var(--muted);
+}
+.background-controls input[type="color"] {
+  width: 36px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255,255,255,.06);
+  cursor: pointer;
+  padding: 2px;
+}
+.background-controls select {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  outline: none;
+}
+.background-controls select:hover {
+  background: rgba(255,255,255,.1);
 }
 .chip{
   border:1px solid var(--border);
@@ -423,6 +456,154 @@ body{
 .h-tr{right:-6px; top:-6px; cursor:nesw-resize;}
 .h-bl{left:-6px; bottom:-6px; cursor:nesw-resize;}
 .h-tl{left:-6px; top:-6px; cursor:nwse-resize;}
+
+/* ============================
+   TOOLBARS: show on SELECTED
+============================ */
+
+/* Text toolbar */
+.text-toolbar {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 27, 46, 0.95);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 12px;
+  display: none;          /* keep hidden by default */
+  gap: 8px;
+  z-index: 1000;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  backdrop-filter: blur(10px);
+}
+/*
+.el.text:hover .text-toolbar,
+.el.button:hover .text-toolbar {
+  display: flex;
+}*/
+/* Show text toolbar when selected */
+
+.el.text.selected .text-toolbar,
+.el.button.selected .text-toolbar {
+  display: flex;
+}
+
+.text-toolbar button {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.text-toolbar button:hover {
+  background: rgba(124,92,255,0.3);
+  border-color: rgba(124,92,255,0.6);
+}
+.text-toolbar button.active {
+  background: rgba(124,92,255,0.5);
+  border-color: rgba(124,92,255,0.8);
+}
+.text-toolbar input[type="color"] {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.08);
+  cursor: pointer;
+  padding: 2px;
+}
+.text-toolbar select {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.08);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  outline: none;
+}
+.text-toolbar .divider {
+  width: 1px;
+  background: var(--border);
+  margin: 0 4px;
+}
+
+/* Shape controls */
+.shape-controls {
+  position: absolute;
+  top: -70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 27, 46, 0.95);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: none;          /* keep hidden by default */
+  gap: 10px;
+  z-index: 1000;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  backdrop-filter: blur(10px);
+}
+
+/*.el.shape:hover .shape-controls {
+  display: flex;
+  align-items: center;
+}*/
+
+.el.shape.selected .shape-controls {
+  display: flex;
+  align-items: center;
+}
+
+.shape-controls .control-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.shape-controls label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.shape-controls input[type="color"] {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.08);
+  cursor: pointer;
+  padding: 2px;
+}
+.shape-controls input[type="range"] {
+  width: 80px;
+  accent-color: var(--accent);
+}
+
+/* Shape types */
+.el.shape.rectangle {
+  border-radius: 18px;
+}
+.el.shape.circle {
+  border-radius: 50%;
+}
+.el.shape.triangle {
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  border-radius: 0;
+}
+.el.shape.star {
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  border-radius: 0;
+}
+.el.shape.diamond {
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  border-radius: 0;
+}
 
 /* Bottom slides bar */
 .slidesbar{
