@@ -20,8 +20,24 @@
     --radius : 12px;
 }
 
+/* Performance optimizations */
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
 * {
     box-sizing: border-box;
+}
+
+*:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+*:focus:not(:focus-visible) {
+    outline: none;
 }
 
 body {
@@ -34,6 +50,10 @@ body {
     width: 100vw;
     display: flex;
     overflow: hidden;
+    flex-direction: row;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 /* --- Layout --- */
@@ -53,6 +73,12 @@ body {
     color:var(--color-text-main);
     cursor: crosshair;
     overflow: hidden;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    user-drag: none;
+    touch-action: manipulation;
+    z-index: 1;
 }
 
 .connection-label{
@@ -78,17 +104,29 @@ body {
     box-shadow: var(--shadow-xl);
     display: flex;
     flex-direction: column;
-    z-index: 30;
-    transition: transform 0.3s ease;
+    z-index: 100;
+    transition: transform 0.3s ease, width 0.3s ease;
+    overflow: hidden;
+    position: relative;
 }
 
 /* --- Components --- */
 
+/* Buttons Container */
+.buttons-container {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    max-width: calc(100% - 24px);
+    z-index: 20;
+    align-items: center;
+}
+
 /* Add Button */
 .btn-add {
-    position: absolute;
-    top: 16px;
-    left: 15px;
     background-color: white;
     border: 1px solid var(--color-border);
     color: var(--color-text-label);
@@ -98,17 +136,18 @@ body {
     font-size: 14px;
     cursor: pointer;
     box-shadow: var(--shadow-md);
-    transition: background-color 0.2s;
-    z-index: 20;
+    transition: background-color 0.2s, transform 0.1s;
+    user-select: none;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
     .btn-add:hover {
         background-color: #f8fafc;
     }
 
-    .btn-add:hover {
-        background-color: #f8fafc;
-        box-shadow: var(--shadow-lg);
+    .btn-add:active {
+        transform: scale(0.98);
     }
 
 @keyframes pop-glow {
@@ -137,11 +176,8 @@ body {
   animation: pop-glow 0.25s ease-out;
 }
 
-/* Import Button */
-.btn-imp {
-    position: absolute;
-    top: 16px;
-    left: 325px;
+/* Save Button */
+.btn-save {
     background-color: white;
     border: 1px solid var(--color-border);
     color: var(--color-text-label);
@@ -151,8 +187,35 @@ body {
     font-size: 14px;
     cursor: pointer;
     box-shadow: var(--shadow-md);
-    transition: background-color 0.2s;
-    z-index: 20;
+    transition: background-color 0.2s, transform 0.1s;
+    user-select: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+    .btn-save:hover {
+        background-color: #f8fafc;
+    }
+
+    .btn-save:active {
+        transform: scale(0.98);
+    }
+
+/* Import Button */
+.btn-imp {
+    background-color: white;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-label);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    transition: background-color 0.2s, transform 0.1s;
+    user-select: none;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
     .btn-imp:hover {
@@ -189,26 +252,8 @@ body {
 }
 
 
-/* Save Button */
-.btn-save {
-    position: absolute;
-    top: 16px;
-    left: 200px;
-    background-color: white;
-    border: 1px solid var(--color-border);
-    color: var(--color-text-label);
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 500;
-    font-size: 14px;
-    cursor: pointer;
-    box-shadow: var(--shadow-md);
-    transition: background-color 0.2s;
-    z-index: 20;
-}
-
-    .btn-save:hover {
-        background-color: #f8fafc;
+    .btn-imp:active {
+        transform: scale(0.98);
     }
     @keyframes pop-glow {
   0% {
@@ -258,6 +303,7 @@ body {
     pointer-events: none;
     z-index: 0;
     overflow: visible;
+    shape-rendering: crispEdges;
 }
 
 #nodes-layer {
@@ -266,7 +312,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 10;
+    z-index: 5;
     pointer-events: none; /* Let clicks pass through to canvas if not on node */
 }
 
@@ -287,6 +333,11 @@ body {
     user-select: none;
     pointer-events: auto; /* Re-enable pointer events for nodes */
     transition: box-shadow 0.2s, border-color 0.2s;
+    -webkit-user-drag: none;
+    user-drag: none;
+    touch-action: manipulation;
+    min-height: 60px;
+    will-change: transform;
 }
 
     .node:active {
@@ -308,6 +359,10 @@ body {
     padding: 16px;
     text-align: center;
     pointer-events: none;
+    word-break: break-word;
+    max-width: 90%;
+    overflow-wrap: break-word;
+    hyphens: auto;
 }
 
 /* Ports */
@@ -319,8 +374,17 @@ body {
     background-color: var(--color-primary);
     border: 2px solid white;
     border-radius: 50%;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, transform 0.1s;
+    cursor: crosshair;
+    pointer-events: auto;
+    z-index: 5;
+    will-change: background-color;
 }
+
+    .port:hover {
+        transform: scale(1.2);
+        box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+    }
 
     .port.connected {
         background-color: var(--color-primary-hover);
@@ -332,6 +396,9 @@ path.connection-line {
     stroke: var(--color-text-muted);
     stroke-width: 2px;
     pointer-events: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    will-change: stroke-width;
 }
 
     path.connection-line.active {
@@ -374,6 +441,7 @@ path.connection-line {
     display: flex;
     flex-direction: column;
     gap: 24px;
+    -webkit-overflow-scrolling: touch;
 }
 
 .sidebar-empty {
@@ -410,11 +478,21 @@ path.connection-line {
     border-radius: 6px;
     font-size: 14px;
     outline: none;
+    font-family: inherit;
+    line-height: 1.5;
+    min-height: 40px;
 }
 
     .form-input:focus {
         border-color: var(--color-primary);
         box-shadow: 0 0 0 1px var(--color-primary);
+    }
+
+    /* Éviter le zoom sur iOS lors du focus */
+    @supports (-webkit-touch-callout: none) {
+        .form-input {
+            font-size: 16px;
+        }
     }
 
 .form-row {
@@ -553,3 +631,661 @@ path.connection-line {
     ::-webkit-scrollbar-thumb:hover {
         background: #94a3b8;
     }
+
+/* --- Responsive Design --- */
+
+/* Tablette large (1024px - 1199px) */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 260px;
+    }
+
+    .btn-add,
+    .btn-save,
+    .btn-imp {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .btn-save {
+        left: 160px;
+    }
+
+    .btn-imp {
+        left: 260px;
+    }
+
+    .node {
+        width: 150px;
+    }
+
+    .node-title {
+        font-size: 13px;
+        padding: 12px;
+    }
+}
+
+/* Tablette (768px - 1023px) */
+@media (max-width: 1023px) {
+    :root {
+        --sidebar-width: 280px;
+    }
+
+    body {
+        flex-direction: column;
+        height: 100vh;
+    }
+
+    .app-container {
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .canvas-area {
+        width: 100%;
+        height: 60%;
+        flex: 0 0 60%;
+        border-radius: 12px 12px 0 0;
+        margin: 0;
+        z-index: 1;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: 40%;
+        flex: 0 0 40%;
+        border-left: none;
+        border-top: 1px solid var(--color-border);
+        border-radius: 0;
+        max-width: none;
+        overflow-y: auto;
+        z-index: 100;
+    }
+
+    .btn-add,
+    .btn-save,
+    .btn-imp {
+        padding: 6px 10px;
+        font-size: 11px;
+        top: 8px;
+    }
+
+    .btn-add {
+        left: 8px;
+    }
+
+    .btn-save {
+        left: 85px;
+    }
+
+    .btn-imp {
+        left: 160px;
+    }
+
+    .help-text {
+        font-size: 12px;
+        bottom: 8px;
+        left: 8px;
+    }
+
+    .node {
+        width: 140px;
+    }
+
+    .node-title {
+        padding: 12px;
+        font-size: 12px;
+    }
+
+    .sidebar-header {
+        padding: 16px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .sidebar-title {
+        font-size: 16px;
+        margin: 0;
+    }
+
+    .sidebar-subtitle {
+        font-size: 12px;
+        margin: 4px 0 0 0;
+    }
+
+    .sidebar-content {
+        padding: 16px;
+        gap: 16px;
+    }
+
+    .form-label {
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .form-input {
+        padding: 6px 10px;
+        font-size: 13px;
+    }
+
+    .section-title {
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .connection-item {
+        padding: 12px;
+    }
+
+    .btn-delete {
+        width: 100%;
+    }
+
+    /* SVG responsif */
+    #svg-layer {
+        pointer-events: auto;
+    }
+}
+
+/* Smartphone grand (640px - 767px) */
+@media (max-width: 767px) {
+    html {
+        font-size: 14px;
+    }
+
+    body {
+        overflow-x: hidden;
+        flex-direction: column;
+    }
+
+    .app-container {
+        flex-direction: column;
+        width: 100vw;
+    }
+
+    .canvas-area {
+        width: 100%;
+        height: 55%;
+        flex: 0 0 55%;
+        cursor: grab;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    .canvas-area:active {
+        cursor: grabbing;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: 45%;
+        flex: 0 0 45%;
+        border-left: none;
+        border-top: 2px solid var(--color-border);
+        max-width: 100vw;
+        border-radius: 0;
+        z-index: 100;
+    }
+
+    /* Buttons responsive */
+    .buttons-container {
+        top: 10px;
+        left: 10px;
+        gap: 6px;
+        max-width: calc(100% - 20px);
+    }
+
+    .btn-add,
+    .btn-save,
+    .btn-imp {
+        padding: 5px 8px;
+        font-size: 10px;
+    }
+
+    .help-text {
+        display: none;
+    }
+
+    /* Graphe responsive */
+    .node {
+        width: 120px;
+        border-radius: 8px;
+        font-size: 12px;
+    }
+
+    .node-title {
+        padding: 10px 8px;
+        font-size: 11px;
+        word-break: break-word;
+    }
+
+    .port {
+        width: 10px;
+        height: 10px;
+        right: -5px;
+    }
+
+    /* Connexions plus visibles sur mobile */
+    path.connection-line {
+        stroke-width: 2.5px;
+    }
+
+    path.connection-line.active {
+        stroke-width: 3.5px;
+    }
+
+    /* Sidebar Styling */
+    .sidebar-header {
+        padding: 12px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .sidebar-title {
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .sidebar-subtitle {
+        font-size: 11px;
+        margin: 2px 0 0 0;
+    }
+
+    .sidebar-content {
+        padding: 12px;
+        gap: 12px;
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .sidebar-empty {
+        padding: 20px 0;
+        font-size: 12px;
+    }
+
+    /* Form Elements */
+    .form-group {
+        gap: 6px;
+    }
+
+    .form-label {
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .form-input {
+        padding: 5px 8px;
+        font-size: 12px;
+        border-radius: 4px;
+    }
+
+    .form-row {
+        gap: 8px;
+    }
+
+    .slider-container {
+        gap: 8px;
+    }
+
+    .badge {
+        font-size: 12px;
+        width: 28px;
+    }
+
+    .section-title {
+        font-size: 11px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    /* Connection List */
+    .connection-list {
+        gap: 10px;
+    }
+
+    .connection-item {
+        padding: 8px;
+        border-radius: 6px;
+    }
+
+    .connection-header {
+        margin-bottom: 6px;
+    }
+
+    .connection-label {
+        font-size: 10px;
+    }
+
+    .status-dot {
+        width: 6px;
+        height: 6px;
+    }
+
+    .select-input {
+        padding: 5px 6px;
+        font-size: 12px;
+        border-radius: 4px;
+    }
+
+    .btn-delete {
+        margin-top: auto;
+        width: 100%;
+        padding: 6px;
+        font-size: 12px;
+    }
+
+    ::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 2px;
+    }
+}
+
+/* Smartphone petit (480px - 639px) */
+@media (max-width: 639px) {
+    html {
+        font-size: 13px;
+    }
+
+    body {
+        height: 100vh;
+        width: 100vw;
+    }
+
+    .canvas-area {
+        height: 52%;
+        flex: 0 0 52%;
+        z-index: 1;
+    }
+
+    .sidebar {
+        height: 48%;
+        flex: 0 0 48%;
+        z-index: 100;
+    }
+
+    .btn-add,
+    .btn-save,
+    .btn-imp {
+        padding: 4px 6px;
+        font-size: 9px;
+        flex: 1;
+        min-width: 50px;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    /* Buttons container for small mobile */
+    .buttons-container {
+        top: 8px;
+        left: 8px;
+        gap: 4px;
+        max-width: calc(100% - 16px);
+    }
+
+    /* Graphe optimisé pour petit écran */
+    .node {
+        width: 100px;
+        min-width: 80px;
+    }
+
+    .node-title {
+        padding: 8px 6px;
+        font-size: 10px;
+        line-height: 1.2;
+    }
+
+    .port {
+        width: 9px;
+        height: 9px;
+        right: -4.5px;
+    }
+
+    /* Connexions plus épaisses sur petit écran */
+    path.connection-line {
+        stroke-width: 2px;
+    }
+
+    path.connection-line.active {
+        stroke-width: 3px;
+    }
+
+    .sidebar-header {
+        padding: 10px;
+    }
+
+    .sidebar-title {
+        font-size: 12px;
+        margin: 0;
+    }
+
+    .sidebar-subtitle {
+        font-size: 10px;
+        margin: 2px 0 0 0;
+    }
+
+    .sidebar-content {
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .form-label {
+        font-size: 11px;
+    }
+
+    .form-input {
+        padding: 4px 6px;
+        font-size: 11px;
+    }
+
+    .section-title {
+        font-size: 10px;
+    }
+
+    .connection-item {
+        padding: 6px;
+    }
+
+    .btn-delete {
+        padding: 5px;
+        font-size: 10px;
+    }
+}
+
+/* Très petit écran (< 480px) */
+@media (max-width: 479px) {
+    html {
+        font-size: 12px;
+    }
+
+    body {
+        height: 100vh;
+    }
+
+    .canvas-area {
+        height: 50%;
+        flex: 0 0 50%;
+        z-index: 1;
+    }
+
+    .sidebar {
+        height: 50%;
+        flex: 0 0 50%;
+        z-index: 100;
+    }
+
+    .btn-add,
+    .btn-save,
+    .btn-imp {
+        padding: 3px 5px;
+        font-size: 8px;
+        flex: 1;
+        min-width: 45px;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    /* Buttons container for very small mobile */
+    .buttons-container {
+        top: 6px;
+        left: 6px;
+        gap: 3px;
+        max-width: calc(100% - 12px);
+    }
+
+    /* Graphe très optimisé */
+    .node {
+        width: 90px;
+        min-width: 75px;
+    }
+
+    .node-title {
+        padding: 6px 4px;
+        font-size: 9px;
+    }
+
+    .port {
+        width: 8px;
+        height: 8px;
+        right: -4px;
+    }
+
+    /* Connexions adaptées */
+    path.connection-line {
+        stroke-width: 1.5px;
+    }
+
+    path.connection-line.active {
+        stroke-width: 2.5px;
+    }
+
+    .sidebar-header {
+        padding: 8px;
+    }
+
+    .sidebar-title {
+        font-size: 11px;
+    }
+
+    .sidebar-content {
+        padding: 8px;
+        gap: 8px;
+    }
+
+    .form-input {
+        font-size: 10px;
+        padding: 3px 5px;
+    }
+
+    .btn-delete {
+        padding: 4px;
+        font-size: 9px;
+    }
+}
+
+/* Orientation paysage (landscape) */
+@media (orientation: landscape) and (max-height: 600px) {
+    .canvas-area {
+        height: 70%;
+        flex: 0 0 70%;
+    }
+
+    .sidebar {
+        height: 30%;
+        flex: 0 0 30%;
+        overflow-y: auto;
+    }
+
+    .sidebar-header {
+        padding: 8px;
+    }
+
+    .sidebar-title {
+        font-size: 13px;
+        margin: 0;
+    }
+
+    .sidebar-content {
+        padding: 8px;
+        gap: 8px;
+    }
+
+    /* Graphe en paysage */
+    .node {
+        width: 140px;
+    }
+
+    .node-title {
+        font-size: 11px;
+        padding: 10px 8px;
+    }
+
+    .port {
+        width: 10px;
+        height: 10px;
+    }
+
+    /* Buttons in landscape */
+    .buttons-container {
+        top: 6px;
+        left: 6px;
+        gap: 5px;
+        max-width: calc(100% - 12px);
+    }
+
+    .btn-add,
+    .btn-save,
+    .btn-imp {
+        font-size: 10px;
+        padding: 5px 8px;
+    }
+}
+
+/* Amélioration touch devices */
+@media (hover: none) and (pointer: coarse) {
+    .btn-add,
+    .btn-save,
+    .btn-imp {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .node {
+        min-height: 40px;
+    }
+
+    .form-input {
+        min-height: 44px;
+    }
+
+    .btn-delete {
+        min-height: 44px;
+    }
+
+    /* Augmenter les zones tactiles - ports plus grands */
+    .port {
+        width: 16px;
+        height: 16px;
+        right: -8px;
+        bottom: -8px;
+    }
+
+    .port:hover {
+        transform: scale(1.1);
+    }
+
+    /* Pas de hover effects on touch */
+    path.connection-line:hover {
+        stroke-width: 2px;
+    }
+
+    /* SVG drag region plus facile */
+    #svg-layer {
+        cursor: grab;
+    }
+}
