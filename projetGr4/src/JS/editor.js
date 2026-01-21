@@ -315,7 +315,7 @@ export function render(){
   const z = getZoom();
   zoomChip.textContent = `Zoom: ${Math.round(z*100)}%`;
   // auto-save
-  //saveState();
+  saveState();
 }
 
 // =====================================================
@@ -646,11 +646,3 @@ import { initContextMenu } from './contextMenu.js';
 
 initContextMenu(slideEl);
 
-document.getElementById('saveBtn').addEventListener('click', () => {
-  saveState();
-  // Visual feedback
-  const btn = document.getElementById('saveBtn');
-  const originalText = btn.textContent;
-  btn.textContent = "✓ Sauvegardé";
-  setTimeout(() => btn.textContent = originalText, 1000);
-});
