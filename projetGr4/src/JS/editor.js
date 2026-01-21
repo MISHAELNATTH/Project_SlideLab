@@ -311,7 +311,30 @@ export function render(){
             const reader = new FileReader();
             reader.onload = (event) => {
               e.imageData = event.target.result;
-              render();
+              
+              // Charger l'image pour obtenir ses dimensions
+              const img = new Image();
+              img.onload = () => {
+                // Adapter la taille du bloc à l'image
+                // Garder un ratio max de 400x300 pour la slide
+                const maxWidth = 400;
+                const maxHeight = 300;
+                
+                let width = img.naturalWidth;
+                let height = img.naturalHeight;
+                
+                // Redimensionner si trop grand
+                if (width > maxWidth || height > maxHeight) {
+                  const ratio = Math.min(maxWidth / width, maxHeight / height);
+                  width = Math.round(width * ratio);
+                  height = Math.round(height * ratio);
+                }
+                
+                e.w = width;
+                e.h = height;
+                render();
+              };
+              img.src = e.imageData;
             };
             reader.readAsDataURL(file);
           }
