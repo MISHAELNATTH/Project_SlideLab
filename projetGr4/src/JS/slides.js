@@ -166,8 +166,10 @@ function exportBaseCSS() {
 
 
 
-function generateSlideHTML(slideIndex) {
+export function generateSlideHTML(slideIndex) {
   const slide = state.slides[slideIndex];
+
+
 
   // --- META qu’on veut sauvegarder dans le HTML ---
   // Position par défaut 0,0 (comme demandé)
@@ -190,6 +192,8 @@ ${exportBaseCSS()}
 <body>
   <div class="stage">
     <div class="slide" role="img" aria-label="${meta.title}">
+    
+    
 `;
 
   // helper: convertit une href en "slide target"
