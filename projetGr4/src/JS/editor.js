@@ -542,13 +542,6 @@ function deleteSelected(){
 
 
 
-
-
-
-// =====================================================
-//  INITIALISATION
-// =====================================================
-
 /* =========================
    RESIZABLE BOTTOM BAR
 ========================== */
@@ -574,7 +567,7 @@ function doDragBottom(e) {
   let newH = availableH - e.clientY - 14;
   
   // Limits to prevent breaking the layout
-  const minH = 100; // Minimum height for bottom bar
+  const minH = 50; // Minimum height for bottom bar
   const maxH = availableH * 0.6; // Maximum 60% of screen height
 
   if (newH < minH) newH = minH;
@@ -588,6 +581,52 @@ function stopDragBottom() {
   window.removeEventListener("mousemove", doDragBottom);
   window.removeEventListener("mouseup", stopDragBottom);
   resizerY.classList.remove("resizing");
+  document.body.style.cursor = "";
+}
+
+/* =========================
+   RESIZABLE side BAR
+========================== */
+const resizerX = document.getElementById("resizerX");
+
+if (resizerX) {
+  resizerX.addEventListener("mousedown", initDragSide);
+}
+
+let dragStartX = 0;
+let dragStartWidth = 0;
+
+function initDragSide(e) {
+  e.preventDefault();
+  dragStartX = e.clientX;
+  dragStartWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sidebar-w'));
+  window.addEventListener("mousemove", doDragSide);
+  window.addEventListener("mouseup", stopDragSide);
+  resizerX.classList.add("resizing");
+  // Force cursor globally during drag to prevent flickering
+  document.body.style.cursor = "ew-resize";
+}
+
+function doDragSide(e) {
+  // Calculate the change in mouse position
+  const dx = e.clientX - dragStartX;
+  let newW = dragStartWidth + dx;
+  
+  // Limits to prevent breaking the layout
+  const minW = 155; // Minimum width for sidebar
+  const maxW = window.innerWidth * 0.5; // Maximum 50% of screen width
+
+  if (newW < minW) newW = minW;
+  if (newW > maxW) newW = maxW;
+
+  // Update the CSS variable. The CSS Grid will automatically adjust the right part (1fr).
+  document.documentElement.style.setProperty('--sidebar-w', Math.round(newW) + "px");
+}
+
+function stopDragSide() {
+  window.removeEventListener("mousemove", doDragSide);
+  window.removeEventListener("mouseup", stopDragSide);
+  resizerX.classList.remove("resizing");
   document.body.style.cursor = "";
 }
 

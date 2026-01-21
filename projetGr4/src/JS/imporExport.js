@@ -2,7 +2,7 @@
 import { thumbsEl, state, cryptoId, setSelectedId, render } from "./editor.js";
 
 // =====================================================
-//  IMPORT - FICHIERS HTML (support 2 formats)
+//  HELPERS
 // =====================================================
 
 function pickNumberPx(style, prop, fallback = null) {
@@ -13,15 +13,93 @@ function pickNumberPx(style, prop, fallback = null) {
   return parseFloat(m[1]);
 }
 
+function safeJsonParse(text) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Convertit un href vers une "cible slide" (si détectable)
+ * Supporte:
+ *  - "slide-3.html"
+ *  - "#slide:3"
+ *  - "#slide-3"
+ */
+function hrefToTarget(href) {
+  if (!href) return null;
+
+  let m = href.match(/^#slide:(\d+)$/i);
+  if (m) return { kind: "index", index: parseInt(m[1], 10) - 1 };
+
+  m = href.match(/^#slide-(\d+)$/i);
+  if (m) return { kind: "index", index: parseInt(m[1], 10) - 1 };
+
+  m = href.match(/slide-(\d+)\.html$/i);
+  if (m) {
+    return {
+      kind: "file",
+      file: href,
+      index: parseInt(m[1], 10) - 1
+    };
+  }
+
+  return { kind: "href", href };
+}
+
+/**
+ * Lit le meta JSON si présent dans:
+ * <script id="slide-meta" type="application/json">...</script>
+ */
+function readSlideMeta(doc) {
+  const metaNode = doc.querySelector('#slide-meta[type="application/json"]');
+  if (!metaNode) return null;
+
+  const meta = safeJsonParse(metaNode.textContent || "");
+  if (!meta || typeof meta !== "object") return null;
+
+  // normalisation minimale
+  const title =
+    typeof meta.title === "string" && meta.title.trim()
+      ? meta.title.trim()
+      : null;
+
+  const pos =
+    meta.pos &&
+    typeof meta.pos === "object" &&
+    typeof meta.pos.x === "number" &&
+    typeof meta.pos.y === "number"
+      ? { x: meta.pos.x, y: meta.pos.y }
+      : { x: 0, y: 0 };
+
+  const buttonsMeta = Array.isArray(meta.buttons) ? meta.buttons : [];
+
+  return {
+    version: meta.version ?? 1,
+    title,
+    pos,
+    buttonsMeta
+  };
+}
+
+// =====================================================
+//  PARSE HTML -> { elements, meta }
+// =====================================================
+
 function parseSlideHTML(htmlContent) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlContent, "text/html");
+
+  const meta = readSlideMeta(doc);
+
   const elements = [];
 
-  // 1) Nouveau format (identique à l’éditeur): .slide + .el
+  // 1) Nouveau format: .stage .slide .el
   const elsNew = doc.querySelectorAll(".slide .el");
 
-  // 2) Ancien format: .slide-container + .slide-element
+  // 2) Ancien format: .slide-container .slide-element
   const elsOld = doc.querySelectorAll(".slide-container .slide-element");
 
   const nodes = elsNew.length ? elsNew : elsOld;
@@ -38,7 +116,13 @@ function parseSlideHTML(htmlContent) {
     let html = "";
     let imageData = null;
 
-    // --- nouveau format ---
+    // on essaie de garder l'id existant si export l’a mis (utile pour boutons)
+    let id =
+      node.getAttribute("data-id") ||
+      node.getAttribute("data-btn-id") ||
+      cryptoId();
+
+    // --- nouveau format (.el) ---
     if (node.classList.contains("el")) {
       if (node.classList.contains("text")) {
         type = "text";
@@ -55,7 +139,7 @@ function parseSlideHTML(htmlContent) {
       }
     }
 
-    // --- ancien format ---
+    // --- ancien format (.slide-element) ---
     if (node.classList.contains("slide-element")) {
       if (node.classList.contains("text-element")) {
         type = "text";
@@ -74,7 +158,7 @@ function parseSlideHTML(htmlContent) {
     }
 
     const obj = {
-      id: cryptoId(),
+      id,
       type,
       x: Math.round(x),
       y: Math.round(y),
@@ -88,10 +172,45 @@ function parseSlideHTML(htmlContent) {
     elements.push(obj);
   });
 
-  return elements;
+  // Si meta.buttons n’existe pas, on peut le reconstituer depuis le DOM (optionnel)
+  // utile quand tu importes un vieux HTML sans meta.
+  let buttonsMeta = meta?.buttonsMeta ?? null;
+  if (!buttonsMeta) {
+    const buttonNodes = elsNew.length
+      ? doc.querySelectorAll(".slide .el.button")
+      : doc.querySelectorAll(".slide-container .slide-element.button-element");
+
+    buttonsMeta = Array.from(buttonNodes).map((btn) => {
+      const buttonId =
+        btn.getAttribute("data-btn-id") ||
+        btn.getAttribute("data-id") ||
+        cryptoId();
+
+      const a = btn.querySelector("a[href]");
+      const href = a ? a.getAttribute("href") : null;
+
+      return {
+        buttonId,
+        href,
+        target: hrefToTarget(href)
+      };
+    });
+  }
+
+  return {
+    meta: {
+      title: meta?.title ?? null,
+      pos: meta?.pos ?? { x: 0, y: 0 },
+      buttonsMeta
+    },
+    elements
+  };
 }
 
-// load slides from files
+// =====================================================
+//  LOAD SLIDES FROM FILES
+// =====================================================
+
 function loadSlidesFromFiles(files) {
   const fileArray = Array.from(files).filter((f) => f.name.endsWith(".html"));
 
@@ -100,7 +219,7 @@ function loadSlidesFromFiles(files) {
     return;
   }
 
-  // Sort files by name to load in order
+  // tri pour un ordre stable
   fileArray.sort((a, b) => a.name.localeCompare(b.name));
 
   let loadedCount = 0;
@@ -111,12 +230,25 @@ function loadSlidesFromFiles(files) {
     reader.onload = (e) => {
       try {
         const htmlContent = e.target.result;
-        const elements = parseSlideHTML(htmlContent);
 
+        const parsed = parseSlideHTML(htmlContent);
+        const elements = parsed.elements;
+        const meta = parsed.meta;
+
+        const slideObj = {
+          id: cryptoId(),
+          elements,
+          // ce que tu veux sauvegarder
+          title: meta.title ?? file.name.replace(/\.html$/i, ""),
+          pos: meta.pos ?? { x: 0, y: 0 },
+          buttonsMeta: meta.buttonsMeta ?? []
+        };
+
+        // Replace or add slide
         if (index === 0) {
-          state.slides[state.activeSlide] = { id: cryptoId(), elements };
+          state.slides[state.activeSlide] = slideObj;
         } else {
-          state.slides.push({ id: cryptoId(), elements });
+          state.slides.push(slideObj);
         }
 
         loadedCount++;
@@ -137,14 +269,18 @@ function loadSlidesFromFiles(files) {
   });
 }
 
-// open folder button
+// =====================================================
+//  UI: open folder button
+// =====================================================
+
 const fileInput = document.getElementById("fileInput");
+
 document.getElementById("openFolderBtn").addEventListener("click", () => {
   fileInput.click();
 });
 
 fileInput.addEventListener("change", (ev) => {
-  if (ev.target.files.length > 0) {
+  if (ev.target.files && ev.target.files.length > 0) {
     loadSlidesFromFiles(ev.target.files);
     ev.target.value = ""; // reset input
   }

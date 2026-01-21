@@ -1,3 +1,4 @@
+// src/JS/arbre/store.js
 export function createStore() {
   const state = {
     nodes: [{ id: 1, x: 100, y: 100, label: "Rectangle 1", buttons: [] }],

@@ -169,18 +169,48 @@ function exportBaseCSS() {
 function generateSlideHTML(slideIndex) {
   const slide = state.slides[slideIndex];
 
+  // --- META qu’on veut sauvegarder dans le HTML ---
+  // Position par défaut 0,0 (comme demandé)
+  const meta = {
+    version: 1,
+    title: slide.title ?? `Slide ${slideIndex + 1}`,
+    pos: { x: 0, y: 0 },
+    // rempli plus bas en fonction des boutons réellement présents
+    buttons: []
+  };
+
   let html = `<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Slide ${slideIndex + 1}</title>
+<title>${meta.title}</title>
 ${exportBaseCSS()}
 </head>
 <body>
   <div class="stage">
-    <div class="slide" role="img" aria-label="Slide ${slideIndex + 1}">
+    <div class="slide" role="img" aria-label="${meta.title}">
 `;
+
+  // helper: convertit une href en "slide target"
+  // Ici on supporte: "slide-3.html" OU "#slide:3" OU "#slide-3"
+  function hrefToTarget(href) {
+    if (!href) return null;
+
+    // cas: #slide:3
+    let m = href.match(/^#slide:(\d+)$/i);
+    if (m) return { kind: "index", index: parseInt(m[1], 10) - 1 };
+
+    // cas: #slide-3
+    m = href.match(/^#slide-(\d+)$/i);
+    if (m) return { kind: "index", index: parseInt(m[1], 10) - 1 };
+
+    // cas: slide-3.html
+    m = href.match(/slide-(\d+)\.html$/i);
+    if (m) return { kind: "file", file: href, index: parseInt(m[1], 10) - 1 };
+
+    return { kind: "href", href };
+  }
 
   for (const el of slide.elements) {
     const left = Math.round(el.x ?? 0);
@@ -192,11 +222,44 @@ ${exportBaseCSS()}
 
     if (el.type === "text") {
       html += `      <div class="el text" ${style}>${el.html || "Texte"}</div>\n`;
-    } else if (el.type === "button") {
-      html += `      <div class="el button" ${style}>${el.html || "Bouton"}</div>\n`;
-    } else if (el.type === "shape") {
+    }
+
+    else if (el.type === "button") {
+      // IMPORTANT :
+      // - on force un data-btn-id stable = el.id
+      // - on tente de récupérer un href existant dans el.html
+      let href = null;
+      try {
+        const tmp = document.createElement("div");
+        tmp.innerHTML = el.html || "";
+        const a = tmp.querySelector("a[href]");
+        if (a) href = a.getAttribute("href");
+      } catch {}
+
+      const target = hrefToTarget(href);
+
+      meta.buttons.push({
+        buttonId: el.id,
+        href: href || null,
+        target: target || null
+      });
+
+      // rendu visuel:
+      // si ton bouton contient déjà un <a>, on garde.
+      // sinon on l’exporte en <a> pour que le lien marche en présentation.
+      const safeInner =
+        (el.html && el.html.trim())
+          ? el.html
+          : `<a href="#" style="color:inherit;text-decoration:none;display:block;width:100%;text-align:center;">Bouton</a>`;
+
+      html += `      <div class="el button" data-btn-id="${el.id}" ${style}>${safeInner}</div>\n`;
+    }
+
+    else if (el.type === "shape") {
       html += `      <div class="el shape" ${style}></div>\n`;
-    } else if (el.type === "image") {
+    }
+
+    else if (el.type === "image") {
       if (el.imageData) {
         html += `      <div class="el image" ${style}><img src="${el.imageData}" alt=""></div>\n`;
       } else {
@@ -205,21 +268,23 @@ ${exportBaseCSS()}
     }
   }
 
+  // On injecte le JSON dans le HTML exporté
+  // ⚠️ On doit échapper </script> au cas où
+  const metaJson = JSON.stringify(meta).replace(/<\/script/gi, "<\\/script");
+
   html += `    </div>
   </div>
 
+  <script id="slide-meta" type="application/json">${metaJson}</script>
+
   <script>
     (function(){
-      const W = 960, H = 540; // taille "réelle" de ta slide
-
+      const W = 960, H = 540;
       function updateScale(){
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        const s = Math.min(vw / W, vh / H); // FIT => bandes noires conservées
+        const s = Math.min(window.innerWidth / W, window.innerHeight / H);
         document.documentElement.style.setProperty('--scale', String(s));
       }
-
-      window.addEventListener('resize', updateScale, { passive: true });
+      window.addEventListener('resize', updateScale, { passive:true });
       updateScale();
     })();
   </script>
@@ -228,6 +293,7 @@ ${exportBaseCSS()}
 
   return html;
 }
+
 
 
 // export all slides as HTML files to download

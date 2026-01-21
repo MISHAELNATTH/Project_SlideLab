@@ -12,6 +12,8 @@
 
   /* 1. DEFINE THE VARIABLE HEIGHT */
   --bottom-h: 170px;
+  /* Define sidebar width variable */
+  --sidebar-w: 320px;
 }
 
 *{box-sizing:border-box}
@@ -29,7 +31,7 @@ body{
 /* Layout global */
 .app{
   display:grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: var(--sidebar-w) 1fr;
   /*grid-template-rows: 1fr 170px; /* bas: thumbnails */
   /* 2. UPDATED ROWS: Main Content | Resizer Handle (auto) | Bottom Bar (variable) */
   grid-template-rows: 1fr auto var(--bottom-h);
@@ -50,7 +52,7 @@ body{
   overflow:hidden;
   display:flex;
   flex-direction:column;
-  min-width:280px;
+  min-width:155px;
 }
 
 .sidebar .top{
@@ -221,6 +223,35 @@ body{
   background: var(--accent);
 }
 
+/* Horizontal resizer for sidebar */
+.resizer-x {
+  grid-column: 1 / span 2;
+  grid-row: 1 / span 3; /* Span all rows */
+  width: 14px;
+  cursor: ew-resize;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  z-index: 10;
+  margin-left: calc(var(--sidebar-w) - 7px); /* Position at the edge of sidebar */
+  transition: background 0.2s;
+}
+.resizer-x:hover {
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+}
+/* A little handle line */
+.resizer-x::after {
+  content: "";
+  width: 3px; 
+  height: 40px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 2px;
+}
+.resizer-x.resizing::after, .resizer-x:hover::after {
+  background: var(--accent);
+}
+
 
 .topbar{
   display:flex;
@@ -254,7 +285,7 @@ body{
   overflow:auto;
   padding:28px 24px;
   background:
-    radial-gradient(800px 500px at 40% 20%, rgba(255,255,255,.06), transparent 60%),
+    radial-gradient(800px 500px at 40% 20%, rgba(255,255,255,.06), transparent 10%),
     rgba(0,0,0,.08);
 }
 .workspace::-webkit-scrollbar {
