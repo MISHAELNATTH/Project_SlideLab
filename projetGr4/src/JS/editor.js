@@ -315,7 +315,7 @@ export function render(){
   const z = getZoom();
   zoomChip.textContent = `Zoom: ${Math.round(z*100)}%`;
   // auto-save
-  //saveState();
+  saveState();
 }
 
 // =====================================================
