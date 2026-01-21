@@ -191,7 +191,7 @@ ${exportBaseCSS()}
 </head>
 <body>
   <div class="stage">
-    <div class="slide" role="img" aria-label="${meta.title}">
+    <div class="slide" role="img" aria-label="${meta.title}"> 
     
     
 `;
