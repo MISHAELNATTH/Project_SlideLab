@@ -132,7 +132,7 @@ function deselectAll(e) {
   ) {
     selectedNodeId = null;
     render();
-    renderSidebar();
+    //renderSidebar();
   }
 }
 
@@ -141,7 +141,7 @@ function updateLabel(newLabel) {
   if (!node) return;
   node.label = newLabel;
   render();
-  renderSidebar();
+ // renderSidebar();
 }
 
 // --- Rendering ---
@@ -380,7 +380,7 @@ function startDrag(e, nodeId) {
 
   selectedNodeId = nodeId;
   render();
-  renderSidebar();
+  //renderSidebar();
 
   isDragging = true;
   draggedNodeId = nodeId;

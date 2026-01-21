@@ -2,13 +2,25 @@
 import { nodesToJson } from "./json.js";
 import { downloadJson, saveToLocalStorage } from "./persistence.js";
 
-// NAMED EXPORT
-export async function saveProjectJson(store, projectName = "diapo1") {
-  const data = nodesToJson(store.getNodes());
+async function saveProject(store, projectName) {
+  const nodes = store.getNodes();
 
-  // DEV : écriture réelle dans src/json/diapoX.json via Vite middleware
+  // Toujours: localStorage
+  saveToLocalStorage(nodes);
+
+  // DEV : écriture fichier
   if (import.meta.env.DEV) {
     try {
+      const data = {
+        slides: nodes.map((n) => ({
+          id: n.id,
+          label: n.label,
+          x: n.x,
+          y: n.y,
+          buttons: n.buttons.map((b) => (b.target ?? null)),
+        })),
+      };
+
       const res = await fetch("/api/save-diapo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -17,14 +29,15 @@ export async function saveProjectJson(store, projectName = "diapo1") {
 
       if (!res.ok) throw new Error(await res.text());
 
-      console.log(`Sauvegardé: src/json/${projectName}.json`);
+      console.log(`Sauvegardé dans src/json/${projectName}.json`);
       return;
-    } catch (err) {
-      console.warn("Sauvegarde fichier échouée, fallback :", err);
+    } catch (e) {
+      console.warn("save file failed (DEV), fallback localStorage only:", e);
+      return; // plus de download même si dev échoue
     }
   }
 
-  // PROD ou fallback
-  saveToLocalStorage(store.getNodes());
-  //downloadJson(store.getNodes(), `${projectName}.json`);
+  // ✅ PROD : localStorage uniquement (pas de téléchargement)
+  console.log("Sauvegardé en ligne (localStorage uniquement)");
 }
+

@@ -163,6 +163,54 @@ function renderPresentationSlide(index, container) {
          node.innerHTML = `<div style="width:100%;height:100%;background:#eee;display:flex;align-items:center;justify-content:center;color:#aaa;">IMAGE</div>`;
        }
       }
+    
+      // NEW: HANDLE LINKS (Apply to ALL types)
+    if (e.link) {
+      node.style.cursor = "pointer";
+      node.title = `Lien vers: ${e.link}`; // Tooltip
+      
+      // Add visual hint for link if you want, or keep invisible
+      // node.style.border = "1px dashed blue"; 
+
+      node.onclick = (evt) => {
+        evt.stopPropagation();
+        
+        // Check if it's a number (Slide Jump) or URL
+        if (!isNaN(e.link)) {
+          // It's a slide number (1-based index usually, convert to 0-based)
+          const slideIndex = parseInt(e.link) - 1;
+          if (slideIndex >= 0 && slideIndex < state.slides.length) {
+             // We need to access presentationIndex from this scope or pass it.
+             // Simplest is to call the global render logic if we expose 'goToSlide'
+             // For now, let's update the local index if accessible, or re-render:
+             renderPresentationSlide(slideIndex, container);
+             // Update the global tracking variable if you exported it, 
+             // otherwise presentation might get out of sync on Next/Prev.
+          }
+        } else {
+          // It's a URL
+          window.open(e.link, '_blank');
+        }
+      };
+    } else if (e.type === "button" && !node.onclick) {
+      // Keep existing button logic if NO specific link is set
+      node.onclick = (evt) => {
+         evt.stopPropagation();
+         if (!isNaN(e.link)) {
+          // Slide Navigation
+          const targetIdx = parseInt(e.link) - 1;
+          if (targetIdx >= 0 && targetIdx < state.slides.length) {
+             presentationIndex = targetIdx; // Update global index
+             renderPresentationSlide(presentationIndex, container);
+          }
+        } else {
+          // External Link
+          let url = e.link;
+          if (!url.startsWith('http')) url = 'https://' + url;
+          window.open(url, '_blank');
+        }
+      };
+    }
     container.appendChild(node);
   });
 }

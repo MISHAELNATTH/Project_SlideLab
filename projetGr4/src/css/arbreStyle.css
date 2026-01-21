@@ -81,6 +81,18 @@ body {
     z-index: 1;
 }
 
+.connection-label{
+  font-size: 12px;
+  font-weight: 600;
+  pointer-events: none; /* pour ne pas bloquer les clics */
+  user-select: none;
+  paint-order: stroke;  /* contour derrière le texte */
+  stroke: rgba(0,0,0,0.55);
+  stroke-width: 3px;
+  fill: white;
+}
+
+
 .sidebar {
     width: 320px;
     background: radial-gradient(1200px 800px at 30% 10%, rgba(124,92,255,.25), transparent 55%),
