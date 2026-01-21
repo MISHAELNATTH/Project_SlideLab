@@ -77,6 +77,20 @@
           <span class="chip">Sans titre</span>
           <span class="chip" id="zoomChip">Zoom: 100%</span>
         </div>
+        <div class="center">
+          <div class="background-controls">
+            <span class="label">Fond :</span>
+            <input type="color" id="bgColorPicker" value="#ffffff" title="Couleur de fond">
+            <select id="bgGradientSelect" title="Dégradé">
+              <option value="">Sans dégradé</option>
+              <option value="linear-gradient(135deg, #667eea 0%, #764ba2 100%)">Violet</option>
+              <option value="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">Rose</option>
+              <option value="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">Bleu</option>
+              <option value="linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)">Vert</option>
+              <option value="linear-gradient(135deg, #fa709a 0%, #fee140 100%)">Orange</option>
+            </select>
+          </div>
+        </div>
         <div class="right">
           <button class="btn" id="fitBtn">Ajuster</button>
           <button class="btn" id="exportBtn">Exporter Slide</button>
@@ -97,7 +111,8 @@
     </main>
 
     <div class="resizer-y" id="resizerY"></div>
-    
+    <div class="resizer-x" id="resizerX"></div>
+
     <!-- BOTTOM SLIDES -->
     <section class="slidesbar">
       <div class="header">
@@ -111,6 +126,7 @@
       <div class="mini"></div>  <!-- This is empty -->
     </section>
   </div>
+  <div id="contextMenu" class="context-menu"></div>
 <script type="module" src="/src/JS/editor.js"></script>
 <script type="module" src="/src/JS/imporExport.js"></script>
 <script type="module" src="/src/JS/present.js"></script>
