@@ -197,7 +197,6 @@ export function render(){
       wrapper.innerHTML = innerContent;
       node.appendChild(wrapper);
 
-      // autoriser le drag & drop d'images
       node.style.cursor = "pointer";
       
       // Double-click to add image
@@ -289,7 +288,6 @@ export function render(){
 
     // select
     node.addEventListener("mousedown", (ev)=>{
-      // si on clique une poignée -> géré par resize
       if (ev.target.classList.contains("handle")) return;
       select(e.id);
     });
@@ -601,7 +599,6 @@ slideEl.addEventListener("drop", (ev)=>{
   const toolType = ev.dataTransfer.getData("text/plain");
   if (!toolType) return;
 
-  // position relative to slide (account for zoom)
   const rect = slideEl.getBoundingClientRect();
   const z = getZoom();
   const x = (ev.clientX - rect.left) / z;
@@ -665,7 +662,6 @@ function startMove(ev, id){
 
   if (ev.target.classList.contains("handle")) return;
 
-  // évite de déplacer pendant l'édition de texte si on sélectionne un curseur
   const isEditable = (target.classList.contains("text") || target.classList.contains("button"));
   if (isEditable && document.activeElement === target && window.getSelection()?.type === "Range") {
     return;
@@ -749,13 +745,11 @@ function onResize(ev){
 
   let x = resize.origX, y = resize.origY, w = resize.origW, h = resize.origH;
 
-  // handles: tl,tr,bl,br
   if (resize.handle.includes("r")) w = clamp(resize.origW + dx, 40, 960);
   if (resize.handle.includes("l")) { w = clamp(resize.origW - dx, 40, 960); x = resize.origX + dx; }
   if (resize.handle.includes("b")) h = clamp(resize.origH + dy, 30, 540);
   if (resize.handle.includes("t")) { h = clamp(resize.origH - dy, 30, 540); y = resize.origY + dy; }
 
-  // clamp to slide bounds
   x = clamp(x, 0, 960 - 20);
   y = clamp(y, 0, 540 - 20);
 
@@ -771,23 +765,19 @@ function endResize(){
 // =====================================================
 //  ACTIONS UI - SUPPRESSION, SÉLECTION, CLAVIER
 // =====================================================
-// click outside to unselect
 slideEl.addEventListener("mousedown", (ev)=>{
   if (ev.target === slideEl || ev.target.classList.contains("drop-hint")){
     clearSelection();
   }
 });
 
-// delete selected
 document.getElementById("deleteBtn").addEventListener("click", deleteSelected);
 window.addEventListener("keydown", (ev)=>{
   if (ev.key === "Delete" || ev.key === "Backspace"){
-    // ne pas supprimer si on écrit dans un editable
     const a = document.activeElement;
     if (a && (a.classList?.contains("text") || a.classList?.contains("button"))) return;
     deleteSelected();
   }
-  // zoom shortcuts
   if ((ev.ctrlKey || ev.metaKey) && (ev.key === "+" || ev.key === "=")){ ev.preventDefault(); setZoom(getZoom()+0.1); }
   if ((ev.ctrlKey || ev.metaKey) && (ev.key === "-" )){ ev.preventDefault(); setZoom(getZoom()-0.1); }
   if ((ev.ctrlKey || ev.metaKey) && (ev.key === "0" )){ ev.preventDefault(); setZoom(1); }
@@ -830,8 +820,6 @@ function initDragBottom(e) {
 }
 
 function doDragBottom(e) {
-  // Calculate available height from bottom of screen
-  // Window Height - Mouse Y Position - App Bottom Padding (14px)
   const availableH = window.innerHeight;
   let newH = availableH - e.clientY - 14;
   
@@ -842,7 +830,6 @@ function doDragBottom(e) {
   if (newH < minH) newH = minH;
   if (newH > maxH) newH = maxH;
 
-  // Update the CSS variable. The CSS Grid will automatically adjust the top part (1fr).
   document.documentElement.style.setProperty('--bottom-h', Math.round(newH) + "px");
 }
 
@@ -905,7 +892,7 @@ render();
 setZoom(1);
 
 // =====================================================
-//  IMPORTS DES MODULES DÉPENDANTS (après initialisation)
+//  IMPORTS DES MODULES DÉPENDANTS
 // =====================================================
 import './imporExport.js';
 import './present.js';
