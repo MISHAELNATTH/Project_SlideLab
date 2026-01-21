@@ -7,6 +7,7 @@ import {
   render,
   setZoom,
   getZoom,
+  slideId,
   getActive
 } from "./editor.js";
 
@@ -31,7 +32,7 @@ function escHtml(s = "") {
 
 // add slide
 document.getElementById("addSlideBtn").addEventListener("click", () => {
-  state.slides.push({ id: cryptoId(), elements: [] });
+  state.slides.push({ id: slideId(), elements: [] });
   state.activeSlide = state.slides.length - 1;
   setSelectedId(null);
   render();
@@ -42,8 +43,8 @@ document.getElementById("addSlideBtn").addEventListener("click", () => {
 document.getElementById("dupSlideBtn").addEventListener("click", () => {
   const s = getActive();
   const clone = JSON.parse(JSON.stringify(s));
-  clone.id = cryptoId();
-  clone.elements.forEach((e) => (e.id = cryptoId()));
+  clone.id = slideId();
+  clone.elements.forEach((e) => (e.id = slideId()));
   state.slides.splice(state.activeSlide + 1, 0, clone);
   state.activeSlide++;
   setSelectedId(null);
@@ -166,7 +167,7 @@ function exportBaseCSS() {
 
 
 
-function generateSlideHTML(slideIndex) {
+export function generateSlideHTML(slideIndex) {
   const slide = state.slides[slideIndex];
 
     function normalizeHref(link) {
@@ -317,6 +318,43 @@ ${exportBaseCSS()}
       }
       window.addEventListener('resize', updateScale, { passive:true });
       updateScale();
+      
+      // Rendre les boutons et textes avec liens cliquables
+      document.querySelectorAll('.el[data-link]').forEach(el => {
+        const link = el.getAttribute('data-link');
+        if (!link) return;
+        
+        el.style.cursor = 'pointer';
+        el.onclick = () => {
+          // Vérifier si c'est un lien vers une slide ou une URL
+          if (!isNaN(link)) {
+            // C'est un numéro de slide (1-based)
+            const slideIndex = parseInt(link);
+            // En file://, on utilise le nom du fichier
+            window.location.href = 'slide-' + slideIndex + '.html';
+          } else if (link.match(/^slide-\d+\.html$/i)) {
+            // C'est déjà un nom de fichier
+            window.location.href = link;
+          } else {
+            // C'est une URL externe
+            window.open(link, '_blank');
+          }
+        };
+      });
+      
+      // Aussi gérer les liens dans les <a> directs
+      document.querySelectorAll('.el a[href]').forEach(link => {
+        const href = link.getAttribute('href');
+        if (!href || href === '#') return;
+        
+        const parent = link.closest('.el');
+        if (parent) {
+          parent.style.cursor = 'pointer';
+          parent.onclick = () => {
+            window.location.href = href;
+          };
+        }
+      });
     })();
   </script>
 </body>
@@ -326,34 +364,6 @@ ${exportBaseCSS()}
 }
 
 
-
-// export all slides as HTML files to download
-document.getElementById("exportBtn").addEventListener("click", () => {
-  if (state.slides.length === 1) {
-    const html = generateSlideHTML(0);
-    const blob = new Blob([html], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "slide.html";
-    a.click();
-    URL.revokeObjectURL(url);
-  } else {
-    state.slides.forEach((_, index) => {
-      const html = generateSlideHTML(index);
-      const blob = new Blob([html], { type: "text/html" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `slide-${index + 1}.html`;
-
-      setTimeout(() => {
-        a.click();
-        URL.revokeObjectURL(url);
-      }, index * 200);
-    });
-  }
-});
 
 // fit
 document.getElementById("fitBtn").addEventListener("click", () => {

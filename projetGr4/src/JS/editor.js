@@ -2,6 +2,8 @@
 //  DONNÉES ET CONFIGURATION
 // =====================================================
 
+export var id=1;
+
 export const state = {
   
   activeSlide: 0,
@@ -68,6 +70,10 @@ export function getSelectedId() {
 // =====================================================
 //  HELPERS
 // =====================================================
+
+export function slideId(){
+  return "slide-" + id++ + ".html";
+}
 
 export function cryptoId(){
   return (crypto?.randomUUID?.() || ("id_" + Math.random().toString(16).slice(2)));
@@ -1118,4 +1124,3 @@ import './slides.js';
 import { initContextMenu } from './contextMenu.js';
 
 initContextMenu(slideEl);
-
