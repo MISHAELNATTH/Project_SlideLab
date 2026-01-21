@@ -229,6 +229,7 @@ ${exportBaseCSS()}
     }
 
     else if (el.type === "button") {
+
       // IMPORTANT :
       // - on force un data-btn-id stable = el.id
       // - on tente de récupérer un href existant dans el.html

@@ -135,7 +135,7 @@ function renderPresentationSlide(index, container) {
     if (e.shapeType) {
       node.classList.add(e.shapeType);
     }
-    
+
     // Positioning
     node.style.position = "absolute";
     node.style.left = px(e.x);
