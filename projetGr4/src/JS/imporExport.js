@@ -1,5 +1,5 @@
-// imporExport.js
-import { thumbsEl, state, cryptoId, setSelectedId, render } from "./editor.js";
+import { thumbsEl, state, slideId, setSelectedId, render, slideEl } from "./editor.js";
+import { generateSlideHTML } from "./slides.js";
 
 // =====================================================
 //  HELPERS
@@ -120,7 +120,7 @@ function parseSlideHTML(htmlContent) {
     let id =
       node.getAttribute("data-id") ||
       node.getAttribute("data-btn-id") ||
-      cryptoId();
+      slideId();
 
     // --- nouveau format (.el) ---
     if (node.classList.contains("el")) {
@@ -184,7 +184,7 @@ function parseSlideHTML(htmlContent) {
       const buttonId =
         btn.getAttribute("data-btn-id") ||
         btn.getAttribute("data-id") ||
-        cryptoId();
+        slideId();
 
       const a = btn.querySelector("a[href]");
       const href = a ? a.getAttribute("href") : null;
@@ -236,7 +236,7 @@ function loadSlidesFromFiles(files) {
         const meta = parsed.meta;
 
         const slideObj = {
-          id: cryptoId(),
+          id: slideId(),
           elements,
           // ce que tu veux sauvegarder
           title: meta.title ?? file.name.replace(/\.html$/i, ""),
@@ -284,4 +284,24 @@ fileInput.addEventListener("change", (ev) => {
     loadSlidesFromFiles(ev.target.files);
     ev.target.value = ""; // reset input
   }
+});
+
+
+// export all slides as HTML files to download
+document.getElementById("exportBtn").addEventListener("click", () => {
+  
+  state.slides.forEach((slide, index) => {
+    const html = generateSlideHTML(index);
+    const blob = new Blob([html], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${slide.id}`;
+
+    setTimeout(() => {
+      a.click();
+      URL.revokeObjectURL(url);
+    }, index * 200);
+  });
+  
 });

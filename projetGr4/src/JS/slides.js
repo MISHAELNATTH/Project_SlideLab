@@ -7,6 +7,7 @@ import {
   render,
   setZoom,
   getZoom,
+  slideId,
   getActive
 } from "./editor.js";
 
@@ -31,7 +32,7 @@ function escHtml(s = "") {
 
 // add slide
 document.getElementById("addSlideBtn").addEventListener("click", () => {
-  state.slides.push({ id: cryptoId(), elements: [] });
+  state.slides.push({ id: slideId(), elements: [] });
   state.activeSlide = state.slides.length - 1;
   setSelectedId(null);
   render();
@@ -42,8 +43,8 @@ document.getElementById("addSlideBtn").addEventListener("click", () => {
 document.getElementById("dupSlideBtn").addEventListener("click", () => {
   const s = getActive();
   const clone = JSON.parse(JSON.stringify(s));
-  clone.id = cryptoId();
-  clone.elements.forEach((e) => (e.id = cryptoId()));
+  clone.id = slideId();
+  clone.elements.forEach((e) => (e.id = slideId()));
   state.slides.splice(state.activeSlide + 1, 0, clone);
   state.activeSlide++;
   setSelectedId(null);
@@ -166,7 +167,7 @@ function exportBaseCSS() {
 
 
 
-function generateSlideHTML(slideIndex) {
+export function generateSlideHTML(slideIndex) {
   const slide = state.slides[slideIndex];
 
   // --- META qu’on veut sauvegarder dans le HTML ---
@@ -247,12 +248,22 @@ ${exportBaseCSS()}
       // rendu visuel:
       // si ton bouton contient déjà un <a>, on garde.
       // sinon on l’exporte en <a> pour que le lien marche en présentation.
-      const safeInner =
+      let safeInner =
         (el.html && el.html.trim())
           ? el.html
           : `<a href="#" style="color:inherit;text-decoration:none;display:block;width:100%;text-align:center;">Bouton</a>`;
 
-      html += `      <div class="el button" data-btn-id="${el.id}" ${style}>${safeInner}</div>\n`;
+      // Convertir les liens internes vers les slides en noms de fichiers
+      if (target && target.kind === "index") {
+        // Convertir #slide:X ou #slide-X en slide-X.html
+        const slideIndex = target.index;
+        const newHref = `slide-${slideIndex + 1}.html`;
+        safeInner = safeInner.replace(/href=["'][^"']*["']/i, `href="${newHref}"`);
+      }
+
+      // Ajouter data-link si le lien existe (depuis el.link ou href)
+      const dataLink = (href || el.link) ? ` data-link="${href || el.link}"` : "";
+      html += `      <div class="el button" data-btn-id="${el.id}"${dataLink} ${style}>${safeInner}</div>\n`;
     }
 
     else if (el.type === "shape") {
@@ -286,6 +297,43 @@ ${exportBaseCSS()}
       }
       window.addEventListener('resize', updateScale, { passive:true });
       updateScale();
+      
+      // Rendre les boutons et textes avec liens cliquables
+      document.querySelectorAll('.el[data-link]').forEach(el => {
+        const link = el.getAttribute('data-link');
+        if (!link) return;
+        
+        el.style.cursor = 'pointer';
+        el.onclick = () => {
+          // Vérifier si c'est un lien vers une slide ou une URL
+          if (!isNaN(link)) {
+            // C'est un numéro de slide (1-based)
+            const slideIndex = parseInt(link);
+            // En file://, on utilise le nom du fichier
+            window.location.href = 'slide-' + slideIndex + '.html';
+          } else if (link.match(/^slide-\d+\.html$/i)) {
+            // C'est déjà un nom de fichier
+            window.location.href = link;
+          } else {
+            // C'est une URL externe
+            window.open(link, '_blank');
+          }
+        };
+      });
+      
+      // Aussi gérer les liens dans les <a> directs
+      document.querySelectorAll('.el a[href]').forEach(link => {
+        const href = link.getAttribute('href');
+        if (!href || href === '#') return;
+        
+        const parent = link.closest('.el');
+        if (parent) {
+          parent.style.cursor = 'pointer';
+          parent.onclick = () => {
+            window.location.href = href;
+          };
+        }
+      });
     })();
   </script>
 </body>
@@ -295,34 +343,6 @@ ${exportBaseCSS()}
 }
 
 
-
-// export all slides as HTML files to download
-document.getElementById("exportBtn").addEventListener("click", () => {
-  if (state.slides.length === 1) {
-    const html = generateSlideHTML(0);
-    const blob = new Blob([html], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "slide.html";
-    a.click();
-    URL.revokeObjectURL(url);
-  } else {
-    state.slides.forEach((_, index) => {
-      const html = generateSlideHTML(index);
-      const blob = new Blob([html], { type: "text/html" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `slide-${index + 1}.html`;
-
-      setTimeout(() => {
-        a.click();
-        URL.revokeObjectURL(url);
-      }, index * 200);
-    });
-  }
-});
 
 // fit
 document.getElementById("fitBtn").addEventListener("click", () => {
@@ -351,6 +371,20 @@ document.getElementById("slide").addEventListener("input", (ev) => {
   if (!e) return;
   if (e.type === "text" || e.type === "button") {
     e.html = elNode.innerHTML;
+    
+    // Extraire le lien s'il existe dans une balise <a>
+    try {
+      const tmp = document.createElement("div");
+      tmp.innerHTML = e.html;
+      const a = tmp.querySelector("a[href]");
+      if (a) {
+        e.link = a.getAttribute("href");
+      } else {
+        delete e.link;
+      }
+    } catch {
+      delete e.link;
+    }
   }
 });
 
