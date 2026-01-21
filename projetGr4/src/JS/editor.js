@@ -83,6 +83,8 @@ function clearSelection(){
 }
 
 function select(id){
+  // Fix: Prevent re-rendering if already selected to allow double-click events
+  if (selectedId === id) return;
   selectedId = id;
   render();
 }
