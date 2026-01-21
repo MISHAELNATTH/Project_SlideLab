@@ -2,29 +2,70 @@
 //  DONNÉES ET CONFIGURATION
 // =====================================================
 
-const state = {
+export const state = {
   activeSlide: 0,
   slides: [
-    { id: cryptoId(), elements: [
-      { id: cryptoId(), type:"text", x:90, y:80, w:520, h:70, html:"Titre de la slide" },
-      { id: cryptoId(), type:"shape", x:90, y:190, w:420, h:160 },
-      { id: cryptoId(), type:"button", x:90, y:380, w:220, h:50, html:"Clique ici" },
-    ]}
+    { 
+      id: cryptoId(), 
+      backgroundColor: "#ffffff",
+      backgroundGradient: "",
+      elements: [
+        { id: cryptoId(), type:"text", x:90, y:80, w:520, h:70, html:"Titre de la slide", color: "#111827", fontSize: 28, fontWeight: 800, fontFamily: "Arial", textAlign: "left" },
+        { id: cryptoId(), type:"shape", x:90, y:190, w:420, h:160, shapeType: "rectangle", fillColor: "#7c5cff", borderColor: "#37d6ff", opacity: 1 },
+        { id: cryptoId(), type:"button", x:90, y:380, w:220, h:50, html:"Clique ici", color: "#ffffff", fontSize: 16, fontWeight: 700, fontFamily: "Arial", textAlign: "center" },
+      ]}
   ]
 };
 
-const slideEl   = document.getElementById("slide");
-const thumbsEl  = document.getElementById("thumbs");
-const searchEl  = document.getElementById("toolSearch");
-const zoomChip  = document.getElementById("zoomChip");
+// =====================================================
+//  SAUVEGARDE/CHARGEMENT (localStorage)
+// =====================================================
 
-let selectedId = null;
+export function saveState() {
+  try {
+    localStorage.setItem('slides_state', JSON.stringify(state));
+    console.log('✓ État sauvegardé');
+  } catch (e) {
+    console.error('Erreur lors de la sauvegarde:', e);
+  }
+}
+
+export function loadState() {
+  try {
+    const saved = localStorage.getItem('slides_state');
+    if (saved) {
+      const loaded = JSON.parse(saved);
+      state.activeSlide = loaded.activeSlide;
+      state.slides = loaded.slides;
+      console.log('✓ État restauré');
+      return true;
+    }
+  } catch (e) {
+    console.error('Erreur lors du chargement:', e);
+  }
+  return false;
+}
+
+export const slideEl   = document.getElementById("slide");
+export const thumbsEl  = document.getElementById("thumbs");
+export const searchEl  = document.getElementById("toolSearch");
+export const zoomChip  = document.getElementById("zoomChip");
+
+export let selectedId = null;
+
+export function setSelectedId(id) {
+  selectedId = id;
+}
+
+export function getSelectedId() {
+  return selectedId;
+}
 
 // =====================================================
 //  HELPERS
 // =====================================================
 
-function cryptoId(){
+export function cryptoId(){
   return (crypto?.randomUUID?.() || ("id_" + Math.random().toString(16).slice(2)));
 }
 
@@ -32,7 +73,7 @@ function clamp(n, a, b){
   return Math.max(a, Math.min(b, n)); 
 }
 
-function getActive(){
+export function getActive(){
   return state.slides[state.activeSlide];
 }
 
@@ -46,29 +87,46 @@ function clearSelection(){
 }
 
 function select(id){
+  // Fix: Prevent re-rendering if already selected to allow double-click events
+  if (selectedId === id) return;
   selectedId = id;
   render();
 }
 
-function getZoom(){
+export function getZoom(){
   const m = slideEl.style.transform.match(/scale\(([\d.]+)\)/);
   return m ? parseFloat(m[1]) : 1;
 }
 
-function setZoom(z){
+export function setZoom(z){
   z = clamp(z, .35, 2);
   slideEl.style.transformOrigin = "middle top";
   slideEl.style.transform = `scale(${z})`;
   zoomChip.textContent = `Zoom: ${Math.round(z*100)}%`;
 }
-function render(){
+
+// =====================================================
+//  RENDER
+// =====================================================
+export function render(){
+  const s = getActive();
+  
+  // Apply slide background
+  if (s.backgroundGradient) {
+    slideEl.style.background = s.backgroundGradient;
+  } else {
+    slideEl.style.background = s.backgroundColor || "#ffffff";
+  }
+  
   // Render slide elements
   slideEl.querySelectorAll(".el").forEach(n => n.remove());
-  const s = getActive();
 
   s.elements.forEach(e => {
     const node = document.createElement("div");
     node.className = "el " + e.type + (e.id === selectedId ? " selected" : "");
+    if (e.shapeType) {
+      node.classList.add(e.shapeType);
+    }
     node.dataset.id = e.id;
     node.style.left = px(e.x);
     node.style.top  = px(e.y);
@@ -81,34 +139,151 @@ function render(){
       node.style.height = px(e.h || 54);
     }
 
-    if (e.type === "text"){
+    // Apply text styles
+    if (e.type === "text" || e.type === "button"){
       node.contentEditable = "true";
       node.spellcheck = false;
-      node.innerHTML = e.html || "Texte";
+      node.innerHTML = e.html || (e.type === "text" ? "Texte" : "Bouton");
+      if (e.color) node.style.color = e.color;
+      if (e.fontSize) node.style.fontSize = px(e.fontSize);
+      if (e.fontWeight) node.style.fontWeight = e.fontWeight;
+      if (e.fontFamily) node.style.fontFamily = e.fontFamily;
+      if (e.textAlign) node.style.textAlign = e.textAlign;
+      
+      // Add text formatting toolbar
+      const toolbar = createTextToolbar(e);
+      node.appendChild(toolbar);
     }
 
-    if (e.type === "button"){
-      node.contentEditable = "true";
-      node.spellcheck = false;
-      node.innerHTML = e.html || "Bouton";
+    // Apply table styles
+    if (e.type === "table"){
+      // Create table element
+      const tableEl = document.createElement("table");
+      tableEl.className = "data-table";
+      
+      // Apply custom border color if set
+      if (e.borderColor) {
+        tableEl.style.setProperty('--table-border-color', e.borderColor);
+      }
+      
+      // Render table rows and cells
+      const rows = e.rows || 3;
+      const cols = e.cols || 3;
+      const data = e.data || Array(rows).fill(null).map(() => Array(cols).fill(""));
+      
+      for (let i = 0; i < rows; i++) {
+        const tr = document.createElement("tr");
+        for (let j = 0; j < cols; j++) {
+          const cell = i === 0 ? document.createElement("th") : document.createElement("td");
+          cell.contentEditable = "true";
+          cell.textContent = data[i][j] || (i === 0 ? `Col ${j + 1}` : "");
+          cell.dataset.row = i;
+          cell.dataset.col = j;
+          
+          // Apply custom colors
+          if (i === 0 && e.headerColor) {
+            cell.style.background = e.headerColor;
+          }
+          if (e.borderColor) {
+            cell.style.borderColor = e.borderColor;
+          }
+          
+          // Save cell content on blur
+          cell.addEventListener("blur", () => {
+            if (!e.data) e.data = Array(rows).fill(null).map(() => Array(cols).fill(""));
+            e.data[i][j] = cell.textContent;
+          });
+          
+          tr.appendChild(cell);
+        }
+        tableEl.appendChild(tr);
+      }
+      
+      node.appendChild(tableEl);
+      
+      // Add table controls
+      const controls = createTableControls(e);
+      node.appendChild(controls);
+    }
+
+    // Apply shape styles
+    if (e.type === "shape"){
+      // Create a wrapper for the shape visual content (to apply opacity without affecting controls)
+      const shapeWrapper = document.createElement("div");
+      shapeWrapper.className = "shape-content-wrapper";
+      
+      // Apply visual styles to the wrapper
+      if (e.fillColor) shapeWrapper.style.background = e.fillColor;
+      if (e.opacity !== undefined) shapeWrapper.style.opacity = e.opacity;
+      
+      // Apply border to the wrapper if borderColor is set
+      if (e.borderColor) {
+        shapeWrapper.style.border = `3px solid ${e.borderColor}`;
+      }
+      
+      // Add the wrapper to the node
+      node.appendChild(shapeWrapper);
+      
+      // Add shape controls (outside the wrapper so they're not affected by opacity)
+      const controls = createShapeControls(e);
+      node.appendChild(controls);
     }
 
     if (e.type === "image"){
+      // if (e.imageData){
+      //   // afficher l'image réelle
+      //   node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:cntain;">`;
+      // } else{
+      //   // afficher le placeholder
+      //   node.innerHTML = `<div style="padding:12px;text-align:center;line-height:1.2;cursor:pointer;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+      //     <span style="font-size:24px;margin-bottom:8px;">📸</span>
+      //     <span style="font-size:13px;font-weight:600;color:#007bff">Dépose une image</span>
+      //     <span style="font-size:11px;color:#999;margin-top:4px">ou clique pour parcourir</span>
+      //   </div>`;
+      // }
+
+      // We wrap the content in a wrapper to handle 'overflow:hidden' and 'border-radius'
+      // while allowing the handles (children of 'node') to sit outside visible area.
+      const wrapper = document.createElement('div');
+      wrapper.className = "el-img-wrapper";
+      
+      let innerContent = "";
       if (e.imageData){
-        // afficher l'image réelle
-        node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:cover;">`;
+        // Changed object-fit to contain to fit image without cropping
+        innerContent = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:contain;">`;
       } else{
-        // afficher le placeholder
-        node.innerHTML = `<div style="padding:12px;text-align:center;line-height:1.2;cursor:pointer;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+        // Placeholder
+        innerContent = `<div style="padding:12px;text-align:center;line-height:1.2;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;">
           <span style="font-size:24px;margin-bottom:8px;">📸</span>
           <span style="font-size:13px;font-weight:600;color:#007bff">Dépose une image</span>
-          <span style="font-size:11px;color:#999;margin-top:4px">ou clique pour parcourir</span>
+          <span style="font-size:11px;color:#999;margin-top:4px">ou double-clique pour parcourir</span>
         </div>`;
       }
+      wrapper.innerHTML = innerContent;
+      node.appendChild(wrapper);
 
-      // autoriser le drag & drop d'images
       node.style.cursor = "pointer";
       
+      // Double-click to add image
+      node.addEventListener("dblclick", () => {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+        input.onchange = (ev) => {
+          const file = ev.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              e.imageData = event.target.result;
+              render();
+            };
+            reader.readAsDataURL(file);
+          }
+        };
+        input.click();
+      });
+      
+      // Drag & drop
       node.addEventListener("dragover", (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
@@ -142,6 +317,30 @@ function render(){
           }
         }
       });
+
+      // 2. Double Click to Upload
+      node.addEventListener("dblclick", (ev) => {
+        ev.stopPropagation(); // prevent other dblclick handlers
+        
+        // Create a temporary file input
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+        
+        input.onchange = (event) => {
+          const file = event.target.files[0];
+          if (file && file.type.startsWith("image/")) {
+            const reader = new FileReader();
+            reader.onload = (loadEvent) => {
+              e.imageData = loadEvent.target.result;
+              render();
+            };
+            reader.readAsDataURL(file);
+          }
+        };
+        
+        input.click();
+      });
     }
 
     // handles
@@ -154,7 +353,6 @@ function render(){
 
     // select
     node.addEventListener("mousedown", (ev)=>{
-      // si on clique une poignée -> géré par resize
       if (ev.target.classList.contains("handle")) return;
       select(e.id);
     });
@@ -186,7 +384,7 @@ function render(){
 
     // render thumbnail preview
     const miniDiv = t.querySelector('.mini');
-    const scale = 0.12; // scale factor for thumbnail
+    const scale = 0.12;
     
     sl.elements.forEach(e => {
       const node = document.createElement("div");
@@ -214,7 +412,7 @@ function render(){
         node.style.overflow = "hidden";
       } else if (e.type === "image"){
         if (e.imageData) {
-          node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:cover;">`;
+          node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:contain;">`;
         } else {
           node.innerHTML = `<div style="font-size:6px;padding:2px;">📸</div>`;
         }
@@ -232,6 +430,315 @@ function render(){
   // update zoom indicator
   const z = getZoom();
   zoomChip.textContent = `Zoom: ${Math.round(z*100)}%`;
+}
+
+// =====================================================
+//  TOOLBARS
+// =====================================================
+function createTextToolbar(element) {
+  const toolbar = document.createElement("div");
+  toolbar.className = "text-toolbar";
+  toolbar.addEventListener("mousedown", (ev) => ev.stopPropagation());
+  toolbar.addEventListener("click", (ev) => ev.stopPropagation());
+  
+  // Color picker
+  const colorInput = document.createElement("input");
+  colorInput.type = "color";
+  colorInput.value = element.color || "#111827";
+  colorInput.title = "Couleur du texte";
+  colorInput.addEventListener("input", (e) => {
+    element.color = e.target.value;
+    render();
+  });
+  
+  // Font family
+  const fontSelect = document.createElement("select");
+  fontSelect.innerHTML = `
+    <option value="Arial" ${element.fontFamily === "Arial" ? "selected" : ""}>Arial</option>
+    <option value="Georgia" ${element.fontFamily === "Georgia" ? "selected" : ""}>Georgia</option>
+    <option value="Times New Roman" ${element.fontFamily === "Times New Roman" ? "selected" : ""}>Times New Roman</option>
+    <option value="Courier New" ${element.fontFamily === "Courier New" ? "selected" : ""}>Courier New</option>
+    <option value="Verdana" ${element.fontFamily === "Verdana" ? "selected" : ""}>Verdana</option>
+  `;
+  fontSelect.addEventListener("change", (e) => {
+    element.fontFamily = e.target.value;
+    render();
+  });
+  
+  // Font size
+  const sizeInput = document.createElement("input");
+  sizeInput.type = "number";
+  sizeInput.value = element.fontSize || 28;
+  sizeInput.min = 8;
+  sizeInput.max = 120;
+  sizeInput.style.width = "60px";
+  sizeInput.addEventListener("change", (e) => {
+    element.fontSize = parseInt(e.target.value);
+    render();
+  });
+  
+  // Bold
+  const boldBtn = document.createElement("button");
+  boldBtn.innerHTML = "B";
+  boldBtn.title = "Gras";
+  boldBtn.className = element.fontWeight === "bold" || element.fontWeight >= 700 ? "active" : "";
+  boldBtn.addEventListener("click", () => {
+    element.fontWeight = element.fontWeight === "bold" || element.fontWeight >= 700 ? 400 : 700;
+    render();
+  });
+  
+  // Italic
+  const italicBtn = document.createElement("button");
+  italicBtn.innerHTML = "I";
+  italicBtn.title = "Italique";
+  italicBtn.style.fontStyle = "italic";
+  italicBtn.addEventListener("click", () => {
+    element.fontStyle = element.fontStyle === "italic" ? "normal" : "italic";
+    render();
+  });
+  
+  // Alignment
+  const alignLeft = document.createElement("button");
+  alignLeft.innerHTML = "⫷";
+  alignLeft.title = "Aligner à gauche";
+  alignLeft.className = element.textAlign === "left" ? "active" : "";
+  alignLeft.addEventListener("click", () => {
+    element.textAlign = "left";
+    render();
+  });
+  
+  const alignCenter = document.createElement("button");
+  alignCenter.innerHTML = "≡";
+  alignCenter.title = "Centrer";
+  alignCenter.className = element.textAlign === "center" ? "active" : "";
+  alignCenter.addEventListener("click", () => {
+    element.textAlign = "center";
+    render();
+  });
+  
+  const alignRight = document.createElement("button");
+  alignRight.innerHTML = "⫸";
+  alignRight.title = "Aligner à droite";
+  alignRight.className = element.textAlign === "right" ? "active" : "";
+  alignRight.addEventListener("click", () => {
+    element.textAlign = "right";
+    render();
+  });
+  
+  toolbar.appendChild(colorInput);
+  toolbar.appendChild(fontSelect);
+  toolbar.appendChild(sizeInput);
+  toolbar.appendChild(document.createElement("div")).className = "divider";
+  toolbar.appendChild(boldBtn);
+  toolbar.appendChild(italicBtn);
+  toolbar.appendChild(document.createElement("div")).className = "divider";
+  toolbar.appendChild(alignLeft);
+  toolbar.appendChild(alignCenter);
+  toolbar.appendChild(alignRight);
+  
+  return toolbar;
+}
+window.addEventListener("unhandledrejection", (e) => {
+  console.warn("Unhandled promise rejection:", e.reason);
+});
+
+function createTableControls(element) {
+  const controls = document.createElement("div");
+  controls.className = "table-controls";
+  controls.addEventListener("mousedown", (ev) => ev.stopPropagation());
+  controls.addEventListener("click", (ev) => ev.stopPropagation());
+  
+  // Add row button
+  const addRowBtn = document.createElement("button");
+  addRowBtn.innerHTML = "+ Ligne";
+  addRowBtn.title = "Ajouter une ligne";
+  addRowBtn.addEventListener("click", () => {
+    element.rows = (element.rows || 3) + 1;
+    if (!element.data) element.data = [];
+    element.data.push(Array(element.cols || 3).fill(""));
+    render();
+  });
+  
+  // Remove row button
+  const removeRowBtn = document.createElement("button");
+  removeRowBtn.innerHTML = "- Ligne";
+  removeRowBtn.title = "Supprimer une ligne";
+  removeRowBtn.addEventListener("click", () => {
+    if ((element.rows || 3) > 2) {
+      element.rows = (element.rows || 3) - 1;
+      if (element.data) element.data.pop();
+      render();
+    }
+  });
+  
+  // Add column button
+  const addColBtn = document.createElement("button");
+  addColBtn.innerHTML = "+ Colonne";
+  addColBtn.title = "Ajouter une colonne";
+  addColBtn.addEventListener("click", () => {
+    element.cols = (element.cols || 3) + 1;
+    if (!element.data) element.data = Array(element.rows || 3).fill(null).map(() => Array(element.cols).fill(""));
+    else element.data.forEach(row => row.push(""));
+    render();
+  });
+  
+  // Remove column button
+  const removeColBtn = document.createElement("button");
+  removeColBtn.innerHTML = "- Colonne";
+  removeColBtn.title = "Supprimer une colonne";
+  removeColBtn.addEventListener("click", () => {
+    if ((element.cols || 3) > 2) {
+      element.cols = (element.cols || 3) - 1;
+      if (element.data) element.data.forEach(row => row.pop());
+      render();
+    }
+  });
+  
+  // Border color
+  const borderGroup = document.createElement("div");
+  borderGroup.className = "control-group";
+  
+  const borderLabel = document.createElement("label");
+  borderLabel.textContent = "Bordure:";
+  
+  const borderColor = document.createElement("input");
+  borderColor.type = "color";
+  borderColor.value = element.borderColor || "#cccccc";
+  borderColor.addEventListener("input", (e) => {
+    element.borderColor = e.target.value;
+    render();
+  });
+  
+  borderGroup.appendChild(borderLabel);
+  borderGroup.appendChild(borderColor);
+  
+  // Header color
+  const headerGroup = document.createElement("div");
+  headerGroup.className = "control-group";
+  
+  const headerLabel = document.createElement("label");
+  headerLabel.textContent = "En-tête:";
+  
+  const headerColor = document.createElement("input");
+  headerColor.type = "color";
+  headerColor.value = element.headerColor || "#f3f4f6";
+  headerColor.addEventListener("input", (e) => {
+    element.headerColor = e.target.value;
+    render();
+  });
+  
+  headerGroup.appendChild(headerLabel);
+  headerGroup.appendChild(headerColor);
+  
+  controls.appendChild(addRowBtn);
+  controls.appendChild(removeRowBtn);
+  controls.appendChild(addColBtn);
+  controls.appendChild(removeColBtn);
+  controls.appendChild(borderGroup);
+  controls.appendChild(headerGroup);
+  
+  return controls;
+}
+
+function createShapeControls(element) {
+  const controls = document.createElement("div");
+  controls.className = "shape-controls";
+  controls.addEventListener("mousedown", (ev) => ev.stopPropagation());
+  controls.addEventListener("click", (ev) => ev.stopPropagation());
+  
+  
+  // Shape type selector
+  const shapeGroup = document.createElement("div");
+  shapeGroup.className = "control-group";
+  
+  const shapeLabel = document.createElement("label");
+  shapeLabel.textContent = "Forme:";
+  
+  const shapeSelect = document.createElement("select");
+  shapeSelect.innerHTML = `
+    <option value="rectangle" ${element.shapeType === "rectangle" ? "selected" : ""}>Rectangle</option>
+    <option value="circle" ${element.shapeType === "circle" ? "selected" : ""}>Cercle</option>
+    <option value="triangle" ${element.shapeType === "triangle" ? "selected" : ""}>Triangle</option>
+    <option value="star" ${element.shapeType === "star" ? "selected" : ""}>Étoile</option>
+    <option value="diamond" ${element.shapeType === "diamond" ? "selected" : ""}>Losange</option>
+  `;
+  shapeSelect.addEventListener("change", (e) => {
+    element.shapeType = e.target.value;
+    render();
+  });
+  
+  shapeGroup.appendChild(shapeLabel);
+  shapeGroup.appendChild(shapeSelect);
+  
+  // Fill color
+  const fillGroup = document.createElement("div");
+  fillGroup.className = "control-group";
+  
+  const fillLabel = document.createElement("label");
+  fillLabel.textContent = "Remplissage:";
+  
+  const fillColor = document.createElement("input");
+  fillColor.type = "color";
+  fillColor.value = element.fillColor || "#7c5cff";
+  fillColor.addEventListener("input", (e) => {
+    element.fillColor = e.target.value;
+    render();
+  });
+  
+  fillGroup.appendChild(fillLabel);
+  fillGroup.appendChild(fillColor);
+  
+  // Border color
+  const borderGroup = document.createElement("div");
+  borderGroup.className = "control-group";
+  
+  const borderLabel = document.createElement("label");
+  borderLabel.textContent = "Bordure:";
+  
+  const borderColor = document.createElement("input");
+  borderColor.type = "color";
+  borderColor.value = element.borderColor || "#37d6ff";
+  borderColor.addEventListener("input", (e) => {
+    element.borderColor = e.target.value;
+    render();
+  });
+  
+  borderGroup.appendChild(borderLabel);
+  borderGroup.appendChild(borderColor);
+  
+  // Opacity
+  const opacityGroup = document.createElement("div");
+  opacityGroup.className = "control-group";
+  
+  const opacityLabel = document.createElement("label");
+  opacityLabel.textContent = "Opacité:";
+  
+  const opacityValue = document.createElement("span");
+  opacityValue.className = "opacity-value";
+  opacityValue.textContent = Math.round((element.opacity !== undefined ? element.opacity : 1) * 100) + "%";
+  
+  const opacitySlider = document.createElement("input");
+  opacitySlider.type = "range";
+  opacitySlider.min = 0;
+  opacitySlider.max = 1;
+  opacitySlider.step = 0.01;
+  opacitySlider.value = element.opacity !== undefined ? element.opacity : 1;
+  opacitySlider.addEventListener("input", (e) => {
+    element.opacity = parseFloat(e.target.value);
+    opacityValue.textContent = Math.round(e.target.value * 100) + "%";
+    render();
+  });
+  
+  opacityGroup.appendChild(opacityLabel);
+  opacityGroup.appendChild(opacitySlider);
+  opacityGroup.appendChild(opacityValue);
+  
+  controls.appendChild(shapeGroup);
+  controls.appendChild(fillGroup);
+  controls.appendChild(borderGroup);
+  controls.appendChild(opacityGroup);
+  
+  return controls;
 }
 
 // =====================================================
@@ -261,7 +768,6 @@ slideEl.addEventListener("drop", (ev)=>{
   const toolType = ev.dataTransfer.getData("text/plain");
   if (!toolType) return;
 
-  // position relative to slide (account for zoom)
   const rect = slideEl.getBoundingClientRect();
   const z = getZoom();
   const x = (ev.clientX - rect.left) / z;
@@ -285,21 +791,23 @@ function addFromTool(toolType, x, y){
   let el = null;
 
   if (toolType === "text"){
-    el = { ...base, type:"text", w: 520, h: 70, html:"Nouveau texte" };
+    el = { ...base, type:"text", w: 520, h: 70, html:"Nouveau texte", color: "#111827", fontSize: 28, fontWeight: 800, fontFamily: "Arial", textAlign: "left" };
   } else if (toolType === "shape"){
-    el = { ...base, type:"shape", w: 320, h: 180 };
+    el = { ...base, type:"shape", w: 320, h: 180, shapeType: "rectangle", fillColor: "#7c5cff", borderColor: "#37d6ff", opacity: 1 };
   } else if (toolType === "button"){
-    el = { ...base, type:"button", w: 220, h: 54, html:"Bouton" };
+    el = { ...base, type:"button", w: 220, h: 54, html:"Bouton", color: "#ffffff", fontSize: 16, fontWeight: 700, fontFamily: "Arial", textAlign: "center" };
   } else if (toolType === "image"){
     el = { ...base, type:"image", w: 360, h: 240 };
+  } else if (toolType === "table"){
+    el = { ...base, type:"table", w: 400, h: 200, rows: 3, cols: 3, borderColor: "#cccccc", headerColor: "#f3f4f6" };
   } else if (toolType === "twoCols"){
-    s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-360,0,820), y: clamp(y-140,0,460), w: 420, h: 60, html:"Titre (2 colonnes)" });
-    s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-360,0,820), y: clamp(y-70,0,470), w: 420, h: 120, html:"Texte descriptif…" });
+    s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-360,0,820), y: clamp(y-140,0,460), w: 420, h: 60, html:"Titre (2 colonnes)", color: "#111827", fontSize: 28, fontWeight: 800, fontFamily: "Arial", textAlign: "left" });
+    s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-360,0,820), y: clamp(y-70,0,470), w: 420, h: 120, html:"Texte descriptif…", color: "#111827", fontSize: 18, fontWeight: 400, fontFamily: "Arial", textAlign: "left" });
     s.elements.push({ id: cryptoId(), type:"image", x: clamp(x+80,0,600), y: clamp(y-140,0,300), w: 320, h: 240 });
     return;
   } else if (toolType === "titleSubtitle"){
-    s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-320,0,600), y: clamp(y-120,0,460), w: 700, h: 70, html:"Titre" });
-    s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-320,0,600), y: clamp(y-40,0,490), w: 700, h: 60, html:"Sous-titre" });
+    s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-320,0,600), y: clamp(y-120,0,460), w: 700, h: 70, html:"Titre", color: "#111827", fontSize: 36, fontWeight: 800, fontFamily: "Arial", textAlign: "left" });
+    s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-320,0,600), y: clamp(y-40,0,490), w: 700, h: 60, html:"Sous-titre", color: "#111827", fontSize: 24, fontWeight: 400, fontFamily: "Arial", textAlign: "left" });
     return;
   }
 
@@ -317,12 +825,23 @@ let move = null;
 function startMove(ev, id){
   const target = ev.target.closest(".el");
   if (!target) return;
+
+  // IMPORTANT: si on clique dans un bandeau, on ne drag pas
+  if (ev.target.closest(".text-toolbar") || ev.target.closest(".shape-controls") || ev.target.closest(".table-controls")) {
+    return;
+  }
+
   if (ev.target.classList.contains("handle")) return;
 
-  // évite de déplacer pendant l'édition de texte si on sélectionne un curseur
   const isEditable = (target.classList.contains("text") || target.classList.contains("button"));
+  const isTableCell = (ev.target.tagName === "TD" || ev.target.tagName === "TH");
+  
   if (isEditable && document.activeElement === target && window.getSelection()?.type === "Range") {
-    // user is selecting text
+    return;
+  }
+  
+  // Don't drag when editing table cells
+  if (isTableCell && document.activeElement === ev.target) {
     return;
   }
 
@@ -404,13 +923,11 @@ function onResize(ev){
 
   let x = resize.origX, y = resize.origY, w = resize.origW, h = resize.origH;
 
-  // handles: tl,tr,bl,br
   if (resize.handle.includes("r")) w = clamp(resize.origW + dx, 40, 960);
   if (resize.handle.includes("l")) { w = clamp(resize.origW - dx, 40, 960); x = resize.origX + dx; }
   if (resize.handle.includes("b")) h = clamp(resize.origH + dy, 30, 540);
   if (resize.handle.includes("t")) { h = clamp(resize.origH - dy, 30, 540); y = resize.origY + dy; }
 
-  // clamp to slide bounds
   x = clamp(x, 0, 960 - 20);
   y = clamp(y, 0, 540 - 20);
 
@@ -426,23 +943,19 @@ function endResize(){
 // =====================================================
 //  ACTIONS UI - SUPPRESSION, SÉLECTION, CLAVIER
 // =====================================================
-// click outside to unselect
 slideEl.addEventListener("mousedown", (ev)=>{
   if (ev.target === slideEl || ev.target.classList.contains("drop-hint")){
     clearSelection();
   }
 });
 
-// delete selected
 document.getElementById("deleteBtn").addEventListener("click", deleteSelected);
 window.addEventListener("keydown", (ev)=>{
   if (ev.key === "Delete" || ev.key === "Backspace"){
-    // ne pas supprimer si on écrit dans un editable
     const a = document.activeElement;
     if (a && (a.classList?.contains("text") || a.classList?.contains("button"))) return;
     deleteSelected();
   }
-  // zoom shortcuts
   if ((ev.ctrlKey || ev.metaKey) && (ev.key === "+" || ev.key === "=")){ ev.preventDefault(); setZoom(getZoom()+0.1); }
   if ((ev.ctrlKey || ev.metaKey) && (ev.key === "-" )){ ev.preventDefault(); setZoom(getZoom()-0.1); }
   if ((ev.ctrlKey || ev.metaKey) && (ev.key === "0" )){ ev.preventDefault(); setZoom(1); }
@@ -457,281 +970,113 @@ function deleteSelected(){
 }
 
 // =====================================================
-//  IMPORT/EXPORT - FICHIERS HTML
+//  BACKGROUND CONTROLS
 // =====================================================
-function parseSlideHTML(htmlContent) {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(htmlContent, 'text/html');
-  const elements = [];
-
-  const slideElements = doc.querySelectorAll('.slide-element');
-  
-  slideElements.forEach(el => {
-    const style = el.getAttribute('style') || '';
-    
-    // Extract position and size from inline styles
-    const leftMatch = style.match(/left:\s*(\d+)px/);
-    const topMatch = style.match(/top:\s*(\d+)px/);
-    const widthMatch = style.match(/width:\s*(\d+)px/);
-    const heightMatch = style.match(/height:\s*(\d+)px/);
-    
-    const x = leftMatch ? parseInt(leftMatch[1]) : 0;
-    const y = topMatch ? parseInt(topMatch[1]) : 0;
-    const w = widthMatch ? parseInt(widthMatch[1]) : 240;
-    const h = heightMatch ? parseInt(heightMatch[1]) : 54;
-    
-    // Determine element type from class
-    let type = 'text';
-    let html = '';
-    
-    if (el.classList.contains('text-element')) {
-      type = 'text';
-      const p = el.querySelector('p');
-      html = p ? p.innerHTML : 'Texte';
-    } else if (el.classList.contains('button-element')) {
-      type = 'button';
-      html = el.innerHTML.trim();
-    } else if (el.classList.contains('image-element')) {
-      type = 'image';
-      html = '';
-    } else if (el.classList.contains('shape-element')) {
-      type = 'shape';
-      html = '';
-    }
-    
-    elements.push({
-      id: cryptoId(),
-      type,
-      x,
-      y,
-      w,
-      h,
-      html
-    });
-  });
-  
-  return elements;
-}
-
-// load slides from files
-function loadSlidesFromFiles(files) {
-  const fileArray = Array.from(files).filter(f => f.name.endsWith('.html'));
-  
-  if (fileArray.length === 0) {
-    alert('No HTML files selected');
-    return;
-  }
-  
-  // Sort files by name to load in order
-  fileArray.sort((a, b) => a.name.localeCompare(b.name));
-  
-  let loadedCount = 0;
-  
-  fileArray.forEach((file, index) => {
-    const reader = new FileReader();
-    
-    reader.onload = (e) => {
-      try {
-        const htmlContent = e.target.result;
-        const elements = parseSlideHTML(htmlContent);
-        
-        // Replace or add slide
-        if (index === 0) {
-          // First file: replace current slide
-          state.slides[state.activeSlide] = {
-            id: cryptoId(),
-            elements
-          };
-        } else {
-          // Subsequent files: add as new slides
-          state.slides.push({
-            id: cryptoId(),
-            elements
-          });
-        }
-        
-        loadedCount++;
-        
-        // Once all files are loaded, render
-        if (loadedCount === fileArray.length) {
-          state.activeSlide = 0;
-          selectedId = null;
-          render();
-          thumbsEl.scrollLeft = 0;
-          alert(`✓ Loaded ${fileArray.length} slide(s)`);
-        }
-      } catch (error) {
-        console.error('Error parsing file:', file.name, error);
-      }
-    };
-    
-    reader.readAsText(file);
-  });
-}
-
-// open folder button
-const fileInput = document.getElementById('fileInput');
-document.getElementById('openFolderBtn').addEventListener('click', ()=>{
-  fileInput.click();
-});
-
-fileInput.addEventListener('change', (ev)=>{
-  if (ev.target.files.length > 0) {
-    loadSlidesFromFiles(ev.target.files);
-    ev.target.value = ''; // reset input
-  }
-});
-
-// =====================================================
-//  GESTION DES SLIDES
-// =====================================================
-
-// add slide
-document.getElementById("addSlideBtn").addEventListener("click", ()=>{
-  state.slides.push({ id: cryptoId(), elements: [] });
-  state.activeSlide = state.slides.length - 1;
-  selectedId = null;
-  render();
-  thumbsEl.scrollLeft = thumbsEl.scrollWidth;
-});
-
-// duplicate slide
-document.getElementById("dupSlideBtn").addEventListener("click", ()=>{
+document.getElementById("bgColorPicker").addEventListener("input", (ev) => {
   const s = getActive();
-  const clone = JSON.parse(JSON.stringify(s));
-  clone.id = cryptoId();
-  clone.elements.forEach(e => e.id = cryptoId());
-  state.slides.splice(state.activeSlide+1, 0, clone);
-  state.activeSlide++;
-  selectedId = null;
+  s.backgroundColor = ev.target.value;
+  s.backgroundGradient = "";
   render();
-  thumbsEl.scrollLeft = thumbsEl.scrollWidth;
 });
 
-// generate HTML for a slide
-function generateSlideHTML(slideIndex) {
-  const slide = state.slides[slideIndex];
-  const baseCSS = `
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: white; }
-  .slide-container { position: relative; width: 960px; height: 540px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-  .slide-element { position: absolute; }
-  .text-element, .button-element { display: flex; align-items: center; justify-content: center; }
-  .shape-element { border: 2px solid #333; border-radius: 4px; }
-  .image-element { border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; background: #f5f5f5; color: #999; }
-  .button-element { background: #007bff; color: white; border: none; cursor: pointer; border-radius: 4px; font-weight: 600; }
-  .button-element:hover { background: #0056b3; }
-  h1, h2, h3, h4, h5, h6 { margin: 0; }
-  p { margin: 0; }
-</style>
-  `;
 
-  let htmlContent = `<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Slide ${slideIndex + 1}</title>
-${baseCSS}
-</head>
-<body>
-<div class="slide-container">
-`;
+/* =========================
+   RESIZABLE BOTTOM BAR
+========================== */
+const resizerY = document.getElementById("resizerY");
 
-  slide.elements.forEach(el => {
-    const style = `style="left: ${el.x}px; top: ${el.y}px; width: ${el.w || 240}px; height: ${el.h || 54}px;"`;
-    
-    if (el.type === "text") {
-      htmlContent += `    <div class="slide-element text-element" ${style}>\n      <p>${el.html || "Texte"}</p>\n    </div>\n`;
-    } else if (el.type === "button") {
-      htmlContent += `    <button class="slide-element button-element" ${style}>${el.html || "Bouton"}</button>\n`;
-    } else if (el.type === "image") {
-      htmlContent += `    <div class="slide-element image-element" ${style}>\n      <img src="" alt="Image placeholder" style="max-width: 100%; max-height: 100%; object-fit: cover;">\n    </div>\n`;
-    } else if (el.type === "shape") {
-      htmlContent += `    <div class="slide-element shape-element" ${style}></div>\n`;
-    }
-  });
-
-  htmlContent += `  </div>
-</body>
-</html>`;
-
-  return htmlContent;
+if (resizerY) {
+  resizerY.addEventListener("mousedown", initDragBottom);
 }
 
-// export all slides as HTML files to download
-document.getElementById("exportBtn").addEventListener("click", ()=>{
-  if (state.slides.length === 1) {
-    // Single slide: download directly
-    const html = generateSlideHTML(0);
-    const blob = new Blob([html], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'slide.html';
-    a.click();
-    URL.revokeObjectURL(url);
-  } else {
-    // Multiple slides: download each one with slight delay
-    state.slides.forEach((slide, index) => {
-      const html = generateSlideHTML(index);
-      const blob = new Blob([html], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `slide-${index + 1}.html`;
-      
-      setTimeout(() => {
-        a.click();
-        URL.revokeObjectURL(url);
-      }, index * 300);
-    });
-  }
-});
+function initDragBottom(e) {
+  e.preventDefault();
+  window.addEventListener("mousemove", doDragBottom);
+  window.addEventListener("mouseup", stopDragBottom);
+  resizerY.classList.add("resizing");
+  document.body.style.cursor = "ns-resize";
+}
 
-// fit
-document.getElementById("fitBtn").addEventListener("click", ()=>{
-  // fit slide in workspace width
-  const workspace = document.getElementById("workspace");
-  const w = workspace.clientWidth - 120; // margins
-  const z = clamp(w / 960, .35, 1.2);
-  setZoom(z);
-});
+function doDragBottom(e) {
+  const availableH = window.innerHeight;
+  let newH = availableH - e.clientY - 14;
+  
+  // Limits to prevent breaking the layout
+  const minH = 50; // Minimum height for bottom bar
+  const maxH = availableH * 0.6; // Maximum 60% of screen height
 
-// tool search
-searchEl.addEventListener("input", ()=>{
-  const q = searchEl.value.trim().toLowerCase();
-  document.querySelectorAll(".tool").forEach(t=>{
-    const text = t.innerText.toLowerCase();
-    t.style.display = text.includes(q) ? "" : "none";
-  });
-});
+  if (newH < minH) newH = minH;
+  if (newH > maxH) newH = maxH;
 
-// persist editable content back to state
-slideEl.addEventListener("input", (ev)=>{
-  const elNode = ev.target.closest(".el");
-  if (!elNode) return;
-  const id = elNode.dataset.id;
-  const s = getActive();
-  const e = s.elements.find(x => x.id === id);
-  if (!e) return;
-  if (e.type === "text" || e.type === "button"){
-    e.html = elNode.innerHTML;
-  }
-});
+  document.documentElement.style.setProperty('--bottom-h', Math.round(newH) + "px");
+}
 
-// basic zoom with trackpad wheel + ctrl
-document.getElementById("workspace").addEventListener("wheel", (ev)=>{
-  if (!(ev.ctrlKey || ev.metaKey)) return;
-  ev.preventDefault();
-  const delta = -Math.sign(ev.deltaY) * 0.06;
-  setZoom(getZoom() + delta);
-}, { passive:false });
+function stopDragBottom() {
+  window.removeEventListener("mousemove", doDragBottom);
+  window.removeEventListener("mouseup", stopDragBottom);
+  resizerY.classList.remove("resizing");
+  document.body.style.cursor = "";
+}
 
-// =====================================================
-//  INITIALISATION
-// =====================================================
+/* =========================
+   RESIZABLE side BAR
+========================== */
+const resizerX = document.getElementById("resizerX");
+
+if (resizerX) {
+  resizerX.addEventListener("mousedown", initDragSide);
+}
+
+let dragStartX = 0;
+let dragStartWidth = 0;
+
+function initDragSide(e) {
+  e.preventDefault();
+  dragStartX = e.clientX;
+  dragStartWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sidebar-w'));
+  window.addEventListener("mousemove", doDragSide);
+  window.addEventListener("mouseup", stopDragSide);
+  resizerX.classList.add("resizing");
+  // Force cursor globally during drag to prevent flickering
+  document.body.style.cursor = "ew-resize";
+}
+
+function doDragSide(e) {
+  // Calculate the change in mouse position
+  const dx = e.clientX - dragStartX;
+  let newW = dragStartWidth + dx;
+  
+  // Limits to prevent breaking the layout
+  const minW = 155; // Minimum width for sidebar
+  const maxW = window.innerWidth * 0.5; // Maximum 50% of screen width
+
+  if (newW < minW) newW = minW;
+  if (newW > maxW) newW = maxW;
+
+  // Update the CSS variable. The CSS Grid will automatically adjust the right part (1fr).
+  document.documentElement.style.setProperty('--sidebar-w', Math.round(newW) + "px");
+}
+
+function stopDragSide() {
+  window.removeEventListener("mousemove", doDragSide);
+  window.removeEventListener("mouseup", stopDragSide);
+  resizerX.classList.remove("resizing");
+  document.body.style.cursor = "";
+}
+
+
 
 render();
 setZoom(1);
+
+// =====================================================
+//  IMPORTS DES MODULES DÉPENDANTS
+// =====================================================
+import './imporExport.js';
+import './present.js';
+import './slides.js';
+
+import { initContextMenu } from './contextMenu.js';
+
+initContextMenu(slideEl);
+
