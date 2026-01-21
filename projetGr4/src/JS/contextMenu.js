@@ -1,4 +1,4 @@
-import { state, render, getActive, cryptoId, getSelectedId, setSelectedId, slideEl } from './editor.js';
+import { state, render, getActive, cryptoId, getSelectedId, setSelectedId } from './editor.js';
 
 /* =====================================================
     VARIABLES
@@ -10,9 +10,15 @@ let targetElementId = null;   // ID of the element right-clicked (if any)
 /* =====================================================
     INIT LISTENER
 ===================================================== */
-export function initContextMenu() {
+// ACCEPT slideEl AS ARGUMENT to avoid circular dependency issues
+export function initContextMenu(slideElement) {
+  if (!slideElement) {
+    console.error("Context Menu: slideElement is missing!");
+    return;
+  }
+  
   // Prevent default context menu on the slide area
-  slideEl.addEventListener('contextmenu', handleContextMenu);
+  slideElement.addEventListener('contextmenu', handleContextMenu);
   
   // Close menu on click anywhere else
   document.addEventListener('click', (e) => {

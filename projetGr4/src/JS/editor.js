@@ -165,17 +165,37 @@ export function render(){
     }
 
     if (e.type === "image"){
+      // if (e.imageData){
+      //   // afficher l'image réelle
+      //   node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:cntain;">`;
+      // } else{
+      //   // afficher le placeholder
+      //   node.innerHTML = `<div style="padding:12px;text-align:center;line-height:1.2;cursor:pointer;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+      //     <span style="font-size:24px;margin-bottom:8px;">📸</span>
+      //     <span style="font-size:13px;font-weight:600;color:#007bff">Dépose une image</span>
+      //     <span style="font-size:11px;color:#999;margin-top:4px">ou clique pour parcourir</span>
+      //   </div>`;
+      // }
+
+      // We wrap the content in a wrapper to handle 'overflow:hidden' and 'border-radius'
+      // while allowing the handles (children of 'node') to sit outside visible area.
+      const wrapper = document.createElement('div');
+      wrapper.className = "el-img-wrapper";
+      
+      let innerContent = "";
       if (e.imageData){
-        // afficher l'image réelle
-        node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:cover;">`;
+        // Changed object-fit to contain to fit image without cropping
+        innerContent = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:contain;">`;
       } else{
-        // afficher le placeholder
-        node.innerHTML = `<div style="padding:12px;text-align:center;line-height:1.2;cursor:pointer;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+        // Placeholder
+        innerContent = `<div style="padding:12px;text-align:center;line-height:1.2;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;">
           <span style="font-size:24px;margin-bottom:8px;">📸</span>
           <span style="font-size:13px;font-weight:600;color:#007bff">Dépose une image</span>
           <span style="font-size:11px;color:#999;margin-top:4px">ou double-clique pour parcourir</span>
         </div>`;
       }
+      wrapper.innerHTML = innerContent;
+      node.appendChild(wrapper);
 
       // autoriser le drag & drop d'images
       node.style.cursor = "pointer";
@@ -232,6 +252,30 @@ export function render(){
             reader.readAsDataURL(file);
           }
         }
+      });
+
+      // 2. Double Click to Upload
+      node.addEventListener("dblclick", (ev) => {
+        ev.stopPropagation(); // prevent other dblclick handlers
+        
+        // Create a temporary file input
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+        
+        input.onchange = (event) => {
+          const file = event.target.files[0];
+          if (file && file.type.startsWith("image/")) {
+            const reader = new FileReader();
+            reader.onload = (loadEvent) => {
+              e.imageData = loadEvent.target.result;
+              render();
+            };
+            reader.readAsDataURL(file);
+          }
+        };
+        
+        input.click();
       });
     }
 
@@ -305,7 +349,7 @@ export function render(){
         node.style.overflow = "hidden";
       } else if (e.type === "image"){
         if (e.imageData) {
-          node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:cover;">`;
+          node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:contain;">`;
         } else {
           node.innerHTML = `<div style="font-size:6px;padding:2px;">📸</div>`;
         }
@@ -767,15 +811,6 @@ document.getElementById("bgColorPicker").addEventListener("input", (ev) => {
   render();
 });
 
-document.getElementById("bgGradientSelect").addEventListener("change", (ev) => {
-  const s = getActive();
-  s.backgroundGradient = ev.target.value;
-  render();
-});
-
-// =====================================================
-//  INITIALISATION
-// =====================================================
 
 /* =========================
    RESIZABLE BOTTOM BAR
@@ -799,8 +834,10 @@ function doDragBottom(e) {
   // Window Height - Mouse Y Position - App Bottom Padding (14px)
   const availableH = window.innerHeight;
   let newH = availableH - e.clientY - 14;
-  const minH = 100;
-  const maxH = availableH * 0.6;
+  
+  // Limits to prevent breaking the layout
+  const minH = 50; // Minimum height for bottom bar
+  const maxH = availableH * 0.6; // Maximum 60% of screen height
 
   if (newH < minH) newH = minH;
   if (newH > maxH) newH = maxH;
@@ -816,12 +853,56 @@ function stopDragBottom() {
   document.body.style.cursor = "";
 }
 
+/* =========================
+   RESIZABLE side BAR
+========================== */
+const resizerX = document.getElementById("resizerX");
+
+if (resizerX) {
+  resizerX.addEventListener("mousedown", initDragSide);
+}
+
+let dragStartX = 0;
+let dragStartWidth = 0;
+
+function initDragSide(e) {
+  e.preventDefault();
+  dragStartX = e.clientX;
+  dragStartWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sidebar-w'));
+  window.addEventListener("mousemove", doDragSide);
+  window.addEventListener("mouseup", stopDragSide);
+  resizerX.classList.add("resizing");
+  // Force cursor globally during drag to prevent flickering
+  document.body.style.cursor = "ew-resize";
+}
+
+function doDragSide(e) {
+  // Calculate the change in mouse position
+  const dx = e.clientX - dragStartX;
+  let newW = dragStartWidth + dx;
+  
+  // Limits to prevent breaking the layout
+  const minW = 155; // Minimum width for sidebar
+  const maxW = window.innerWidth * 0.5; // Maximum 50% of screen width
+
+  if (newW < minW) newW = minW;
+  if (newW > maxW) newW = maxW;
+
+  // Update the CSS variable. The CSS Grid will automatically adjust the right part (1fr).
+  document.documentElement.style.setProperty('--sidebar-w', Math.round(newW) + "px");
+}
+
+function stopDragSide() {
+  window.removeEventListener("mousemove", doDragSide);
+  window.removeEventListener("mouseup", stopDragSide);
+  resizerX.classList.remove("resizing");
+  document.body.style.cursor = "";
+}
+
 
 
 render();
 setZoom(1);
-
-
 
 // =====================================================
 //  IMPORTS DES MODULES DÉPENDANTS (après initialisation)
@@ -832,4 +913,5 @@ import './slides.js';
 
 import { initContextMenu } from './contextMenu.js';
 
-initContextMenu(); // Initialize context menu
+initContextMenu(slideEl);
+
