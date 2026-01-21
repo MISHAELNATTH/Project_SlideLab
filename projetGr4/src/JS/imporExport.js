@@ -141,7 +141,7 @@ function parseSlideHTML(htmlContent) {
     let id =
       node.getAttribute("data-id") ||
       node.getAttribute("data-btn-id") ||
-      cryptoId();
+      slideId();
     
     // --- Link detection ---
     // l'élément contient un <a href="..."> (ancien bouton ou wrapper interne)
@@ -331,7 +331,7 @@ document.getElementById("exportBtn").addEventListener("click", () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${slide.id}`;
+    a.download = state.slides.length === 1 ? "slide.html" : `slide-${index + 1}.html`;
 
     setTimeout(() => {
       a.click();
