@@ -131,6 +131,10 @@ function renderPresentationSlide(index, container) {
     const node = document.createElement("div");
     // Reuse your 'el' class for basic styling, but exclude 'selected'
     node.className = "el " + e.type; 
+
+    if (e.shapeType) {
+      node.classList.add(e.shapeType);
+    }
     
     // Positioning
     node.style.position = "absolute";
@@ -138,6 +142,24 @@ function renderPresentationSlide(index, container) {
     node.style.top  = px(e.y);
     node.style.width  = px(e.w);
     node.style.height = px(e.h);
+
+    //style to reflect in presentation mode
+    if (e.color) node.style.color = e.color;
+    if (e.fontSize) node.style.fontSize = px(e.fontSize);
+    if (e.fontWeight) node.style.fontWeight = e.fontWeight;
+    if (e.fontFamily) node.style.fontFamily = e.fontFamily;
+    if (e.textAlign) node.style.textAlign = e.textAlign;
+    if (e.fontStyle) node.style.fontStyle = e.fontStyle;
+
+    if (e.type === "shape") {
+      if (e.fillColor) node.style.background = e.fillColor;
+      if (e.borderColor) {
+        node.style.borderColor = e.borderColor;
+        node.style.borderWidth = "2px"; // Ensure border is visible
+        node.style.borderStyle = "solid";
+      }
+      if (e.opacity !== undefined) node.style.opacity = e.opacity;
+    }
 
     // Specific Content Rendering
     if (e.type === "text" || e.type === "button") {
