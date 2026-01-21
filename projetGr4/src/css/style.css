@@ -3,7 +3,7 @@
   --panel:#0f1b2e;
   --panel2:#0c1626;
   --border:rgba(255,255,255,.10);
-  --text:rgba(255,255,255,.92);
+  --text:rgba(98, 131, 240, 0.92);
   --muted:rgba(255,255,255,.65);
   --accent:#7c5cff;
   --shadow:0 20px 60px rgba(0,0,0,.45);
@@ -404,8 +404,39 @@ body{
   width: 220px; height: 120px;
   padding:0;
   border-radius:18px;
-  background: linear-gradient(135deg, #7c5cff, #37d6ff);
+  background: transparent;
   border: none;
+}
+
+/* Shape content wrapper - holds the visual appearance */
+.shape-content-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Apply shape type styles to the wrapper */
+.el.shape.rectangle .shape-content-wrapper {
+  border-radius: 18px;
+}
+.el.shape.circle .shape-content-wrapper {
+  border-radius: 50%;
+}
+.el.shape.triangle .shape-content-wrapper {
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  border-radius: 0;
+}
+.el.shape.star .shape-content-wrapper {
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  border-radius: 0;
+}
+.el.shape.diamond .shape-content-wrapper {
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  border-radius: 0;
 }
 .el.button{
   border-radius:999px;
@@ -581,8 +612,16 @@ body{
   padding: 2px;
 }
 .shape-controls input[type="range"] {
-  width: 80px;
+  width: 100px;
   accent-color: var(--accent);
+}
+
+.shape-controls .opacity-value {
+  font-size: 11px;
+  color: var(--text);
+  font-weight: 600;
+  min-width: 35px;
+  text-align: right;
 }
 
 /* Shape types */
@@ -603,6 +642,111 @@ body{
 .el.shape.diamond {
   clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
   border-radius: 0;
+}
+
+/* Table styles */
+.el.table {
+  padding: 0;
+  background: #ffffff;
+  overflow: visible;
+}
+
+.data-table {
+  width: 100%;
+  height: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+}
+
+.data-table th,
+.data-table td {
+  border: 1px solid #cccccc;
+  padding: 8px 12px;
+  text-align: left;
+  min-width: 60px;
+}
+
+.data-table th {
+  background: #f3f4f6;
+  font-weight: 600;
+  color: #111827;
+}
+
+.data-table td {
+  background: #ffffff;
+  color: #374151;
+}
+
+.data-table th:focus,
+.data-table td:focus {
+  outline: 2px solid rgba(124,92,255,0.5);
+  outline-offset: -2px;
+}
+
+/* Table controls */
+.table-controls {
+  position: absolute;
+  top: -70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 27, 46, 0.95);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: none;
+  gap: 8px;
+  z-index: 1000;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  backdrop-filter: blur(10px);
+  flex-wrap: wrap;
+  max-width: 600px;
+}
+
+.el.table.selected .table-controls {
+  display: flex;
+  align-items: center;
+}
+
+.table-controls button {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.table-controls button:hover {
+  background: rgba(124,92,255,0.3);
+  border-color: rgba(124,92,255,0.6);
+}
+
+.table-controls .control-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.table-controls label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table-controls input[type="color"] {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.08);
+  cursor: pointer;
+  padding: 2px;
 }
 
 /* Bottom slides bar */

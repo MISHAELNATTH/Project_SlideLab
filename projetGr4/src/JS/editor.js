@@ -153,13 +153,76 @@ export function render(){
       node.appendChild(toolbar);
     }
 
+    // Apply table styles
+    if (e.type === "table"){
+      // Create table element
+      const tableEl = document.createElement("table");
+      tableEl.className = "data-table";
+      
+      // Apply custom border color if set
+      if (e.borderColor) {
+        tableEl.style.setProperty('--table-border-color', e.borderColor);
+      }
+      
+      // Render table rows and cells
+      const rows = e.rows || 3;
+      const cols = e.cols || 3;
+      const data = e.data || Array(rows).fill(null).map(() => Array(cols).fill(""));
+      
+      for (let i = 0; i < rows; i++) {
+        const tr = document.createElement("tr");
+        for (let j = 0; j < cols; j++) {
+          const cell = i === 0 ? document.createElement("th") : document.createElement("td");
+          cell.contentEditable = "true";
+          cell.textContent = data[i][j] || (i === 0 ? `Col ${j + 1}` : "");
+          cell.dataset.row = i;
+          cell.dataset.col = j;
+          
+          // Apply custom colors
+          if (i === 0 && e.headerColor) {
+            cell.style.background = e.headerColor;
+          }
+          if (e.borderColor) {
+            cell.style.borderColor = e.borderColor;
+          }
+          
+          // Save cell content on blur
+          cell.addEventListener("blur", () => {
+            if (!e.data) e.data = Array(rows).fill(null).map(() => Array(cols).fill(""));
+            e.data[i][j] = cell.textContent;
+          });
+          
+          tr.appendChild(cell);
+        }
+        tableEl.appendChild(tr);
+      }
+      
+      node.appendChild(tableEl);
+      
+      // Add table controls
+      const controls = createTableControls(e);
+      node.appendChild(controls);
+    }
+
     // Apply shape styles
     if (e.type === "shape"){
-      if (e.fillColor) node.style.background = e.fillColor;
-      if (e.borderColor) node.style.borderColor = e.borderColor;
-      if (e.opacity !== undefined) node.style.opacity = e.opacity;
+      // Create a wrapper for the shape visual content (to apply opacity without affecting controls)
+      const shapeWrapper = document.createElement("div");
+      shapeWrapper.className = "shape-content-wrapper";
       
-      // Add shape controls
+      // Apply visual styles to the wrapper
+      if (e.fillColor) shapeWrapper.style.background = e.fillColor;
+      if (e.opacity !== undefined) shapeWrapper.style.opacity = e.opacity;
+      
+      // Apply border to the wrapper if borderColor is set
+      if (e.borderColor) {
+        shapeWrapper.style.border = `3px solid ${e.borderColor}`;
+      }
+      
+      // Add the wrapper to the node
+      node.appendChild(shapeWrapper);
+      
+      // Add shape controls (outside the wrapper so they're not affected by opacity)
       const controls = createShapeControls(e);
       node.appendChild(controls);
     }
@@ -477,6 +540,104 @@ window.addEventListener("unhandledrejection", (e) => {
   console.warn("Unhandled promise rejection:", e.reason);
 });
 
+function createTableControls(element) {
+  const controls = document.createElement("div");
+  controls.className = "table-controls";
+  controls.addEventListener("mousedown", (ev) => ev.stopPropagation());
+  controls.addEventListener("click", (ev) => ev.stopPropagation());
+  
+  // Add row button
+  const addRowBtn = document.createElement("button");
+  addRowBtn.innerHTML = "+ Ligne";
+  addRowBtn.title = "Ajouter une ligne";
+  addRowBtn.addEventListener("click", () => {
+    element.rows = (element.rows || 3) + 1;
+    if (!element.data) element.data = [];
+    element.data.push(Array(element.cols || 3).fill(""));
+    render();
+  });
+  
+  // Remove row button
+  const removeRowBtn = document.createElement("button");
+  removeRowBtn.innerHTML = "- Ligne";
+  removeRowBtn.title = "Supprimer une ligne";
+  removeRowBtn.addEventListener("click", () => {
+    if ((element.rows || 3) > 2) {
+      element.rows = (element.rows || 3) - 1;
+      if (element.data) element.data.pop();
+      render();
+    }
+  });
+  
+  // Add column button
+  const addColBtn = document.createElement("button");
+  addColBtn.innerHTML = "+ Colonne";
+  addColBtn.title = "Ajouter une colonne";
+  addColBtn.addEventListener("click", () => {
+    element.cols = (element.cols || 3) + 1;
+    if (!element.data) element.data = Array(element.rows || 3).fill(null).map(() => Array(element.cols).fill(""));
+    else element.data.forEach(row => row.push(""));
+    render();
+  });
+  
+  // Remove column button
+  const removeColBtn = document.createElement("button");
+  removeColBtn.innerHTML = "- Colonne";
+  removeColBtn.title = "Supprimer une colonne";
+  removeColBtn.addEventListener("click", () => {
+    if ((element.cols || 3) > 2) {
+      element.cols = (element.cols || 3) - 1;
+      if (element.data) element.data.forEach(row => row.pop());
+      render();
+    }
+  });
+  
+  // Border color
+  const borderGroup = document.createElement("div");
+  borderGroup.className = "control-group";
+  
+  const borderLabel = document.createElement("label");
+  borderLabel.textContent = "Bordure:";
+  
+  const borderColor = document.createElement("input");
+  borderColor.type = "color";
+  borderColor.value = element.borderColor || "#cccccc";
+  borderColor.addEventListener("input", (e) => {
+    element.borderColor = e.target.value;
+    render();
+  });
+  
+  borderGroup.appendChild(borderLabel);
+  borderGroup.appendChild(borderColor);
+  
+  // Header color
+  const headerGroup = document.createElement("div");
+  headerGroup.className = "control-group";
+  
+  const headerLabel = document.createElement("label");
+  headerLabel.textContent = "En-tête:";
+  
+  const headerColor = document.createElement("input");
+  headerColor.type = "color";
+  headerColor.value = element.headerColor || "#f3f4f6";
+  headerColor.addEventListener("input", (e) => {
+    element.headerColor = e.target.value;
+    render();
+  });
+  
+  headerGroup.appendChild(headerLabel);
+  headerGroup.appendChild(headerColor);
+  
+  controls.appendChild(addRowBtn);
+  controls.appendChild(removeRowBtn);
+  controls.appendChild(addColBtn);
+  controls.appendChild(removeColBtn);
+  controls.appendChild(borderGroup);
+  controls.appendChild(headerGroup);
+  
+  return controls;
+}
+
 function createShapeControls(element) {
   const controls = document.createElement("div");
   controls.className = "shape-controls";
@@ -550,19 +711,25 @@ function createShapeControls(element) {
   const opacityLabel = document.createElement("label");
   opacityLabel.textContent = "Opacité:";
   
+  const opacityValue = document.createElement("span");
+  opacityValue.className = "opacity-value";
+  opacityValue.textContent = Math.round((element.opacity !== undefined ? element.opacity : 1) * 100) + "%";
+  
   const opacitySlider = document.createElement("input");
   opacitySlider.type = "range";
   opacitySlider.min = 0;
   opacitySlider.max = 1;
-  opacitySlider.step = 0.1;
+  opacitySlider.step = 0.01;
   opacitySlider.value = element.opacity !== undefined ? element.opacity : 1;
   opacitySlider.addEventListener("input", (e) => {
     element.opacity = parseFloat(e.target.value);
+    opacityValue.textContent = Math.round(e.target.value * 100) + "%";
     render();
   });
   
   opacityGroup.appendChild(opacityLabel);
   opacityGroup.appendChild(opacitySlider);
+  opacityGroup.appendChild(opacityValue);
   
   controls.appendChild(shapeGroup);
   controls.appendChild(fillGroup);
@@ -629,6 +796,8 @@ function addFromTool(toolType, x, y){
     el = { ...base, type:"button", w: 220, h: 54, html:"Bouton", color: "#ffffff", fontSize: 16, fontWeight: 700, fontFamily: "Arial", textAlign: "center" };
   } else if (toolType === "image"){
     el = { ...base, type:"image", w: 360, h: 240 };
+  } else if (toolType === "table"){
+    el = { ...base, type:"table", w: 400, h: 200, rows: 3, cols: 3, borderColor: "#cccccc", headerColor: "#f3f4f6" };
   } else if (toolType === "twoCols"){
     s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-360,0,820), y: clamp(y-140,0,460), w: 420, h: 60, html:"Titre (2 colonnes)", color: "#111827", fontSize: 28, fontWeight: 800, fontFamily: "Arial", textAlign: "left" });
     s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-360,0,820), y: clamp(y-70,0,470), w: 420, h: 120, html:"Texte descriptif…", color: "#111827", fontSize: 18, fontWeight: 400, fontFamily: "Arial", textAlign: "left" });
@@ -656,14 +825,21 @@ function startMove(ev, id){
   if (!target) return;
 
   // IMPORTANT: si on clique dans un bandeau, on ne drag pas
-  if (ev.target.closest(".text-toolbar") || ev.target.closest(".shape-controls")) {
+  if (ev.target.closest(".text-toolbar") || ev.target.closest(".shape-controls") || ev.target.closest(".table-controls")) {
     return;
   }
 
   if (ev.target.classList.contains("handle")) return;
 
   const isEditable = (target.classList.contains("text") || target.classList.contains("button"));
+  const isTableCell = (ev.target.tagName === "TD" || ev.target.tagName === "TH");
+  
   if (isEditable && document.activeElement === target && window.getSelection()?.type === "Range") {
+    return;
+  }
+  
+  // Don't drag when editing table cells
+  if (isTableCell && document.activeElement === ev.target) {
     return;
   }
 
