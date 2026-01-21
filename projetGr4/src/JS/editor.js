@@ -7,6 +7,7 @@ export const state = {
   slides: [
     { 
       id: cryptoId(), 
+      arbre : [],
       backgroundColor: "#ffffff",
       backgroundGradient: "",
       elements: [
@@ -23,7 +24,10 @@ export const state = {
 
 export function saveState() {
   try {
-    localStorage.setItem('slides_state', JSON.stringify(state));
+    localStorage.setItem(
+      'slides_state',
+      JSON.stringify(state)
+    );
     console.log('✓ État sauvegardé');
   } catch (e) {
     console.error('Erreur lors de la sauvegarde:', e);

@@ -28,22 +28,22 @@
     {
       "id": 7,
       "label": "Rectangle 8",
-      "x": 100,
-      "y": 100,
+      "x": 159,
+      "y": 679,
       "buttons": []
     },
     {
       "id": 8,
       "label": "Rectangle 9",
-      "x": 100,
-      "y": 100,
+      "x": 605,
+      "y": 676,
       "buttons": []
     },
     {
       "id": 9,
       "label": "Rectangle 10",
-      "x": 100,
-      "y": 100,
+      "x": 1148,
+      "y": 677,
       "buttons": []
     },
     {
@@ -65,6 +65,20 @@
       "label": "Rectangle 15",
       "x": 646,
       "y": 198,
+      "buttons": []
+    },
+    {
+      "id": 15,
+      "label": "Rectangle 16",
+      "x": 948,
+      "y": 380,
+      "buttons": []
+    },
+    {
+      "id": 16,
+      "label": "Rectangle 17",
+      "x": 783,
+      "y": 267,
       "buttons": []
     }
   ]
