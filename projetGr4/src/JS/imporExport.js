@@ -21,6 +21,27 @@ function safeJsonParse(text) {
   }
 }
 
+function stripAfterTextToolbar(rawHtml) {
+  if (!rawHtml) return rawHtml;
+
+  // Coupe dès la première occurrence de <div class="text-toolbar">
+  const idx = rawHtml.indexOf('<div class="text-toolbar"');
+  if (idx === -1) return rawHtml;
+
+  return rawHtml.slice(0, idx);
+}
+
+function cleanEditableHtml(node) {
+  const clone = node.cloneNode(true);
+
+  // supprime toolbars + handles si présents
+  clone.querySelectorAll(".text-toolbar, .handle").forEach((el) => el.remove());
+
+  // puis on coupe au cas où une toolbar serait restée en texte brut
+  return stripAfterTextToolbar(clone.innerHTML);
+}
+
+
 /**
  * Convertit un href vers une "cible slide" (si détectable)
  * Supporte:
@@ -120,13 +141,26 @@ function parseSlideHTML(htmlContent) {
     let id =
       node.getAttribute("data-id") ||
       node.getAttribute("data-btn-id") ||
-      slideId();
+      cryptoId();
+    
+    // --- Link detection ---
+    // l'élément contient un <a href="..."> (ancien bouton ou wrapper interne)
+    let link = null;
+    const aInside = node.querySelector?.("a[href]");
+    if (aInside) link = aInside.getAttribute("href");
+
+    // l'élément est englobé par un <a href="..."> (wrapper externe)
+    if (!link) {
+      const aParent = node.closest?.("a[href]");
+      if (aParent) link = aParent.getAttribute("href");
+    }
+
 
     // --- nouveau format (.el) ---
     if (node.classList.contains("el")) {
       if (node.classList.contains("text")) {
         type = "text";
-        html = node.innerHTML || "Texte";
+        html = cleanEditableHtml(node) || "Texte";
       } else if (node.classList.contains("button")) {
         type = "button";
         html = node.innerHTML || "Bouton";
@@ -144,7 +178,7 @@ function parseSlideHTML(htmlContent) {
       if (node.classList.contains("text-element")) {
         type = "text";
         const p = node.querySelector("p");
-        html = p ? p.innerHTML : node.innerHTML || "Texte";
+        html = cleanEditableHtml(node) || "Texte";
       } else if (node.classList.contains("button-element")) {
         type = "button";
         html = node.innerHTML.trim() || "Bouton";
@@ -164,6 +198,7 @@ function parseSlideHTML(htmlContent) {
       y: Math.round(y),
       w: Math.round(w),
       h: Math.round(h),
+      link,
       html
     };
 
