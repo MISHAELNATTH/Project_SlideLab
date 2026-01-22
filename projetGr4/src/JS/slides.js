@@ -251,7 +251,7 @@ ${exportBaseCSS()}
         if (a) hrefFromHtml = a.getAttribute("href");
       } catch {}
 
-      // 2) Nouveau système: priorité à el.link (ta règle)
+      // 2) Nouveau système: priorité à el.link
       const hrefFinal = normalizeHref(el.link) || hrefFromHtml || null;
       const target = hrefToTarget(hrefFinal);
 
@@ -310,7 +310,7 @@ ${exportBaseCSS()}
   }
 
   // On injecte le JSON dans le HTML exporté
-  // ⚠️ On doit échapper </script> au cas où
+  //  On doit échapper </script> au cas où
   const metaJson = meta
   ? JSON.stringify(meta).replace(/<\/script/gi, "<\\/script")
   : null;
