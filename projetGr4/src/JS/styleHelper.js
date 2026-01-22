@@ -50,7 +50,7 @@ export function getElementStyles(el) {
   // --- TABLE STYLES (Container only) ---
   if (el.type === 'table') {
      // Tables might have specific container styles if needed
-     styles.overflow = 'auto'; // allow scroll if content overflows the box
+     styles.overflow = 'visible'; 
   }
 
   return styles;

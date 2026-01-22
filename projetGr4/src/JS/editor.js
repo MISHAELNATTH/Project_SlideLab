@@ -151,9 +151,23 @@ export function render(){
 
     // --- TABLE ---
     if (e.type === "table"){
+
+      const wrapper = document.createElement("div");
+      Object.assign(wrapper.style, {
+        width: "100%",
+        height: "100%",
+        overflow: "hidden", // [FIX] Clip content so no scrollbars appear
+        position: "relative"
+      });
+
       const tableEl = document.createElement("table");
       tableEl.className = "data-table";
-      
+      Object.assign(tableEl.style, {
+        width: "100%",
+        height: "100%",
+        tableLayout: "fixed", // Helps with resizing predictability
+        borderCollapse: "collapse"
+      });
       // Internal Table Styling (Specific to table structure, not container)
       if (e.borderColor) {
         tableEl.style.setProperty('--table-border-color', e.borderColor);
@@ -161,14 +175,27 @@ export function render(){
       
       const rows = e.rows || 3;
       const cols = e.cols || 3;
-      const data = e.data || Array(rows).fill(null).map(() => Array(cols).fill(""));
+      
+      // Initialize data with default column names if not already set
+      if (!e.data) {
+        e.data = [];
+        for (let i = 0; i < rows; i++) {
+          e.data[i] = [];
+          for (let j = 0; j < cols; j++) {
+            e.data[i][j] = i === 0 ? `Col ${j + 1}` : "";
+          }
+        }
+      }
+      const data = e.data;
       
       for (let i = 0; i < rows; i++) {
         const tr = document.createElement("tr");
         for (let j = 0; j < cols; j++) {
           const cell = i === 0 ? document.createElement("th") : document.createElement("td");
           cell.contentEditable = "true";
-          cell.textContent = data[i]?.[j] || (i === 0 ? `Col ${j + 1}` : "");
+          cell.spellcheck = false;
+          // Use innerHTML to preserve formatted text with inline styles
+          cell.innerHTML = data[i]?.[j] || (i === 0 ? `Col ${j + 1}` : "");
           cell.dataset.row = i;
           cell.dataset.col = j;
           
@@ -182,15 +209,21 @@ export function render(){
           cell.addEventListener("blur", () => {
             if (!e.data) e.data = Array(rows).fill(null).map(() => Array(cols).fill(""));
             if (!e.data[i]) e.data[i] = Array(cols).fill("");
-            e.data[i][j] = cell.textContent;
+            // Save innerHTML to preserve formatting
+            e.data[i][j] = cell.innerHTML || cell.textContent;
           });
           
           tr.appendChild(cell);
         }
         tableEl.appendChild(tr);
       }
+      wrapper.appendChild(tableEl);
+      node.appendChild(wrapper);
       
-      node.appendChild(tableEl);
+      // Add toolbar for table formatting
+      const textToolbar = createTextToolbar(e);
+      node.appendChild(textToolbar);
+      
       const controls = createTableControls(e);
       node.appendChild(controls);
     }
@@ -261,6 +294,7 @@ export function render(){
       const h = document.createElement("div");
       h.className = "handle h-" + pos;
       h.dataset.handle = pos;
+      h.addEventListener("mousedown", (ev) => startResize(ev, e.id, pos));
       node.appendChild(h);
     });
 
@@ -361,7 +395,29 @@ function renderThumbs() {
 }
 
 
+// =====================================================
+//  TEXT FORMATTING HELPERS
+// =====================================================
+function applyTextFormatting(command, value = null) {
+  const selection = window.getSelection();
+  if (!selection.toString()) return; // No text selected
+  
+  if (value) {
+    document.execCommand(command, false, value);
+  } else {
+    document.execCommand(command, false, null);
+  }
+}
 
+function getSelectedTextColor() {
+  const selection = window.getSelection();
+  if (!selection.rangeCount) return "#111827";
+  
+  const range = selection.getRangeAt(0);
+  const span = range.commonAncestorContainer;
+  const element = span.nodeType === 3 ? span.parentElement : span;
+  return window.getComputedStyle(element).color || "#111827";
+}
 
 // =====================================================
 //  TOOLBARS
@@ -372,14 +428,21 @@ function createTextToolbar(element) {
   toolbar.addEventListener("mousedown", (ev) => ev.stopPropagation());
   toolbar.addEventListener("click", (ev) => ev.stopPropagation());
   
-  // Color picker
+  // Color picker - for selected text or element default
   const colorInput = document.createElement("input");
   colorInput.type = "color";
   colorInput.value = element.color || "#111827";
   colorInput.title = "Couleur du texte";
   colorInput.addEventListener("input", (e) => {
-    element.color = e.target.value;
-    render();
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text
+      applyTextFormatting("foreColor", e.target.value);
+    } else {
+      // Apply to whole element
+      element.color = e.target.value;
+      render();
+    }
   });
   
   // Font family
@@ -392,8 +455,15 @@ function createTextToolbar(element) {
     <option value="Verdana" ${element.fontFamily === "Verdana" ? "selected" : ""}>Verdana</option>
   `;
   fontSelect.addEventListener("change", (e) => {
-    element.fontFamily = e.target.value;
-    render();
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text
+      applyTextFormatting("fontName", e.target.value);
+    } else {
+      // Apply to whole element
+      element.fontFamily = e.target.value;
+      render();
+    }
   });
   
   // Font size
@@ -404,8 +474,23 @@ function createTextToolbar(element) {
   sizeInput.max = 120;
   sizeInput.style.width = "60px";
   sizeInput.addEventListener("change", (e) => {
-    element.fontSize = parseInt(e.target.value);
-    render();
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text using inline style
+      try {
+        const range = selection.getRangeAt(0);
+        const span = document.createElement("span");
+        span.style.fontSize = e.target.value + "px";
+        range.surroundContents(span);
+      } catch (err) {
+        // If surroundContents fails, use execCommand as fallback
+        applyTextFormatting("fontSize", 7);
+      }
+    } else {
+      // Apply to whole element
+      element.fontSize = parseInt(e.target.value);
+      render();
+    }
   });
   
   // Bold
@@ -414,8 +499,15 @@ function createTextToolbar(element) {
   boldBtn.title = "Gras";
   boldBtn.className = element.fontWeight === "bold" || element.fontWeight >= 700 ? "active" : "";
   boldBtn.addEventListener("click", () => {
-    element.fontWeight = element.fontWeight === "bold" || element.fontWeight >= 700 ? 400 : 700;
-    render();
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text
+      applyTextFormatting("bold");
+    } else {
+      // Apply to whole element
+      element.fontWeight = element.fontWeight === "bold" || element.fontWeight >= 700 ? 400 : 700;
+      render();
+    }
   });
   
   // Italic
@@ -424,8 +516,15 @@ function createTextToolbar(element) {
   italicBtn.title = "Italique";
   italicBtn.style.fontStyle = "italic";
   italicBtn.addEventListener("click", () => {
-    element.fontStyle = element.fontStyle === "italic" ? "normal" : "italic";
-    render();
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text
+      applyTextFormatting("italic");
+    } else {
+      // Apply to whole element
+      element.fontStyle = element.fontStyle === "italic" ? "normal" : "italic";
+      render();
+    }
   });
   
   // Alignment
@@ -434,8 +533,15 @@ function createTextToolbar(element) {
   alignLeft.title = "Aligner à gauche";
   alignLeft.className = element.textAlign === "left" ? "active" : "";
   alignLeft.addEventListener("click", () => {
-    element.textAlign = "left";
-    render();
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text
+      applyTextFormatting("justifyLeft");
+    } else {
+      // Apply to whole element
+      element.textAlign = "left";
+      render();
+    }
   });
   
   const alignCenter = document.createElement("button");
@@ -443,8 +549,15 @@ function createTextToolbar(element) {
   alignCenter.title = "Centrer";
   alignCenter.className = element.textAlign === "center" ? "active" : "";
   alignCenter.addEventListener("click", () => {
-    element.textAlign = "center";
-    render();
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text
+      applyTextFormatting("justifyCenter");
+    } else {
+      // Apply to whole element
+      element.textAlign = "center";
+      render();
+    }
   });
   
   const alignRight = document.createElement("button");
@@ -452,8 +565,15 @@ function createTextToolbar(element) {
   alignRight.title = "Aligner à droite";
   alignRight.className = element.textAlign === "right" ? "active" : "";
   alignRight.addEventListener("click", () => {
-    element.textAlign = "right";
-    render();
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text
+      applyTextFormatting("justifyRight");
+    } else {
+      // Apply to whole element
+      element.textAlign = "right";
+      render();
+    }
   });
   
   toolbar.appendChild(colorInput);
@@ -476,10 +596,11 @@ window.addEventListener("unhandledrejection", (e) => {
 function createTableControls(element) {
   const controls = document.createElement("div");
   controls.className = "table-controls";
+
   controls.addEventListener("mousedown", (ev) => ev.stopPropagation());
   controls.addEventListener("click", (ev) => ev.stopPropagation());
-  
-  // Add row button
+
+  // + Ligne
   const addRowBtn = document.createElement("button");
   addRowBtn.innerHTML = "+ Ligne";
   addRowBtn.title = "Ajouter une ligne";
@@ -489,20 +610,27 @@ function createTableControls(element) {
     element.data.push(Array(element.cols || 3).fill(""));
     render();
   });
-  
-  // Remove row button
+  controls.appendChild(addRowBtn);
+
+  // - Ligne
   const removeRowBtn = document.createElement("button");
   removeRowBtn.innerHTML = "- Ligne";
-  removeRowBtn.title = "Supprimer une ligne";
+  removeRowBtn.title = "Retirer une ligne";
   removeRowBtn.addEventListener("click", () => {
-    if ((element.rows || 3) > 2) {
+    if ((element.rows || 3) > 1) {
       element.rows = (element.rows || 3) - 1;
       if (element.data) element.data.pop();
       render();
     }
   });
-  
-  // Add column button
+  controls.appendChild(removeRowBtn);
+
+  // Divider
+  const div1 = document.createElement("div");
+  div1.className = "divider";
+  controls.appendChild(div1);
+
+  // + Colonne
   const addColBtn = document.createElement("button");
   addColBtn.innerHTML = "+ Colonne";
   addColBtn.title = "Ajouter une colonne";
@@ -512,61 +640,47 @@ function createTableControls(element) {
     else element.data.forEach(row => row.push(""));
     render();
   });
-  
-  // Remove column button
+  controls.appendChild(addColBtn);
+
+  // - Colonne
   const removeColBtn = document.createElement("button");
   removeColBtn.innerHTML = "- Colonne";
-  removeColBtn.title = "Supprimer une colonne";
+  removeColBtn.title = "Retirer une colonne";
   removeColBtn.addEventListener("click", () => {
-    if ((element.cols || 3) > 2) {
+    if ((element.cols || 3) > 1) {
       element.cols = (element.cols || 3) - 1;
       if (element.data) element.data.forEach(row => row.pop());
       render();
     }
   });
+  controls.appendChild(removeColBtn);
   
-  // Border color
-  const borderGroup = document.createElement("div");
-  borderGroup.className = "control-group";
-  
-  const borderLabel = document.createElement("label");
-  borderLabel.textContent = "Bordure:";
-  
+  // Divider
+  const div2 = document.createElement("div");
+  div2.className = "divider";
+  controls.appendChild(div2);
+
+  // Border Color
   const borderColor = document.createElement("input");
   borderColor.type = "color";
+  borderColor.title = "Couleur Bordure";
   borderColor.value = element.borderColor || "#cccccc";
   borderColor.addEventListener("input", (e) => {
     element.borderColor = e.target.value;
     render();
   });
-  
-  borderGroup.appendChild(borderLabel);
-  borderGroup.appendChild(borderColor);
-  
-  // Header color
-  const headerGroup = document.createElement("div");
-  headerGroup.className = "control-group";
-  
-  const headerLabel = document.createElement("label");
-  headerLabel.textContent = "En-tête:";
-  
+  controls.appendChild(borderColor);
+
+  // Header Color
   const headerColor = document.createElement("input");
   headerColor.type = "color";
+  headerColor.title = "Couleur En-tête";
   headerColor.value = element.headerColor || "#f3f4f6";
   headerColor.addEventListener("input", (e) => {
     element.headerColor = e.target.value;
     render();
   });
-  
-  headerGroup.appendChild(headerLabel);
-  headerGroup.appendChild(headerColor);
-  
-  controls.appendChild(addRowBtn);
-  controls.appendChild(removeRowBtn);
-  controls.appendChild(addColBtn);
-  controls.appendChild(removeColBtn);
-  controls.appendChild(borderGroup);
-  controls.appendChild(headerGroup);
+  controls.appendChild(headerColor);
   
   return controls;
 }

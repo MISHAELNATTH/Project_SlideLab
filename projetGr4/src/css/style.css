@@ -385,7 +385,7 @@ body{
   border-radius:14px;
   border:1px solid rgba(0,0,0,.10);
   background: rgba(255,255,255,.96);
-  box-shadow: 0 10px 25px rgba(0,0,0,.12);
+  
   cursor:move;
   user-select:none;
 }
@@ -399,6 +399,20 @@ body{
   letter-spacing:-.02em;
   color:#111827;
   background: rgba(255,255,255,.92);
+  cursor: text;
+}
+.el.button{
+  cursor: text;
+}
+.el.table{
+  padding: 0;
+  background: #ffffff;
+  overflow: visible;
+  cursor: move;
+}
+.el.table th,
+.el.table td {
+  cursor: text;
 }
 .el.shape{
   width: 220px; height: 120px;
@@ -665,6 +679,7 @@ body{
   padding: 8px 12px;
   text-align: left;
   min-width: 60px;
+  cursor: text;
 }
 
 .data-table th {
@@ -687,25 +702,23 @@ body{
 /* Table controls */
 .table-controls {
   position: absolute;
-  top: -70px;
+  top: -60px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(15, 27, 46, 0.95);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 10px 14px;
+  padding: 8px 12px;
   display: none;
   gap: 8px;
   z-index: 1000;
   box-shadow: 0 8px 24px rgba(0,0,0,0.4);
   backdrop-filter: blur(10px);
-  flex-wrap: wrap;
-  max-width: 600px;
+  align-items: center;
 }
 
 .el.table.selected .table-controls {
   display: flex;
-  align-items: center;
 }
 
 .table-controls button {
@@ -715,7 +728,7 @@ body{
   padding: 6px 10px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   transition: all 0.2s;
   white-space: nowrap;
@@ -726,19 +739,6 @@ body{
   border-color: rgba(124,92,255,0.6);
 }
 
-.table-controls .control-group {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.table-controls label {
-  font-size: 11px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
 .table-controls input[type="color"] {
   width: 32px;
   height: 32px;
@@ -747,6 +747,12 @@ body{
   background: rgba(255,255,255,0.08);
   cursor: pointer;
   padding: 2px;
+}
+
+.table-controls .divider {
+  width: 1px;
+  background: var(--border);
+  margin: 0 4px;
 }
 
 /* Bottom slides bar */
