@@ -227,7 +227,27 @@ export function render(){
 
     // --- SHAPE ---
     if (e.type === "shape"){
-      // Visuals (bg, border) are applied to 'node' by styleHelper.
+      // Create a wrapper for shape visuals to avoid clip-path blocking clicks
+      const shapeWrapper = document.createElement("div");
+      shapeWrapper.className = "shape-content-wrapper";
+      
+      // Apply fill, border, and opacity to wrapper
+      // Border will be clipped by clip-path to follow the shape edges
+      if (e.fillColor) {
+        shapeWrapper.style.background = e.fillColor;
+      }
+      if (e.borderColor) {
+        shapeWrapper.style.borderColor = e.borderColor;
+        shapeWrapper.style.borderWidth = '2px';
+        shapeWrapper.style.borderStyle = 'solid';
+      }
+      if (e.opacity !== undefined) {
+        shapeWrapper.style.opacity = e.opacity;
+      }
+      
+      node.appendChild(shapeWrapper);
+      
+      // Visuals are now on shapeWrapper, not node
       const controls = createShapeControls(e);
       node.appendChild(controls);
     }
@@ -470,6 +490,57 @@ function getSelectedTextColor() {
 // =====================================================
 //  TOOLBARS
 // =====================================================
+
+// =====================================================
+//  CUSTOM DROPDOWN HELPER
+// =====================================================
+function createCustomDropdown(options, initialValue, onChange) {
+  const container = document.createElement("div");
+  container.className = "custom-dropdown";
+  
+  const button = document.createElement("button");
+  button.className = "custom-dropdown-button";
+  button.textContent = options.find(opt => opt.value === initialValue)?.label || initialValue;
+  
+  const menu = document.createElement("div");
+  menu.className = "custom-dropdown-menu";
+  menu.style.display = "none";
+  
+  options.forEach(option => {
+    const item = document.createElement("div");
+    item.className = "custom-dropdown-item";
+    if (option.value === initialValue) item.classList.add("selected");
+    item.textContent = option.label;
+    item.addEventListener("click", () => {
+      button.textContent = option.label;
+      menu.style.display = "none";
+      
+      // Update all items' selected state
+      menu.querySelectorAll(".custom-dropdown-item").forEach(el => el.classList.remove("selected"));
+      item.classList.add("selected");
+      
+      onChange(option.value);
+    });
+    menu.appendChild(item);
+  });
+  
+  button.addEventListener("click", (e) => {
+    e.stopPropagation();
+    menu.style.display = menu.style.display === "none" ? "flex" : "none";
+  });
+  
+  // Close menu when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!container.contains(e.target)) {
+      menu.style.display = "none";
+    }
+  });
+  
+  container.appendChild(button);
+  container.appendChild(menu);
+  return container;
+}
+
 function createTextToolbar(element) {
   const toolbar = document.createElement("div");
   toolbar.className = "text-toolbar";
@@ -493,26 +564,26 @@ function createTextToolbar(element) {
     }
   });
   
-  // Font family
-  const fontSelect = document.createElement("select");
-  fontSelect.innerHTML = `
-    <option value="Arial" ${element.fontFamily === "Arial" ? "selected" : ""}>Arial</option>
-    <option value="Georgia" ${element.fontFamily === "Georgia" ? "selected" : ""}>Georgia</option>
-    <option value="Times New Roman" ${element.fontFamily === "Times New Roman" ? "selected" : ""}>Times New Roman</option>
-    <option value="Courier New" ${element.fontFamily === "Courier New" ? "selected" : ""}>Courier New</option>
-    <option value="Verdana" ${element.fontFamily === "Verdana" ? "selected" : ""}>Verdana</option>
-  `;
-  fontSelect.addEventListener("change", (e) => {
-    const selection = window.getSelection();
-    if (selection.toString()) {
-      // Apply to selected text
-      applyTextFormatting("fontName", e.target.value);
-    } else {
-      // Apply to whole element
-      element.fontFamily = e.target.value;
-      render();
+  // Font family - using custom dropdown
+  const fontDropdown = createCustomDropdown(
+    [
+      { value: "Arial", label: "Arial" },
+      { value: "Georgia", label: "Georgia" },
+      { value: "Times New Roman", label: "Times New Roman" },
+      { value: "Courier New", label: "Courier New" },
+      { value: "Verdana", label: "Verdana" }
+    ],
+    element.fontFamily || "Arial",
+    (fontValue) => {
+      const selection = window.getSelection();
+      if (selection.toString()) {
+        applyTextFormatting("fontName", fontValue);
+      } else {
+        element.fontFamily = fontValue;
+        render();
+      }
     }
-  });
+  );
   
   // Font size
   const sizeInput = document.createElement("input");
@@ -625,7 +696,7 @@ function createTextToolbar(element) {
   });
   
   toolbar.appendChild(colorInput);
-  toolbar.appendChild(fontSelect);
+  toolbar.appendChild(fontDropdown);
   toolbar.appendChild(sizeInput);
   toolbar.appendChild(document.createElement("div")).className = "divider";
   toolbar.appendChild(boldBtn);
@@ -740,28 +811,30 @@ function createShapeControls(element) {
   controls.addEventListener("click", (ev) => ev.stopPropagation());
   
   
-  // Shape type selector
+  // Shape type selector - using custom dropdown
   const shapeGroup = document.createElement("div");
   shapeGroup.className = "control-group";
   
   const shapeLabel = document.createElement("label");
   shapeLabel.textContent = "Forme:";
   
-  const shapeSelect = document.createElement("select");
-  shapeSelect.innerHTML = `
-    <option value="rectangle" ${element.shapeType === "rectangle" ? "selected" : ""}>Rectangle</option>
-    <option value="circle" ${element.shapeType === "circle" ? "selected" : ""}>Cercle</option>
-    <option value="triangle" ${element.shapeType === "triangle" ? "selected" : ""}>Triangle</option>
-    <option value="star" ${element.shapeType === "star" ? "selected" : ""}>Étoile</option>
-    <option value="diamond" ${element.shapeType === "diamond" ? "selected" : ""}>Losange</option>
-  `;
-  shapeSelect.addEventListener("change", (e) => {
-    element.shapeType = e.target.value;
-    render();
-  });
+  const shapeDropdown = createCustomDropdown(
+    [
+      { value: "rectangle", label: "Rectangle" },
+      { value: "circle", label: "Cercle" },
+      { value: "triangle", label: "Triangle" },
+      { value: "star", label: "Étoile" },
+      { value: "diamond", label: "Losange" }
+    ],
+    element.shapeType || "rectangle",
+    (shapeValue) => {
+      element.shapeType = shapeValue;
+      render();
+    }
+  );
   
   shapeGroup.appendChild(shapeLabel);
-  shapeGroup.appendChild(shapeSelect);
+  shapeGroup.appendChild(shapeDropdown);
   
   // Fill color
   const fillGroup = document.createElement("div");
