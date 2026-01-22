@@ -324,11 +324,103 @@ function renderThumbs() {
     const t = document.createElement("div");
     t.className = "thumb" + (i === state.activeSlide ? " active" : "");
     
-    // Create preview container
+    // Conteneur qui respecte le ratio et le padding CSS
+    const miniWrapper = document.createElement('div');
+    miniWrapper.className = "mini"; 
+    
+    // Le "canvas" interne à 960x540
     const miniDiv = document.createElement('div');
-    miniDiv.className = "mini";
-    // Apply background to thumb using helper
+    miniDiv.style.position = "absolute";
+    miniDiv.style.width = "960px";
+    miniDiv.style.height = "540px";
+    miniDiv.style.top = "0";
+    miniDiv.style.left = "0";
+    miniDiv.style.transformOrigin = "top left";
+    
+    // CALCUL DE L'ÉCHELLE : 
+    // (Largeur du thumb 120px - Padding 16px) / Largeur base 960px
+    const scale = 104 / 960; 
+    miniDiv.style.transform = `scale(${scale})`;
+    
     miniDiv.style.background = getSlideBackgroundStyle(sl);
+
+    // Rendu des éléments (votre boucle existante)
+    sl.elements.forEach(e => {
+      const node = document.createElement("div");
+      node.className = getElementClasses(e);
+      Object.assign(node.style, getElementStyles(e));
+      
+      if (e.type === "text" || e.type === "button"){
+        node.innerHTML = e.html || (e.type === "text" ? "Texte" : "Bouton");
+      }
+
+      // --- TABLE ---
+      if (e.type === "table"){
+        const wrapper = document.createElement("div");
+        Object.assign(wrapper.style, {
+          width: "100%",
+          height: "100%",
+          overflow: "hidden",
+          position: "relative"
+        });
+
+        const tableEl = document.createElement("table");
+        tableEl.className = "data-table";
+        Object.assign(tableEl.style, {
+          width: "100%",
+          height: "100%",
+          tableLayout: "fixed",
+          borderCollapse: "collapse"
+        });
+        
+        if (e.borderColor) {
+          tableEl.style.setProperty('--table-border-color', e.borderColor);
+        }
+        
+        const rows = e.rows || 3;
+        const cols = e.cols || 3;
+        const data = e.data || Array(rows).fill(null).map(() => Array(cols).fill(""));
+        
+        for (let i = 0; i < rows; i++) {
+          const tr = document.createElement("tr");
+          for (let j = 0; j < cols; j++) {
+            const cell = i === 0 ? document.createElement("th") : document.createElement("td");
+            cell.innerHTML = data[i]?.[j] || "";
+            
+            if (i === 0 && e.headerColor) {
+              cell.style.background = e.headerColor;
+            }
+            if (e.borderColor) {
+              cell.style.borderColor = e.borderColor;
+            }
+            
+            tr.appendChild(cell);
+          }
+          tableEl.appendChild(tr);
+        }
+        wrapper.appendChild(tableEl);
+        node.appendChild(wrapper);
+      }
+
+      // --- IMAGE ---
+      if (e.type === "image"){
+        const wrapper = document.createElement('div');
+        wrapper.className = "el-img-wrapper";
+        
+        if (e.imageData){
+          wrapper.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:contain;">`;
+        } else {
+          wrapper.innerHTML = `<div style="width:100%;height:100%;background:#eee;"></div>`;
+        }
+        node.appendChild(wrapper);
+      }
+
+      node.style.pointerEvents = "none";
+      miniDiv.appendChild(node);
+    });
+
+   miniWrapper.appendChild(miniDiv); // On met le contenu mis à l'échelle dans le wrapper
+    t.appendChild(miniWrapper);       // On met le wrapper dans la vignette
 
     // Create Label
     const label = document.createElement("div");
@@ -338,7 +430,7 @@ function renderThumbs() {
         <span style="color:rgba(255,255,255,.55)">${sl.elements.length} obj.</span>
     `;
 
-    t.appendChild(miniDiv);
+    // t.appendChild(miniDiv); <--- SUPPRIME CETTE LIGNE, elle déplace l'élément au mauvais endroit
     t.appendChild(label);
 
     t.addEventListener("click", ()=> {
@@ -347,47 +439,6 @@ function renderThumbs() {
       render();
     });
     thumbsEl.appendChild(t);
-
-    // Render elements inside thumbnail
-    const scale = 0.12;
-    sl.elements.forEach(e => {
-      const node = document.createElement("div");
-      
-      // Use helper for classes
-      node.className = getElementClasses(e);
-      
-      // Styles for thumbnail (manual scaling needed here)
-      node.style.position = "absolute";
-      node.style.left = px(e.x * scale);
-      node.style.top = px(e.y * scale);
-      node.style.width = px((e.w) * scale);
-      node.style.height = px((e.h) * scale);
-      
-      // Apply basic colors/styles
-      const styles = getElementStyles(e);
-      if(styles.background) node.style.background = styles.background;
-      if(styles.color) node.style.color = styles.color;
-      if(styles.borderColor) node.style.borderColor = styles.borderColor;
-      if(styles.borderWidth) node.style.borderWidth = "1px"; // Scale border
-      if(styles.borderStyle) node.style.borderStyle = styles.borderStyle;
-      if(styles.opacity) node.style.opacity = styles.opacity;
-
-      node.style.pointerEvents = "none";
-      node.style.overflow = "hidden";
-
-      // Simplified content for thumbnail
-      if (e.type === "text"){
-        node.innerHTML = e.html || "Texte";
-        node.style.fontSize = "4px"; // tiny font
-      } else if (e.type === "button"){
-        node.innerHTML = "";
-        node.style.background = e.color === "#ffffff" ? "#111827" : e.color; // Simplified button look
-      } else if (e.type === "image" && e.imageData){
-        node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:contain;">`;
-      }
-
-      miniDiv.appendChild(node);
-    });
   });
 }
 
