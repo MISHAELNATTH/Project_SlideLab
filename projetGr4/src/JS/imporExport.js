@@ -281,15 +281,43 @@ function parseSlideHTML(htmlContent) {
       obj.shapeType = detectShapeTypeFromClasses(node.classList);
 
       // fillColor: background-color puis background (si pas gradient)
-      let bg = pickCssValue(style, "background-color", null);
-      if (!bg) bg = pickCssValue(style, "background", null);
+      // Dans l'export, la couleur de la shape est mise sur
+      // .shape-content-wrapper (wrapper interne). On tente donc
+      // d'abord de lire le style de ce wrapper, puis on tombe
+      // sur le style de l'élément parent si absent.
+      const inner = node.querySelector('.shape-content-wrapper');
+      const innerStyle = inner ? (inner.getAttribute('style') || '') : style;
+
+      let bg = pickCssValue(innerStyle, "background-color", null);
+      if (!bg) bg = pickCssValue(innerStyle, "background", null);
 
       // si c'est un gradient on garde quand même (ton app accepte background en fillColor)
       // MAIS si tu veux refuser les gradients, remplace par: if (bg?.includes("gradient")) bg = null;
 
       obj.fillColor = bg || "#7c5cff";          // fallback par défaut
-      obj.borderColor = pickCssValue(style, "border-color", "#37d6ff");
-      obj.opacity = pickOpacity(style, 1);
+      obj.borderColor = pickCssValue(innerStyle, "border-color", pickCssValue(style, "border-color", "#37d6ff"));
+      obj.opacity = pickOpacity(innerStyle, pickOpacity(style, 1));
+    }
+
+    // --- TEXT / BUTTON: récupérer couleur, taille, police, alignement, style ---
+    if (type === "text" || type === "button") {
+      const color = pickCssValue(style, 'color', null);
+      if (color) obj.color = color;
+
+      const fs = pickNumberPx(style, 'font-size', null);
+      if (fs !== null) obj.fontSize = Math.round(fs);
+
+      const fw = pickCssValue(style, 'font-weight', null);
+      if (fw) obj.fontWeight = fw;
+
+      const ff = pickCssValue(style, 'font-family', null);
+      if (ff) obj.fontFamily = ff.replace(/['\"]/g, '').trim();
+
+      const ta = pickCssValue(style, 'text-align', null);
+      if (ta) obj.textAlign = ta;
+
+      const fst = pickCssValue(style, 'font-style', null);
+      if (fst) obj.fontStyle = fst;
     }
 
     elements.push(obj);

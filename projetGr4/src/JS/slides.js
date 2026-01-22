@@ -1,5 +1,5 @@
 import {thumbsEl, state, cryptoId, setSelectedId, render, getActive, slideId, setZoom, getZoom} from "./editor.js";
-import { generateExportStyle, getElementClasses, getSlideBackgroundStyle } from './styleHelper.js';
+import { generateExportStyle, getElementClasses, getSlideBackgroundStyle, getShapeWrapperStyles, stylesToString } from './styleHelper.js';
 
 // =====================================================
 //  HELPERS (local)
@@ -143,9 +143,33 @@ function exportBaseCSS() {
   .el.shape{
     padding:0;
     border-radius:18px;
-    background: linear-gradient(135deg, #7c5cff, #37d6ff);
+    background: transparent;
     border:none;
-    box-shadow: 0 14px 30px rgba(0,0,0,.10);
+    box-shadow: none;
+  }
+
+  /* Shape type styles */
+  .el.shape.rectangle {
+    border-radius: 18px;
+  }
+
+  .el.shape.circle {
+    border-radius: 50%;
+  }
+
+  .el.shape.triangle {
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    border-radius: 0;
+  }
+
+  .el.shape.star {
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    border-radius: 0;
+  }
+
+  .el.shape.diamond {
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    border-radius: 0;
   }
 
   .el.button{
@@ -315,7 +339,12 @@ ${exportBaseCSS()}
 
     else if (el.type === "shape") {
       const linkAttr = el.link ? ` data-link="${el.link}"` : "";
-      html += `      <div class="${classNames}" data-id="${el.id}"${linkAttr} ${styleAttr}></div>\n`;
+      
+      // Use helper function to get shape wrapper styles
+      const wrapperStyles = getShapeWrapperStyles(el);
+      const wrapperStyleString = stylesToString(wrapperStyles);
+      
+      html += `      <div class="${classNames}" data-id="${el.id}"${linkAttr} ${styleAttr}><div class="shape-content-wrapper" style="${wrapperStyleString}"></div></div>\n`;
     }
 
     else if (el.type === "image") {
