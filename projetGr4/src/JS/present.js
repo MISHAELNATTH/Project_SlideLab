@@ -109,16 +109,7 @@ let presentationIndex = 0;
     }
   }
 
-  function fitPresentationToScreen(container) {
-    if (!container) return;
-    // Calculate scale to fit window
-    const margin = 20;
-    const scaleX = (window.innerWidth - margin) / 960;
-    const scaleY = (window.innerHeight - margin) / 540;
-    const scale = Math.min(scaleX, scaleY);
-    container.style.transform = `scale(${scale})`;
-  }
-}
+
 
 function fitPresentationToScreen(container) {
   if (!container) return;
@@ -288,4 +279,4 @@ function renderPresentationSlide(index, container) {
       
       container.appendChild(node);
     });
-  }
+  }}})}
