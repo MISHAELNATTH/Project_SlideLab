@@ -1,5 +1,6 @@
 import { state, render, getActive, cryptoId, getSelectedId, setSelectedId } from './editor.js';
 import { generateSlideHTML } from './slides.js';
+
 /* =====================================================
     VARIABLES
 ===================================================== */
