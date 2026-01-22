@@ -128,134 +128,36 @@ body {
 
 /* Add Button */
 .btn-add {
-    background-color: white;
-    border: 1px solid var(--color-border);
-    color: var(--color-text-label);
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 500;
-    font-size: 14px;
-    cursor: pointer;
-    box-shadow: var(--shadow-md);
-    transition: background-color 0.2s, transform 0.1s;
-    user-select: none;
-    white-space: nowrap;
-    flex-shrink: 0;
+  border:1px solid var(--border);
+  background: rgba(255,255,255,.06);
+  color:white;
+  padding:10px 12px;
+  border-radius:14px;
+  cursor:pointer;
+  font-weight:600;
+  font-size:13px;
+}
+.btn-add:hover{
+  transform: scale(1.05);
+  background: rgba(255,255,255,.12);
 }
 
-    .btn-add:hover {
-        background-color: #f8fafc;
-    }
-
-    .btn-add:active {
-        transform: scale(0.98);
-    }
-
-@keyframes pop-glow {
-  0% {
-    transform: scale(1);
-    box-shadow: var(--shadow-md);
-  }
-  50% {
-    transform: scale(1.08);
-    box-shadow: 0 0 12px rgba(0, 150, 255, 0.4);
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: var(--shadow-md);
-  }
-}
-
-.btn-add:active {
-  animation: pop-glow 0.25s ease-out;
-}
-.btn-add:hover {
-  background-color: #f1f5f9;
-}
-.btn-add:active {
-  background-color: #e2e8f0;
-  animation: pop-glow 0.25s ease-out;
-}
-
-/* Save Button */
-.btn-save {
-    background-color: white;
-    border: 1px solid var(--color-border);
-    color: var(--color-text-label);
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 500;
-    font-size: 14px;
-    cursor: pointer;
-    box-shadow: var(--shadow-md);
-    transition: background-color 0.2s, transform 0.1s;
-    user-select: none;
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-
-    .btn-save:hover {
-        background-color: #f8fafc;
-    }
-
-    .btn-save:active {
-        transform: scale(0.98);
-    }
 
 /* Import Button */
 .btn-imp {
-    background-color: white;
-    border: 1px solid var(--color-border);
-    color: var(--color-text-label);
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 500;
-    font-size: 14px;
-    cursor: pointer;
-    box-shadow: var(--shadow-md);
-    transition: background-color 0.2s, transform 0.1s;
-    user-select: none;
-    white-space: nowrap;
-    flex-shrink: 0;
+  border:1px solid var(--border);
+  background: rgba(255,255,255,.06);
+  color:white;
+  padding:10px 12px;
+  border-radius:14px;
+  cursor:pointer;
+  font-weight:600;
+  font-size:13px;
 }
-
-    .btn-imp:hover {
-        background-color: #f8fafc;
-    }
-    .btn-imp:hover {
-    background-color: #f8fafc;
-    box-shadow: var(--shadow-lg);
+.btn-imp:hover{
+  transform: scale(1.05);
+  background: rgba(255,255,255,.12);
 }
-@keyframes pop-glow {
-  0% {
-    transform: scale(1);
-    box-shadow: var(--shadow-md);
-  }
-  50% {
-    transform: scale(1.08);
-    box-shadow: 0 0 12px rgba(0, 150, 255, 0.4);
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: var(--shadow-md);
-  }
-}
-
-.btn-imp:active {
-  animation: pop-glow 0.25s ease-out;
-}
-.btn-imp:hover {
-  background-color: #f1f5f9;
-}
-.btn-imp:active {
-  background-color: #e2e8f0;
-  animation: pop-glow 0.25s ease-out;
-}
-
-
-    .btn-imp:active {
-        transform: scale(0.98);
-    }
     @keyframes pop-glow {
   0% {
     transform: scale(1);
