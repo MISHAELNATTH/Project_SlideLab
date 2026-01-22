@@ -75,7 +75,7 @@ function hrefToLinkValue(href) {
   const s = String(href).trim();
   if (!s) return null;
 
-  // ✅ Si c'est déjà un numéro (depuis data-link), on le garde
+  // Si c'est déjà un numéro (depuis data-link), on le garde
   if (/^\d+$/.test(s)) return s;
 
   // Externe => on garde tel quel
@@ -83,13 +83,13 @@ function hrefToLinkValue(href) {
 
   // Nos formats internes possibles
   let m = s.match(/^slide-(\d+)\.html$/i);
-  if (m) return m[1]; // ✅ "slide-2.html" -> "2"
+  if (m) return m[1]; // "slide-2.html" -> "2"
 
   m = s.match(/^#slide:(\d+)$/i);
-  if (m) return m[1]; // ✅ "#slide:2" -> "2"
+  if (m) return m[1]; // "#slide:2" -> "2"
 
   m = s.match(/^#slide-(\d+)$/i);
-  if (m) return m[1]; // ✅ "#slide-2" -> "2"
+  if (m) return m[1]; // "#slide-2" -> "2"
 
   // Sinon on garde (ex: "page.html" ou autre)
   return s;
@@ -129,6 +129,46 @@ function readSlideMeta(doc) {
   };
 }
 
+function readSlideBackgroundColor(doc) {
+  const slide = doc.querySelector(".stage .slide");
+  if (!slide) return null;
+
+  const style = slide.getAttribute("style") || "";
+
+  // 1) background-color
+  let m = style.match(/background-color\s*:\s*([^;]+)/i);
+  if (m) return m[1].trim();
+
+  // 2) background (mais PAS gradient)
+  m = style.match(/background\s*:\s*([^;]+)/i);
+  if (m && !m[1].includes("gradient")) {
+    return m[1].trim();
+  }
+
+  return null;
+}
+
+function pickCssValue(style, prop, fallback = null) {
+  // ex: background: #fff;  background-color: rgba(...);
+  const re = new RegExp(`${prop}\\s*:\\s*([^;]+)`, "i");
+  const m = style.match(re);
+  return m ? m[1].trim() : fallback;
+}
+
+function pickOpacity(style, fallback = 1) {
+  const v = pickCssValue(style, "opacity", null);
+  const n = v != null ? parseFloat(v) : NaN;
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function detectShapeTypeFromClasses(classList) {
+  const known = ["rectangle", "circle", "triangle", "star", "diamond"];
+  for (const k of known) if (classList.contains(k)) return k;
+  return "rectangle";
+}
+
+
+
 // =====================================================
 //  PARSE HTML -> { elements, meta }
 // =====================================================
@@ -138,7 +178,7 @@ function parseSlideHTML(htmlContent) {
   const doc = parser.parseFromString(htmlContent, "text/html");
 
   const meta = readSlideMeta(doc);
-
+  const backgroundColor = readSlideBackgroundColor(doc);
   const elements = [];
 
   // 1) Nouveau format: .stage .slide .el
@@ -235,6 +275,23 @@ function parseSlideHTML(htmlContent) {
 
     if (type === "image" && imageData) obj.imageData = imageData;
 
+    // --- SHAPE: récupérer couleur/bordure/opacity + shapeType ---
+    if (type === "shape") {
+      // shapeType via classes (car export ajoute el.shapeType en classe)
+      obj.shapeType = detectShapeTypeFromClasses(node.classList);
+
+      // fillColor: background-color puis background (si pas gradient)
+      let bg = pickCssValue(style, "background-color", null);
+      if (!bg) bg = pickCssValue(style, "background", null);
+
+      // si c'est un gradient on garde quand même (ton app accepte background en fillColor)
+      // MAIS si tu veux refuser les gradients, remplace par: if (bg?.includes("gradient")) bg = null;
+
+      obj.fillColor = bg || "#7c5cff";          // fallback par défaut
+      obj.borderColor = pickCssValue(style, "border-color", "#37d6ff");
+      obj.opacity = pickOpacity(style, 1);
+    }
+
     elements.push(obj);
   });
 
@@ -269,7 +326,8 @@ function parseSlideHTML(htmlContent) {
       pos: meta?.pos ?? { x: 0, y: 0 },
       buttonsMeta
     },
-    elements
+    elements,
+    backgroundColor
   };
 }
 
@@ -307,7 +365,8 @@ function loadSlidesFromFiles(files) {
         arbre: {
           title: meta.title ?? file.name.replace(/\.html$/i, ""),
           pos: meta.pos ?? { x: 0, y: 0 }
-        }
+        },
+        backgroundColor: parsed.backgroundColor || "#ffffff",
       };
 
 
