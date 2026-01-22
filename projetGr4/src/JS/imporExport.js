@@ -70,6 +70,29 @@ function hrefToTarget(href) {
   return { kind: "href", href };
 }
 
+function hrefToLinkValue(href) {
+  if (!href) return null;
+  const s = String(href).trim();
+  if (!s) return null;
+
+  // Externe => on garde tel quel
+  if (/^https?:\/\//i.test(s)) return s;
+
+  // Nos formats internes possibles
+  let m = s.match(/^slide-(\d+)\.html$/i);
+  if (m) return m[1]; // ✅ "slide-2.html" -> "2"
+
+  m = s.match(/^#slide:(\d+)$/i);
+  if (m) return m[1]; // ✅ "#slide:2" -> "2"
+
+  m = s.match(/^#slide-(\d+)$/i);
+  if (m) return m[1]; // ✅ "#slide-2" -> "2"
+
+  // Sinon on garde (ex: "page.html" ou autre)
+  return s;
+}
+
+
 /**
  * Lit le meta JSON si présent dans:
  * <script id="slide-meta" type="application/json">...</script>
@@ -154,6 +177,9 @@ function parseSlideHTML(htmlContent) {
       const aParent = node.closest?.("a[href]");
       if (aParent) link = aParent.getAttribute("href");
     }
+
+    link = hrefToLinkValue(link);
+
 
 
     // --- nouveau format (.el) ---

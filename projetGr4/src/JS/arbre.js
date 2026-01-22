@@ -23,7 +23,6 @@ const canvasEl = document.getElementById("canvas");
 const btnAdd = document.getElementById("btnAdd");
 const btnSave = document.getElementById("btnSave");
 const btnLoad = document.getElementById("btnLoad");
-const fileImport = document.getElementById("fileImport");
 
 if (!nodesLayer || !svgLayer || !sidebarContent || !sidebarSubtitle || !canvasEl) {
   throw new Error("DOM manquant : nodes-layer/svg-layer/properties-content/sidebar-subtitle/canvas");
