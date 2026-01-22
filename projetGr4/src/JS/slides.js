@@ -199,6 +199,10 @@ export function generateSlideHTML(slideIndex) {
 
 
   // --- META (title + pos uniquement) ---
+  if (!slide) {
+    throw new Error(`generateSlideHTML: slide introuvable à l’index ${slideIndex}`);
+  }
+
   const meta = (slide.arbre && typeof slide.arbre === "object")
     ? {
         title: typeof slide.arbre.title === "string" ? slide.arbre.title : null,
@@ -206,7 +210,9 @@ export function generateSlideHTML(slideIndex) {
           ? { x: slide.arbre.pos.x, y: slide.arbre.pos.y }
           : { x: 0, y: 0 }
       }
-    : null;
+    : { title: null, pos: { x: 0, y: 0 } };
+
+  const title = meta.title ?? `Slide ${slideIndex + 1}`;
 
   // plus bas, quand tu construis le HTML final :
   const metaScript = meta
