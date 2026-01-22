@@ -120,25 +120,27 @@ function exportBaseCSS() {
   /* --- styles des éléments (inchangés) --- */
   .el{
     position:absolute;
-    min-width: 120px;
-    min-height: 44px;
     padding:12px 14px;
     border-radius:14px;
-    border:1px solid rgba(0,0,0,.10);
-    background: rgba(255,255,255,.96);
-    box-shadow: 0 10px 25px rgba(0,0,0,.12);
+
+    /* IMPORTANT : plus de fond ni carte */
+    background: transparent;
+    border:none;
+    box-shadow:none;
+
     user-select:none;
   }
 
   .el.text{
+    background: transparent;
+    border:none;
+    box-shadow:none;
+
+    color:#111827;
     font-size:28px;
     font-weight:800;
-    letter-spacing:-.02em;
-    color:#111827;
-    background: rgba(255,255,255,.92);
-    border-radius: 18px;
-    box-shadow: 0 14px 30px rgba(0,0,0,.10);
   }
+
 
   .el.shape{
     padding:0;
@@ -187,13 +189,15 @@ function exportBaseCSS() {
   }
 
   .el.image{
-    padding:0;
-    border-radius:18px;
-    overflow:hidden;
-    border:1px solid rgba(0,0,0,.12);
-    background:#f3f4f6;
-    box-shadow: 0 14px 30px rgba(0,0,0,.10);
+    background: transparent;
+    border:none;
+    box-shadow:none;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
   }
+
   .el.image img{
     width:100%;
     height:100%;
