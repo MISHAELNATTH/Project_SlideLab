@@ -5,11 +5,11 @@
 export var id=1;
 
 export const state = {
+  
   activeSlide: 0,
   slides: [
     { 
-      id: slideId(), 
-      arbre : [],
+      id: cryptoId(), 
       backgroundColor: "#ffffff",
       backgroundGradient: "",
       elements: [
@@ -1101,7 +1101,14 @@ function stopDragSide() {
   resizerX.classList.remove("resizing");
   document.body.style.cursor = "";
 }
+const btnArbre = document.getElementById("btnArbre");
 
+if (btnArbre) {
+  btnArbre.addEventListener("click", () => {
+    const target = "src/html/arbre.html";
+    window.location.href = `${import.meta.env.BASE_URL}${target}`;
+  });
+}
 
 
 render();

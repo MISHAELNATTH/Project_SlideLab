@@ -23,7 +23,6 @@ const canvasEl = document.getElementById("canvas");
 const btnAdd = document.getElementById("btnAdd");
 const btnSave = document.getElementById("btnSave");
 const btnLoad = document.getElementById("btnLoad");
-const fileImport = document.getElementById("fileImport");
 
 if (!nodesLayer || !svgLayer || !sidebarContent || !sidebarSubtitle || !canvasEl) {
   throw new Error("DOM manquant : nodes-layer/svg-layer/properties-content/sidebar-subtitle/canvas");
@@ -66,7 +65,7 @@ function debounce(fn, ms = 200) {
 
 const requestSave = debounce(() => {
   if (!slides_state) return;
-  requestSave();
+  saveSlidesStateToLocalStorage(slides_state);
 }, 200);
 
 function deleteSlideByIndex(deleteIndex) {
@@ -81,11 +80,6 @@ function deleteSlideByIndex(deleteIndex) {
   cleanupLinksAfterSlideDelete(slides_state, deleteIndex);
 
   // 3) sauve + rebuild
-  saveSlidesStateToLocalStorage(slides_state);
-  selectedNodeId = null;
-  buildGraphFromSlidesState();
-
-  // 4) Save + rebuild
   saveSlidesStateToLocalStorage(slides_state);
   selectedNodeId = null;
   buildGraphFromSlidesState();
@@ -111,10 +105,13 @@ function slideIndexToLink(slideIndex) {
   return String(slideIndex + 1); // "1..N"
 }
 function linkToSlideIndex(link) {
-  const n = parseInt(link, 10);
+  if (typeof link !== "string") return null;
+  if (!/^\d+$/.test(link)) return null; // ✅ uniquement des chiffres
+  const n = Number(link);
   if (!Number.isFinite(n) || n <= 0) return null;
   return n - 1;
 }
+
 
 /* =========================
    Update helpers (writes into slides_state + persist)
@@ -145,16 +142,9 @@ function setElementLinkInSlidesState(srcSlideIndex, elementIndex, newLink) {
   const el = slide.elements[elementIndex];
   if (!el) return;
 
-  // update élément réel
   el.link = newLink;
 
-  // 2) update l’élément "réel" dans slide.elements (si trouvé par elementId)
-  if (aEl.elementId && Array.isArray(slide.elements)) {
-    const real = slide.elements.find((e) => e.id === aEl.elementId);
-    if (real) real.link = newLink;
-  }
-
-  requestSave();
+  requestSave(); // ou saveSlidesStateToLocalStorage(slides_state)
 }
 
 /* =========================
@@ -170,8 +160,21 @@ function buildGraphFromSlidesState() {
   }
 
   nodes = slides_state.slides.map((slide, slideIndex) => {
-    const a = slide.arbre || {};
-    const pos = a.pos || {};
+    if (!slide.arbre) slide.arbre = {};
+    if (!slide.arbre.pos) slide.arbre.pos = {};
+    const a = slide.arbre;
+    const defaultX = 100 + slideIndex * 260;
+    const defaultY = 120 + (slideIndex % 4) * 160;
+
+    const xStored = a.pos.x;
+    const yStored = a.pos.y;
+
+    const x = (typeof xStored === "number") ? xStored : defaultX;
+    const y = (typeof yStored === "number") ? yStored : defaultY;
+
+    // 🔥 on écrit dans slides_state (création ou correction)
+    a.pos.x = x;
+    a.pos.y = y;
     const title = a.title || `Slide ${slideIndex + 1}`;
     const outputs = Array.isArray(slide.elements) ? slide.elements : [];
 
@@ -182,8 +185,9 @@ function buildGraphFromSlidesState() {
       slideId: slide.id,
 
       // layout
-      x: typeof pos.x === "number" ? pos.x : 100 + slideIndex * 260,
-      y: typeof pos.y === "number" ? pos.y : 120 + (slideIndex % 4) * 160,
+      x: x,
+      y: y,
+
 
       // data
       label: title,
@@ -449,11 +453,37 @@ function renderSidebar() {
     const select = document.createElement("select");
     select.className = "select-input";
 
+    const externalWrap = document.createElement("div");
+    externalWrap.style.marginTop = "8px";
+    externalWrap.style.display = "none";
+
+    const externalInput = document.createElement("input");
+    externalInput.type = "text";
+    externalInput.className = "form-input";
+    externalInput.placeholder = "https://... ou texte libre";
+
+    externalWrap.appendChild(externalInput);
+
     // none
     const optNone = document.createElement("option");
     optNone.value = "";
     optNone.textContent = "-- Non connecté --";
     select.appendChild(optNone);
+
+    // external
+    const optExternal = document.createElement("option");
+    optExternal.value = "__external__";
+    optExternal.textContent = "Lien externe";
+    select.appendChild(optExternal);
+
+    const isInternalLink = (typeof out.link === "string" && /^\d+$/.test(out.link));
+    const isExternalLink = (out.link && !isInternalLink);
+
+    if (isExternalLink) {
+      select.value = "__external__";
+      externalWrap.style.display = "block";
+      externalInput.value = out.link;
+    }
 
     // slides dispo (sauf soi-même)
     nodes.forEach((n) => {
@@ -467,12 +497,55 @@ function renderSidebar() {
 
     // change => persist + redraw
     select.addEventListener("change", () => {
-      const newLink = select.value ? select.value : null;
+      // Cas "non connecté"
+      if (select.value === "") {
+        externalWrap.style.display = "none";
+        out.link = null;
+        dot.className = "status-dot";
+        setElementLinkInSlidesState(node.slideIndex, out.elementIndex, null);
+        renderNodes();
+        renderConnections();
+        return;
+      }
+
+      // Cas "Lien externe"
+      if (select.value === "__external__") {
+        externalWrap.style.display = "block";
+
+        // si vide, on initialise à "" (ou garde l'existant)
+        const v = typeof out.link === "string" && !/^\d+$/.test(out.link) ? out.link : "";
+        externalInput.value = v;
+
+        out.link = v || null;
+        dot.className = `status-dot ${out.link ? "active" : ""}`;
+        setElementLinkInSlidesState(node.slideIndex, out.elementIndex, out.link);
+
+        renderNodes();
+        renderConnections();
+        return;
+      }
+
+      // Cas lien interne (vers une slide)
+      externalWrap.style.display = "none";
+      const newLink = select.value; // "1..N"
 
       out.link = newLink;
-      dot.className = `status-dot ${newLink ? "active" : ""}`;
-
+      dot.className = `status-dot active`;
       setElementLinkInSlidesState(node.slideIndex, out.elementIndex, newLink);
+
+      renderNodes();
+      renderConnections();
+    });
+
+    externalInput.addEventListener("input", () => {
+      // seulement si le mode externe est actif
+      if (select.value !== "__external__") return;
+
+      const v = externalInput.value.trim();
+      out.link = v ? v : null;
+      dot.className = `status-dot ${out.link ? "active" : ""}`;
+
+      setElementLinkInSlidesState(node.slideIndex, out.elementIndex, out.link);
 
       renderNodes();
       renderConnections();
@@ -480,6 +553,7 @@ function renderSidebar() {
 
     row.appendChild(header);
     row.appendChild(select);
+    row.appendChild(externalWrap);
     list.appendChild(row);
   });
 
@@ -566,7 +640,6 @@ function addSlide() {
     arbre: {
       title: `Slide ${idx + 1}`,
       pos: { x: 100 + idx * 260, y: 120 + (idx % 4) * 160 },
-      elements: [],
     },
   });
 
@@ -625,12 +698,10 @@ if (btnSave) {
   });
 }
 
-if (btnLoad && fileImport) {
-  btnLoad.addEventListener("click", () => fileImport.click());
-  fileImport.addEventListener("change", (e) => {
-    const file = e.target.files?.[0];
-    if (file) importFromFile(file);
-    fileImport.value = "";
+if (btnLoad) {
+  btnLoad.addEventListener("click", () => {
+    const target = "src/html/editor.html";
+    window.location.href = `${import.meta.env.BASE_URL}${target}`;
   });
 }
 
