@@ -1,0 +1,18 @@
+export const dom = {
+  nodesLayer: document.getElementById("nodes-layer"),
+  svgLayer: document.getElementById("svg-layer"),
+  sidebarContent: document.getElementById("properties-content"),
+  sidebarSubtitle: document.getElementById("sidebar-subtitle"),
+  canvasEl: document.getElementById("canvas"),
+
+  btnAdd: document.getElementById("btnAdd"),
+  btnSave: document.getElementById("btnSave"),
+  btnLoad: document.getElementById("btnLoad"),
+};
+
+export function assertDom() {
+  const { nodesLayer, svgLayer, sidebarContent, sidebarSubtitle, canvasEl } = dom;
+  if (!nodesLayer || !svgLayer || !sidebarContent || !sidebarSubtitle || !canvasEl) {
+    throw new Error("DOM manquant : nodes-layer/svg-layer/properties-content/sidebar-subtitle/canvas");
+  }
+}

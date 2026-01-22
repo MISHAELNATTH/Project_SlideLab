@@ -188,15 +188,26 @@ export function generateSlideHTML(slideIndex) {
     }
 
 
-  // --- META qu’on veut sauvegarder dans le HTML ---
-  // Position par défaut 0,0 (comme demandé)
-  const meta = {
-    version: 1,
-    title: slide.title ?? `Slide ${slideIndex + 1}`,
-    pos: { x: 0, y: 0 },
-    // rempli plus bas en fonction des boutons réellement présents
-    buttons: []
-  };
+  // --- META (title + pos uniquement) ---
+  if (!slide) {
+    throw new Error(`generateSlideHTML: slide introuvable à l’index ${slideIndex}`);
+  }
+
+  const meta = (slide.arbre && typeof slide.arbre === "object")
+    ? {
+        title: typeof slide.arbre.title === "string" ? slide.arbre.title : null,
+        pos: (slide.arbre.pos && typeof slide.arbre.pos.x === "number" && typeof slide.arbre.pos.y === "number")
+          ? { x: slide.arbre.pos.x, y: slide.arbre.pos.y }
+          : { x: 0, y: 0 }
+      }
+    : { title: null, pos: { x: 0, y: 0 } };
+
+  const title = meta.title ?? `Slide ${slideIndex + 1}`;
+
+  // plus bas, quand tu construis le HTML final :
+  const metaScript = meta
+    ? `  <script id="slide-meta" type="application/json">${JSON.stringify(meta)}</script>\n`
+    : "";
 
   // [STRATEGY] Get background
   const bgStyle = getSlideBackgroundStyle(slide);
@@ -258,12 +269,6 @@ ${exportBaseCSS()}
       const hrefFinal = normalizeHref(el.link) || hrefFromHtml || null;
       const target = hrefToTarget(hrefFinal);
 
-      meta.buttons.push({
-        buttonId: el.id,
-        href: hrefFinal,
-        target: target || null
-      });
-
       // 3) Rendu visuel: PAS besoin de mettre <a> dedans.
       const safeInner = (el.html && el.html.trim()) ? el.html : "Bouton";
       html += `      <div class="${classNames}" data-btn-id="${el.id}" ${styleAttr}>${safeInner}</div>\n`;
@@ -316,12 +321,14 @@ ${exportBaseCSS()}
 
   // On injecte le JSON dans le HTML exporté
   // ⚠️ On doit échapper </script> au cas où
-  const metaJson = JSON.stringify(meta).replace(/<\/script/gi, "<\\/script");
+  const metaJson = meta
+  ? JSON.stringify(meta).replace(/<\/script/gi, "<\\/script")
+  : null;
 
   html += `    </div>
   </div>
 
-  <script id="slide-meta" type="application/json">${metaJson}</script>
+  ${metaJson ? `<script id="slide-meta" type="application/json">${metaJson}</script>` : ""}
 
   <script>
     (function(){

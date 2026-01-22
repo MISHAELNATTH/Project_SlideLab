@@ -1127,6 +1127,7 @@ setZoom(1);
 import './imporExport.js';
 import './present.js';
 import './slides.js';
+import { createTextToolbar, createShapeControls, createTableControls } from './createShapeControls.js';
 
 import { initContextMenu } from './contextMenu.js';
 
