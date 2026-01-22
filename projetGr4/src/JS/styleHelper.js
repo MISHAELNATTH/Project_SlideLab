@@ -34,18 +34,23 @@ export function getElementStyles(el) {
     if (el.fontFamily) styles.fontFamily = el.fontFamily;
     if (el.textAlign) styles.textAlign = el.textAlign;
     if (el.fontStyle) styles.fontStyle = el.fontStyle;
+
+    if (el.type === 'button') {
+        styles.display = 'flex';
+        styles.alignItems = 'center'; // Always center vertically
+        // Map textAlign to justifyContent
+        const alignMap = { left: 'flex-start', right: 'flex-end', center: 'center' };
+        styles.justifyContent = alignMap[el.textAlign] || 'center';
+        styles.textAlign = el.textAlign; // Keep for reference
+    } else {
+        // Text elements use standard text-align
+        if (el.textAlign) styles.textAlign = el.textAlign;
+    }
   }
 
   // --- SHAPE STYLES ---
-  if (el.type === 'shape') {
-    if (el.fillColor) styles.background = el.fillColor;
-    if (el.borderColor) {
-        styles.borderColor = el.borderColor;
-        styles.borderWidth = '2px';
-        styles.borderStyle = 'solid';
-    }
-    if (el.opacity !== undefined) styles.opacity = el.opacity;
-  }
+  // Note: Shape fill, border, and opacity are now applied to shape-content-wrapper in editor.js
+  // This keeps the outer node fully clickable (no clip-path blocking clicks)
   
   // --- TABLE STYLES (Container only) ---
   if (el.type === 'table') {
@@ -59,6 +64,53 @@ export function getElementStyles(el) {
 /**
  * Generates the CSS string for HTML Export.
  */
+/**
+ * Generates inline styles for shape wrapper element
+ * Matches presentation mode rendering exactly
+ */
+export function getShapeWrapperStyles(el) {
+  let styles = {
+    position: 'absolute',
+    top: '0',
+    left: '0',
+    width: '100%',
+    height: '100%',
+    pointerEvents: 'none',
+    boxSizing: 'border-box'
+  };
+  
+  // Apply fill color (without opacity baked in - apply opacity separately like presentation mode)
+  if (el.fillColor) {
+    styles.background = el.fillColor;
+  }
+  
+  // Apply opacity as separate property (matches presentation mode)
+  if (el.opacity !== undefined) {
+    styles.opacity = el.opacity;
+  }
+  
+  // Apply border
+  if (el.borderColor) {
+    styles.borderColor = el.borderColor;
+    styles.borderWidth = '2px';
+    styles.borderStyle = 'solid';
+  }
+  
+  return styles;
+}
+
+/**
+ * Converts style object to inline CSS string
+ */
+export function stylesToString(styles) {
+  return Object.entries(styles)
+    .map(([key, value]) => {
+      const cssKey = key.replace(/[A-Z]/g, m => "-" + m.toLowerCase());
+      return `${cssKey}:${value}`;
+    })
+    .join(';');
+}
+
 export function generateExportStyle(el) {
     const styles = getElementStyles(el);
     return Object.entries(styles)
@@ -73,8 +125,8 @@ export function generateExportStyle(el) {
  * Returns the background style for a slide
  */
 export function getSlideBackgroundStyle(slide) {
-    if (slide.backgroundGradient) {
+    /*if (slide.backgroundGradient) {
         return slide.backgroundGradient;
-    }
-    return slide.backgroundColor || "#ffffff";
+    }*/
+    return slide.backgroundColor ? slide.backgroundColor : "#ffffff";
 }

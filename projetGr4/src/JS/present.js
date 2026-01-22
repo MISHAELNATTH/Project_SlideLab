@@ -140,22 +140,38 @@ function renderPresentationSlide(index, container) {
     // --- TEXT & BUTTON ---
     if (e.type === "text" || e.type === "button") {
       node.innerHTML = e.html || "";
-      node.style.display = "flex";
-      node.style.alignItems = "center";
-      if(e.type === "button") node.style.justifyContent = "center";
-      
+      // [FIX] Separate logic: Buttons use Flexbox for centering, Text uses default Block for alignment
+      // if (e.type === "button") {
+      //   node.style.display = "flex";
+      //   node.style.alignItems = "center";
+      //   node.style.justifyContent = "center";
+        
+      //   node.style.cursor = "pointer";
+      //   node.onclick = () => nextSlide();
+      // } else {
+      //   // Text elements must remain "block" for text-align to work (left/center/right)
+      //   node.style.display = "block";
+      // }
+
       if (e.type === "button") {
         node.style.cursor = "pointer";
         node.onclick = () => nextSlide();
+      } else {
+        // Text elements must remain "block" for text-align to work (handled by helper not setting flex)
+        node.style.display = "block";
       }
     } 
     // --- IMAGE ---
     else if (e.type === "image") {
+      const wrapper = document.createElement('div');
+      wrapper.className = "el-img-wrapper";
       if (e.imageData) {
-        node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:contain;">`;
+        wrapper.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:contain;display:block;">`;
       } else {
-        node.innerHTML = `<div style="width:100%;height:100%;background:#eee;"></div>`;
+        wrapper.innerHTML = `<div style="width:100%;height:100%;background:#eee;"></div>`;
       }
+
+      node.appendChild(wrapper);
     }
     // --- TABLE ---
     else if (e.type === "table") {
@@ -179,6 +195,29 @@ function renderPresentationSlide(index, container) {
         tableEl.appendChild(tr);
       }
       node.appendChild(tableEl);
+    }
+    
+    // --- SHAPE ---
+    else if (e.type === "shape") {
+      // Create wrapper for shape visuals with clip-path
+      const shapeWrapper = document.createElement("div");
+      shapeWrapper.className = "shape-content-wrapper";
+      
+      // Apply fill, border, and opacity to wrapper
+      // Border will be clipped by clip-path to follow the shape edges
+      if (e.fillColor) {
+        shapeWrapper.style.background = e.fillColor;
+      }
+      if (e.borderColor) {
+        shapeWrapper.style.borderColor = e.borderColor;
+        shapeWrapper.style.borderWidth = '2px';
+        shapeWrapper.style.borderStyle = 'solid';
+      }
+      if (e.opacity !== undefined) {
+        shapeWrapper.style.opacity = e.opacity;
+      }
+      
+      node.appendChild(shapeWrapper);
     }
     
     // --- HANDLE LINKS (Apply to ALL types) ---

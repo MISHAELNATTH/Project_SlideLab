@@ -1,5 +1,5 @@
 import {thumbsEl, state, cryptoId, setSelectedId, render, getActive, slideId, setZoom, getZoom} from "./editor.js";
-import { generateExportStyle, getElementClasses, getSlideBackgroundStyle } from './styleHelper.js';
+import { generateExportStyle, getElementClasses, getSlideBackgroundStyle, getShapeWrapperStyles, stylesToString } from './styleHelper.js';
 
 // =====================================================
 //  HELPERS (local)
@@ -42,7 +42,13 @@ function normalizeHref(href) {
 
 // add slide
 document.getElementById("addSlideBtn").addEventListener("click", () => {
-  state.slides.push({ id: slideId(), elements: [] });
+  state.slides.push({
+    id: slideId(),
+    elements: [],
+    arbre: { title: null, pos: { x: 0, y: 0 } },
+    backgroundColor: "#ffffff",
+    backgroundGradient: ""
+  });
   state.activeSlide = state.slides.length - 1;
   setSelectedId(null);
   render();
@@ -137,9 +143,33 @@ function exportBaseCSS() {
   .el.shape{
     padding:0;
     border-radius:18px;
-    background: linear-gradient(135deg, #7c5cff, #37d6ff);
+    background: transparent;
     border:none;
-    box-shadow: 0 14px 30px rgba(0,0,0,.10);
+    box-shadow: none;
+  }
+
+  /* Shape type styles */
+  .el.shape.rectangle {
+    border-radius: 18px;
+  }
+
+  .el.shape.circle {
+    border-radius: 50%;
+  }
+
+  .el.shape.triangle {
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    border-radius: 0;
+  }
+
+  .el.shape.star {
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    border-radius: 0;
+  }
+
+  .el.shape.diamond {
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    border-radius: 0;
   }
 
   .el.button{
@@ -170,6 +200,36 @@ function exportBaseCSS() {
     object-fit:contain;  /* --- newly added to fit the image --- */
     display:block;
   }
+
+  /* Table styles */
+  .data-table {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .data-table th,
+  .data-table td {
+    border: 1px solid #cccccc;
+    padding: 8px 12px;
+    text-align: left;
+    min-width: 60px;
+  }
+
+  .data-table th {
+    background: #f3f4f6;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .data-table td {
+    background: #ffffff;
+    color: #374151;
+  }
 </style>
 `.trim();
 }
@@ -180,17 +240,24 @@ function exportBaseCSS() {
 export function generateSlideHTML(slideIndex) {
   const slide = state.slides[slideIndex];
 
-
+  // Get slide background style
+  const slideBackgroundStyle = getSlideBackgroundStyle(slide);
+  const slideBgAttr = slideBackgroundStyle ? ` style="background: ${slideBackgroundStyle};"` : "";
 
   // --- META qu’on veut sauvegarder dans le HTML ---
   // Position par défaut 0,0 (comme demandé)
+  // --- META toujours défini ---
   const meta = {
-    version: 1,
-    title: slide.title ?? `Slide ${slideIndex + 1}`,
-    pos: { x: 0, y: 0 },
-    // rempli plus bas en fonction des boutons réellement présents
-    buttons: []
+    title:
+      (slide?.arbre && typeof slide.arbre.title === "string" && slide.arbre.title.trim())
+        ? slide.arbre.title.trim()
+        : `Slide ${slideIndex + 1}`,
+    pos:
+      (slide?.arbre && slide.arbre.pos && typeof slide.arbre.pos.x === "number" && typeof slide.arbre.pos.y === "number")
+        ? { x: slide.arbre.pos.x, y: slide.arbre.pos.y }
+        : { x: 0, y: 0 }
   };
+
 
   let html = `<!DOCTYPE html>
 <html lang="fr">
@@ -202,7 +269,7 @@ ${exportBaseCSS()}
 </head>
 <body>
   <div class="stage">
-    <div class="slide" role="img" aria-label="${meta.title}"> 
+    <div class="slide" role="img" aria-label="${meta.title}"${slideBgAttr}> 
     
     
 `;
@@ -272,7 +339,12 @@ ${exportBaseCSS()}
 
     else if (el.type === "shape") {
       const linkAttr = el.link ? ` data-link="${el.link}"` : "";
-      html += `      <div class="${classNames}" data-id="${el.id}"${linkAttr} ${styleAttr}></div>\n`;
+      
+      // Use helper function to get shape wrapper styles
+      const wrapperStyles = getShapeWrapperStyles(el);
+      const wrapperStyleString = stylesToString(wrapperStyles);
+      
+      html += `      <div class="${classNames}" data-id="${el.id}"${linkAttr} ${styleAttr}><div class="shape-content-wrapper" style="${wrapperStyleString}"></div></div>\n`;
     }
 
     else if (el.type === "image") {
