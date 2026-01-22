@@ -7,6 +7,7 @@ import {
   render,
   setZoom,
   getZoom,
+  slideId,
   getActive
 } from "./editor.js";
 
@@ -31,7 +32,7 @@ function escHtml(s = "") {
 
 // add slide
 document.getElementById("addSlideBtn").addEventListener("click", () => {
-  state.slides.push({ id: cryptoId(), elements: [] });
+  state.slides.push({ id: slideId(), elements: [] });
   state.activeSlide = state.slides.length - 1;
   setSelectedId(null);
   render();
@@ -42,8 +43,8 @@ document.getElementById("addSlideBtn").addEventListener("click", () => {
 document.getElementById("dupSlideBtn").addEventListener("click", () => {
   const s = getActive();
   const clone = JSON.parse(JSON.stringify(s));
-  clone.id = cryptoId();
-  clone.elements.forEach((e) => (e.id = cryptoId()));
+  clone.id = slideId();
+  clone.elements.forEach((e) => (e.id = slideId()));
   state.slides.splice(state.activeSlide + 1, 0, clone);
   state.activeSlide++;
   setSelectedId(null);
@@ -166,8 +167,36 @@ function exportBaseCSS() {
 
 
 
-function generateSlideHTML(slideIndex) {
+export function generateSlideHTML(slideIndex) {
   const slide = state.slides[slideIndex];
+
+    function normalizeHref(link) {
+      if (!link) return null;
+      const s = String(link).trim();
+      if (!s) return null;
+
+      // Déjà une URL externe
+      if (/^https?:\/\//i.test(s)) return s;
+
+      // Déjà un href "slide-2.html"
+      if (/^slide-\d+\.html$/i.test(s)) return s;
+
+      // Déjà une autre page html explicite (optionnel mais utile)
+      if (/\.html$/i.test(s)) return s;
+
+      // Cas "2" => slide-2.html
+      return `slide-${s}.html`;
+    }
+
+    function wrapWithLink(innerHtml, link) {
+      const href = normalizeHref(link);
+      if (!href) return innerHtml;
+
+      // Le <a> est "invisible" (pas de soulignement/bleu), seul le contenu s'affiche.
+      // display:contents évite de rajouter une "boîte" autour (meilleur pour le layout).
+      return `<a href="${href}" style="text-decoration:none;color:inherit;display:contents;">${innerHtml}</a>`;
+    }
+
 
   // --- META qu’on veut sauvegarder dans le HTML ---
   // Position par défaut 0,0 (comme demandé)
@@ -221,50 +250,53 @@ ${exportBaseCSS()}
     const style = `style="left:${left}px;top:${top}px;width:${w}px;height:${h}px;"`;
 
     if (el.type === "text") {
-      html += `      <div class="el text" ${style}>${el.html || "Texte"}</div>\n`;
+      const inner = `      <div class="el text" ${style}>${el.html || "Texte"}</div>\n`;
+      html += wrapWithLink(inner, el.link);
     }
 
     else if (el.type === "button") {
-      // IMPORTANT :
-      // - on force un data-btn-id stable = el.id
-      // - on tente de récupérer un href existant dans el.html
-      let href = null;
+      // 1) Ancien système: href dans le HTML interne (si présent)
+      let hrefFromHtml = null;
       try {
         const tmp = document.createElement("div");
         tmp.innerHTML = el.html || "";
         const a = tmp.querySelector("a[href]");
-        if (a) href = a.getAttribute("href");
+        if (a) hrefFromHtml = a.getAttribute("href");
       } catch {}
 
-      const target = hrefToTarget(href);
+      // 2) Nouveau système: priorité à el.link (ta règle)
+      const hrefFinal = normalizeHref(el.link) || hrefFromHtml || null;
+      const target = hrefToTarget(hrefFinal);
 
       meta.buttons.push({
         buttonId: el.id,
-        href: href || null,
+        href: hrefFinal,
         target: target || null
       });
 
-      // rendu visuel:
-      // si ton bouton contient déjà un <a>, on garde.
-      // sinon on l’exporte en <a> pour que le lien marche en présentation.
-      const safeInner =
-        (el.html && el.html.trim())
-          ? el.html
-          : `<a href="#" style="color:inherit;text-decoration:none;display:block;width:100%;text-align:center;">Bouton</a>`;
+      // 3) Rendu visuel: PAS besoin de mettre <a> dedans.
+      const safeInner = (el.html && el.html.trim()) ? el.html : "Bouton";
 
-      html += `      <div class="el button" data-btn-id="${el.id}" ${style}>${safeInner}</div>\n`;
+      const inner = `      <div class="el button" data-btn-id="${el.id}" ${style}>${safeInner}</div>\n`;
+      // hrefFinal est déjà normalisé => wrap direct sans renormaliser
+      if (hrefFinal) {
+        html += `<a href="${hrefFinal}" style="text-decoration:none;color:inherit;display:contents;">${inner}</a>`;
+      } else {
+        html += inner;
+      }
     }
 
     else if (el.type === "shape") {
-      html += `      <div class="el shape" ${style}></div>\n`;
+      const inner = `      <div class="el shape" ${style}></div>\n`;
+      html += wrapWithLink(inner, el.link);
     }
 
     else if (el.type === "image") {
-      if (el.imageData) {
-        html += `      <div class="el image" ${style}><img src="${el.imageData}" alt=""></div>\n`;
-      } else {
-        html += `      <div class="el image" ${style}></div>\n`;
-      }
+      const inner = el.imageData
+        ? `      <div class="el image" ${style}><img src="${el.imageData}" alt=""></div>\n`
+        : `      <div class="el image" ${style}></div>\n`;
+
+      html += wrapWithLink(inner, el.link);
     }
   }
 
@@ -286,6 +318,43 @@ ${exportBaseCSS()}
       }
       window.addEventListener('resize', updateScale, { passive:true });
       updateScale();
+      
+      // Rendre les boutons et textes avec liens cliquables
+      document.querySelectorAll('.el[data-link]').forEach(el => {
+        const link = el.getAttribute('data-link');
+        if (!link) return;
+        
+        el.style.cursor = 'pointer';
+        el.onclick = () => {
+          // Vérifier si c'est un lien vers une slide ou une URL
+          if (!isNaN(link)) {
+            // C'est un numéro de slide (1-based)
+            const slideIndex = parseInt(link);
+            // En file://, on utilise le nom du fichier
+            window.location.href = 'slide-' + slideIndex + '.html';
+          } else if (link.match(/^slide-\d+\.html$/i)) {
+            // C'est déjà un nom de fichier
+            window.location.href = link;
+          } else {
+            // C'est une URL externe
+            window.open(link, '_blank');
+          }
+        };
+      });
+      
+      // Aussi gérer les liens dans les <a> directs
+      document.querySelectorAll('.el a[href]').forEach(link => {
+        const href = link.getAttribute('href');
+        if (!href || href === '#') return;
+        
+        const parent = link.closest('.el');
+        if (parent) {
+          parent.style.cursor = 'pointer';
+          parent.onclick = () => {
+            window.location.href = href;
+          };
+        }
+      });
     })();
   </script>
 </body>
@@ -295,34 +364,6 @@ ${exportBaseCSS()}
 }
 
 
-
-// export all slides as HTML files to download
-document.getElementById("exportBtn").addEventListener("click", () => {
-  if (state.slides.length === 1) {
-    const html = generateSlideHTML(0);
-    const blob = new Blob([html], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "slide.html";
-    a.click();
-    URL.revokeObjectURL(url);
-  } else {
-    state.slides.forEach((_, index) => {
-      const html = generateSlideHTML(index);
-      const blob = new Blob([html], { type: "text/html" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `slide-${index + 1}.html`;
-
-      setTimeout(() => {
-        a.click();
-        URL.revokeObjectURL(url);
-      }, index * 200);
-    });
-  }
-});
 
 // fit
 document.getElementById("fitBtn").addEventListener("click", () => {
@@ -341,18 +382,39 @@ document.getElementById("toolSearch").addEventListener("input", (ev) => {
   });
 });
 
-// persist editable content back to state
+// =====================================================
+//  SANITIZE (no toolbar in slides_state)
+// =====================================================
+function sanitizeEditableInnerHTML(elNode) {
+  const clone = elNode.cloneNode(true);
+
+  // Supprime l'UI d'édition
+  clone.querySelectorAll(".text-toolbar, .handle").forEach((n) => n.remove());
+
+  const raw = clone.innerHTML || "";
+  const cutIdx = raw.indexOf('<div class="text-toolbar"');
+  const cleaned = (cutIdx === -1 ? raw : raw.slice(0, cutIdx)).trim();
+
+  return cleaned;
+}
+
+// persist editable content back to state (ONE listener only)
 document.getElementById("slide").addEventListener("input", (ev) => {
   const elNode = ev.target.closest(".el");
   if (!elNode) return;
+
   const id = elNode.dataset.id;
   const s = getActive();
   const e = s.elements.find((x) => x.id === id);
   if (!e) return;
+
   if (e.type === "text" || e.type === "button") {
-    e.html = elNode.innerHTML;
+    e.html =
+      sanitizeEditableInnerHTML(elNode) ||
+      (e.type === "text" ? "Texte" : "Bouton");
   }
 });
+
 
 // basic zoom with trackpad wheel + ctrl
 document.getElementById("workspace").addEventListener(
