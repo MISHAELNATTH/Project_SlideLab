@@ -409,9 +409,9 @@ body{
 }
 .el.table{
   padding: 0;
-  background: #ffffff;
-  overflow: visible;
+  overflow: hidden;
   cursor: move;
+  border-radius: 18px;
 }
 .el.table th,
 .el.table td {
@@ -662,11 +662,6 @@ body{
 }
 
 /* Table styles */
-.el.table {
-  padding: 0;
-  background: #ffffff;
-  overflow: visible;
-}
 
 .data-table {
   width: 100%;

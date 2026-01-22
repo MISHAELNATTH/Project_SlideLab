@@ -170,6 +170,36 @@ function exportBaseCSS() {
     object-fit:contain;  /* --- newly added to fit the image --- */
     display:block;
   }
+
+  /* Table styles */
+  .data-table {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .data-table th,
+  .data-table td {
+    border: 1px solid #cccccc;
+    padding: 8px 12px;
+    text-align: left;
+    min-width: 60px;
+  }
+
+  .data-table th {
+    background: #f3f4f6;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .data-table td {
+    background: #ffffff;
+    color: #374151;
+  }
 </style>
 `.trim();
 }
@@ -180,7 +210,9 @@ function exportBaseCSS() {
 export function generateSlideHTML(slideIndex) {
   const slide = state.slides[slideIndex];
 
-
+  // Get slide background style
+  const slideBackgroundStyle = getSlideBackgroundStyle(slide);
+  const slideBgAttr = slideBackgroundStyle ? ` style="background: ${slideBackgroundStyle};"` : "";
 
   // --- META qu’on veut sauvegarder dans le HTML ---
   // Position par défaut 0,0 (comme demandé)
@@ -210,7 +242,7 @@ ${exportBaseCSS()}
 </head>
 <body>
   <div class="stage">
-    <div class="slide" role="img" aria-label="${meta.title}"> 
+    <div class="slide" role="img" aria-label="${meta.title}"${slideBgAttr}> 
     
     
 `;
