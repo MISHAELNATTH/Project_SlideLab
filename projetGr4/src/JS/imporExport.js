@@ -1,5 +1,5 @@
-// imporExport.js
-import { thumbsEl, state, cryptoId, setSelectedId, render } from "./editor.js";
+import { thumbsEl, state, slideId, setSelectedId, render, slideEl } from "./editor.js";
+import { generateSlideHTML } from "./slides.js";
 
 // =====================================================
 //  HELPERS
@@ -20,6 +20,27 @@ function safeJsonParse(text) {
     return null;
   }
 }
+
+function stripAfterTextToolbar(rawHtml) {
+  if (!rawHtml) return rawHtml;
+
+  // Coupe dès la première occurrence de <div class="text-toolbar">
+  const idx = rawHtml.indexOf('<div class="text-toolbar"');
+  if (idx === -1) return rawHtml;
+
+  return rawHtml.slice(0, idx);
+}
+
+function cleanEditableHtml(node) {
+  const clone = node.cloneNode(true);
+
+  // supprime toolbars + handles si présents
+  clone.querySelectorAll(".text-toolbar, .handle").forEach((el) => el.remove());
+
+  // puis on coupe au cas où une toolbar serait restée en texte brut
+  return stripAfterTextToolbar(clone.innerHTML);
+}
+
 
 /**
  * Convertit un href vers une "cible slide" (si détectable)
@@ -49,6 +70,29 @@ function hrefToTarget(href) {
   return { kind: "href", href };
 }
 
+function hrefToLinkValue(href) {
+  if (!href) return null;
+  const s = String(href).trim();
+  if (!s) return null;
+
+  // Externe => on garde tel quel
+  if (/^https?:\/\//i.test(s)) return s;
+
+  // Nos formats internes possibles
+  let m = s.match(/^slide-(\d+)\.html$/i);
+  if (m) return m[1]; // ✅ "slide-2.html" -> "2"
+
+  m = s.match(/^#slide:(\d+)$/i);
+  if (m) return m[1]; // ✅ "#slide:2" -> "2"
+
+  m = s.match(/^#slide-(\d+)$/i);
+  if (m) return m[1]; // ✅ "#slide-2" -> "2"
+
+  // Sinon on garde (ex: "page.html" ou autre)
+  return s;
+}
+
+
 /**
  * Lit le meta JSON si présent dans:
  * <script id="slide-meta" type="application/json">...</script>
@@ -77,10 +121,8 @@ function readSlideMeta(doc) {
   const buttonsMeta = Array.isArray(meta.buttons) ? meta.buttons : [];
 
   return {
-    version: meta.version ?? 1,
     title,
-    pos,
-    buttonsMeta
+    pos
   };
 }
 
@@ -120,13 +162,29 @@ function parseSlideHTML(htmlContent) {
     let id =
       node.getAttribute("data-id") ||
       node.getAttribute("data-btn-id") ||
-      cryptoId();
+      slideId();
+    
+    // --- Link detection ---
+    // l'élément contient un <a href="..."> (ancien bouton ou wrapper interne)
+    let link = null;
+    const aInside = node.querySelector?.("a[href]");
+    if (aInside) link = aInside.getAttribute("href");
+
+    // l'élément est englobé par un <a href="..."> (wrapper externe)
+    if (!link) {
+      const aParent = node.closest?.("a[href]");
+      if (aParent) link = aParent.getAttribute("href");
+    }
+
+    link = hrefToLinkValue(link);
+
+
 
     // --- nouveau format (.el) ---
     if (node.classList.contains("el")) {
       if (node.classList.contains("text")) {
         type = "text";
-        html = node.innerHTML || "Texte";
+        html = cleanEditableHtml(node) || "Texte";
       } else if (node.classList.contains("button")) {
         type = "button";
         html = node.innerHTML || "Bouton";
@@ -144,7 +202,7 @@ function parseSlideHTML(htmlContent) {
       if (node.classList.contains("text-element")) {
         type = "text";
         const p = node.querySelector("p");
-        html = p ? p.innerHTML : node.innerHTML || "Texte";
+        html = cleanEditableHtml(node) || "Texte";
       } else if (node.classList.contains("button-element")) {
         type = "button";
         html = node.innerHTML.trim() || "Bouton";
@@ -164,6 +222,7 @@ function parseSlideHTML(htmlContent) {
       y: Math.round(y),
       w: Math.round(w),
       h: Math.round(h),
+      link,
       html
     };
 
@@ -184,7 +243,7 @@ function parseSlideHTML(htmlContent) {
       const buttonId =
         btn.getAttribute("data-btn-id") ||
         btn.getAttribute("data-id") ||
-        cryptoId();
+        slideId();
 
       const a = btn.querySelector("a[href]");
       const href = a ? a.getAttribute("href") : null;
@@ -235,14 +294,15 @@ function loadSlidesFromFiles(files) {
         const elements = parsed.elements;
         const meta = parsed.meta;
 
-        const slideObj = {
-          id: cryptoId(),
-          elements,
-          // ce que tu veux sauvegarder
+       const slideObj = {
+        id: slideId(),
+        elements,
+        arbre: {
           title: meta.title ?? file.name.replace(/\.html$/i, ""),
-          pos: meta.pos ?? { x: 0, y: 0 },
-          buttonsMeta: meta.buttonsMeta ?? []
-        };
+          pos: meta.pos ?? { x: 0, y: 0 }
+        }
+      };
+
 
         // Replace or add slide
         if (index === 0) {
@@ -284,4 +344,24 @@ fileInput.addEventListener("change", (ev) => {
     loadSlidesFromFiles(ev.target.files);
     ev.target.value = ""; // reset input
   }
+});
+
+
+// export all slides as HTML files to download
+document.getElementById("exportBtn").addEventListener("click", () => {
+  
+  state.slides.forEach((slide, index) => {
+    const html = generateSlideHTML(index);
+    const blob = new Blob([html], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = state.slides.length === 1 ? "slide.html" : `slide-${index + 1}.html`;
+
+    setTimeout(() => {
+      a.click();
+      URL.revokeObjectURL(url);
+    }, index * 200);
+  });
+  
 });

@@ -1,105 +1,103 @@
-import { generateId } from "./utils/ids.js";
+import { appState } from "./state.js";
+import { requestSave, saveSlidesStateToLocalStorage } from "./storage.js";
+import { buildGraphFromSlidesState } from "./buildGraph.js";
 
-export function createActions({ store, onChange }) {
-  function refresh() {
-    onChange?.();
-  }
+export function uuid() {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
 
-  function createNode(x = 100, y = 100, select = true) {
-    const id = store.consumeNextNodeId();
+export function setSlideTitle(srcSlideIndex, newTitle) {
+  const s = appState.slides_state?.slides?.[srcSlideIndex];
+  if (!s) return;
+  if (!s.arbre) s.arbre = {};
+  s.arbre.title = newTitle;
+  requestSave();
+}
 
-    const newNode = {
-      id,
-      x,
-      y,
-      label: `Rectangle ${store.getNextNodeId()}`, // garde ton style actuel
-      buttons: [],
-    };
+export function setSlidePos(srcSlideIndex, x, y) {
+  const s = appState.slides_state?.slides?.[srcSlideIndex];
+  if (!s) return;
+  if (!s.arbre) s.arbre = {};
+  if (!s.arbre.pos) s.arbre.pos = { x: 0, y: 0 };
+  s.arbre.pos.x = x;
+  s.arbre.pos.y = y;
+  requestSave();
+}
 
-    store.addNode(newNode);
+export function setElementLinkInSlidesState(srcSlideIndex, elementIndex, newLink) {
+  const slide = appState.slides_state?.slides?.[srcSlideIndex];
+  if (!slide || !Array.isArray(slide.elements)) return;
 
-    if (select) {
-      selectNode(newNode.id);
-    } else {
-      refresh();
-    }
+  const el = slide.elements[elementIndex];
+  if (!el) return;
 
-    return newNode.id;
-  }
+  el.link = newLink;
+  requestSave();
+}
 
-  function deleteNode(id) {
-    store.removeNodeById(id);
+/**
+ * Nettoie les links (elements[].link) après suppression d'une slide.
+ */
+export function cleanupLinksAfterSlideDelete(slides_state, deletedIndex) {
+  const deletedLink = deletedIndex + 1; // link "1..N" (avant suppression)
+  if (!slides_state?.slides?.length) return;
 
-    // Remove links pointing to this node
-    store.getNodes().forEach((n) => {
-      n.buttons.forEach((b) => {
-        if (b.target === id) b.target = null;
-      });
-    });
+  slides_state.slides.forEach((slide) => {
+    if (!Array.isArray(slide.elements)) return;
 
-    if (store.getSelectedNodeId() === id) {
-      store.setSelectedNodeId(null);
-    }
+    slide.elements.forEach((el) => {
+      if (!el || el.link == null) return;
 
-    refresh();
-  }
-
-  function updateNodeButtons(nodeId, count) {
-    const node = store.findNodeById(nodeId);
-    if (!node) return;
-
-    const currentCount = node.buttons.length;
-
-    if (count > currentCount) {
-      for (let i = 0; i < count - currentCount; i++) {
-        node.buttons.push({ id: generateId(), target: null });
+      const n = parseInt(el.link, 10);
+      if (!Number.isFinite(n) || n <= 0) {
+        el.link = null;
+        return;
       }
-    } else if (count < currentCount) {
-      node.buttons = node.buttons.slice(0, count);
-    }
 
-    refresh();
+      if (n === deletedLink) el.link = null;
+      else if (n > deletedLink) el.link = String(n - 1);
+    });
+  });
+}
+
+export function deleteSlideByIndex(deleteIndex) {
+  if (!appState.slides_state?.slides?.length) return;
+
+  // 1) Supprimer la slide
+  appState.slides_state.slides.splice(deleteIndex, 1);
+
+  // 2) Nettoie/renumérote tous les links
+  cleanupLinksAfterSlideDelete(appState.slides_state, deleteIndex);
+
+  // 3) Sauve + rebuild
+  saveSlidesStateToLocalStorage(appState.slides_state);
+  appState.selectedNodeId = null;
+  buildGraphFromSlidesState();
+}
+
+export function addSlide() {
+  if (!appState.slides_state) {
+    appState.slides_state = { activeSlide: 0, slides: [] };
   }
+  if (!Array.isArray(appState.slides_state.slides)) appState.slides_state.slides = [];
 
-  function linkButton(nodeId, buttonIndex, targetId) {
-    const node = store.findNodeById(nodeId);
-    if (!node) return;
+  const idx = appState.slides_state.slides.length;
 
-    if (targetId === "NEW") {
-      const newNodeId = createNode(node.x + 300, node.y + buttonIndex * 50, false);
-      node.buttons[buttonIndex].target = newNodeId;
-    } else {
-      node.buttons[buttonIndex].target = targetId ? parseInt(targetId, 10) : null;
-    }
+  appState.slides_state.slides.push({
+    id: uuid(),
+    backgroundColor: "#ffffff",
+    backgroundGradient: "",
+    elements: [],
+    arbre: {
+      title: `Slide ${idx + 1}`,
+      pos: { x: 100 + idx * 260, y: 120 + (idx % 4) * 160 },
+    },
+  });
 
-    refresh();
-  }
-
-  function selectNode(id) {
-    store.setSelectedNodeId(id);
-    refresh();
-  }
-
-  function deselectAll() {
-    store.setSelectedNodeId(null);
-    refresh();
-  }
-
-  function updateLabel(newLabel) {
-    const node = store.findNodeById(store.getSelectedNodeId());
-    if (!node) return;
-
-    node.label = newLabel;
-    refresh();
-  }
-
-  return {
-    createNode,
-    deleteNode,
-    updateNodeButtons,
-    linkButton,
-    selectNode,
-    deselectAll,
-    updateLabel,
-  };
+  requestSave();
+  buildGraphFromSlidesState();
 }

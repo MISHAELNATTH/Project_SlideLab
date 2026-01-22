@@ -2,7 +2,11 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#f8fafc">
     <title>Connecteur de Rectangles</title>
     <link rel="stylesheet" href="/src/css/arbreStyle.css">
 </head>
@@ -22,10 +26,11 @@
             Cliquez sur un rectangle pour l'éditer. Glissez pour déplacer.
         </div>
         
-        <button id="btnAdd" class="btn-add">+ Ajouter un Rectangle</button>
-        <button id="btnSave" class="btn-save">Sauvegarder</button>
-        <button id="btnLoad" class="btn-imp">Importer</button>
-        <input id="fileImport" type="file" accept="application/json" style="display:none" />
+        <!-- Buttons Container -->
+        <div class="buttons-container">
+            <button id="btnAdd" class="btn-add">Ajouter une Slide Vide</button>
+            <button id="btnLoad" class="btn-imp">Editor</button>
+        </div>
     </main>
 
     <!-- Sidebar Properties Panel -->
@@ -45,6 +50,6 @@
 
     </aside>
 
-    <script type="module" src="/src/JS/arbre/index.js"></script>
+    <script type="module" src="/src/JS/arbre/main.js"></script>
 </body>
 </html>

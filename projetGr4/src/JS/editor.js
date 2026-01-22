@@ -1,8 +1,12 @@
+import { getElementStyles, getElementClasses, getSlideBackgroundStyle, px } from './styleHelper.js';
 // =====================================================
 //  DONNÉES ET CONFIGURATION
 // =====================================================
 
+export var id=1;
+
 export const state = {
+  
   activeSlide: 0,
   slides: [
     { 
@@ -23,7 +27,10 @@ export const state = {
 
 export function saveState() {
   try {
-    localStorage.setItem('slides_state', JSON.stringify(state));
+    localStorage.setItem(
+      'slides_state',
+      JSON.stringify(state)
+    );
     console.log('✓ État sauvegardé');
   } catch (e) {
     console.error('Erreur lors de la sauvegarde:', e);
@@ -65,6 +72,10 @@ export function getSelectedId() {
 //  HELPERS
 // =====================================================
 
+export function slideId(){
+  return "slide-" + id++ + ".html";
+}
+
 export function cryptoId(){
   return (crypto?.randomUUID?.() || ("id_" + Math.random().toString(16).slice(2)));
 }
@@ -77,9 +88,6 @@ export function getActive(){
   return state.slides[state.activeSlide];
 }
 
-function px(n){ 
-  return Math.round(n) + "px"; 
-}
 
 function clearSelection(){
   selectedId = null;
@@ -108,165 +116,152 @@ export function setZoom(z){
 // =====================================================
 //  RENDER
 // =====================================================
+
+loadState();
 export function render(){
   const s = getActive();
   
-  // Apply slide background
-  if (s.backgroundGradient) {
-    slideEl.style.background = s.backgroundGradient;
-  } else {
-    slideEl.style.background = s.backgroundColor || "#ffffff";
-  }
+  // [STRATEGY] Use helper for background
+  slideEl.style.background = getSlideBackgroundStyle(s);
   
-  // Render slide elements
+  // Clear previous elements
   slideEl.querySelectorAll(".el").forEach(n => n.remove());
 
   s.elements.forEach(e => {
     const node = document.createElement("div");
-    node.className = "el " + e.type + (e.id === selectedId ? " selected" : "");
-    if (e.shapeType) {
-      node.classList.add(e.shapeType);
-    }
+    
+    // [STRATEGY] Use helper for classes
+    node.className = getElementClasses(e) + (e.id === selectedId ? " selected" : "");
     node.dataset.id = e.id;
-    node.style.left = px(e.x);
-    node.style.top  = px(e.y);
 
-    if (e.type === "shape" || e.type === "image"){
-      node.style.width  = px(e.w);
-      node.style.height = px(e.h);
-    } else {
-      node.style.width  = px(e.w || 240);
-      node.style.height = px(e.h || 54);
-    }
+    // [STRATEGY] Use helper for all CSS styles (pos, size, font, color, border...)
+    const styles = getElementStyles(e);
+    Object.assign(node.style, styles);
 
-    // Apply text styles
+    // --- TEXT & BUTTON ---
     if (e.type === "text" || e.type === "button"){
       node.contentEditable = "true";
       node.spellcheck = false;
       node.innerHTML = e.html || (e.type === "text" ? "Texte" : "Bouton");
-      if (e.color) node.style.color = e.color;
-      if (e.fontSize) node.style.fontSize = px(e.fontSize);
-      if (e.fontWeight) node.style.fontWeight = e.fontWeight;
-      if (e.fontFamily) node.style.fontFamily = e.fontFamily;
-      if (e.textAlign) node.style.textAlign = e.textAlign;
       
-      // Add text formatting toolbar
+      // --- FIX IS HERE: Defined the toolbar before using it ---
       const toolbar = createTextToolbar(e);
       node.appendChild(toolbar);
     }
 
-    // Apply shape styles
-    if (e.type === "shape"){
-      if (e.fillColor) node.style.background = e.fillColor;
-      if (e.borderColor) node.style.borderColor = e.borderColor;
-      if (e.opacity !== undefined) node.style.opacity = e.opacity;
+    // --- TABLE ---
+    if (e.type === "table"){
+
+      const wrapper = document.createElement("div");
+      Object.assign(wrapper.style, {
+        width: "100%",
+        height: "100%",
+        overflow: "hidden", // [FIX] Clip content so no scrollbars appear
+        position: "relative"
+      });
+
+      const tableEl = document.createElement("table");
+      tableEl.className = "data-table";
+      Object.assign(tableEl.style, {
+        width: "100%",
+        height: "100%",
+        tableLayout: "fixed", // Helps with resizing predictability
+        borderCollapse: "collapse"
+      });
+      // Internal Table Styling (Specific to table structure, not container)
+      if (e.borderColor) {
+        tableEl.style.setProperty('--table-border-color', e.borderColor);
+      }
       
-      // Add shape controls
+      const rows = e.rows || 3;
+      const cols = e.cols || 3;
+      
+      // Initialize data with default column names if not already set
+      if (!e.data) {
+        e.data = [];
+        for (let i = 0; i < rows; i++) {
+          e.data[i] = [];
+          for (let j = 0; j < cols; j++) {
+            e.data[i][j] = i === 0 ? `Col ${j + 1}` : "";
+          }
+        }
+      }
+      const data = e.data;
+      
+      for (let i = 0; i < rows; i++) {
+        const tr = document.createElement("tr");
+        for (let j = 0; j < cols; j++) {
+          const cell = i === 0 ? document.createElement("th") : document.createElement("td");
+          cell.contentEditable = "true";
+          cell.spellcheck = false;
+          // Use innerHTML to preserve formatted text with inline styles
+          cell.innerHTML = data[i]?.[j] || (i === 0 ? `Col ${j + 1}` : "");
+          cell.dataset.row = i;
+          cell.dataset.col = j;
+          
+          if (i === 0 && e.headerColor) {
+            cell.style.background = e.headerColor;
+          }
+          if (e.borderColor) {
+            cell.style.borderColor = e.borderColor;
+          }
+          
+          cell.addEventListener("blur", () => {
+            if (!e.data) e.data = Array(rows).fill(null).map(() => Array(cols).fill(""));
+            if (!e.data[i]) e.data[i] = Array(cols).fill("");
+            // Save innerHTML to preserve formatting
+            e.data[i][j] = cell.innerHTML || cell.textContent;
+          });
+          
+          tr.appendChild(cell);
+        }
+        tableEl.appendChild(tr);
+      }
+      wrapper.appendChild(tableEl);
+      node.appendChild(wrapper);
+      
+      // Add toolbar for table formatting
+      const textToolbar = createTextToolbar(e);
+      node.appendChild(textToolbar);
+      
+      const controls = createTableControls(e);
+      node.appendChild(controls);
+    }
+
+    // --- SHAPE ---
+    if (e.type === "shape"){
+      // Visuals (bg, border) are applied to 'node' by styleHelper.
       const controls = createShapeControls(e);
       node.appendChild(controls);
     }
 
+    // --- IMAGE ---
     if (e.type === "image"){
-      // if (e.imageData){
-      //   // afficher l'image réelle
-      //   node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:cntain;">`;
-      // } else{
-      //   // afficher le placeholder
-      //   node.innerHTML = `<div style="padding:12px;text-align:center;line-height:1.2;cursor:pointer;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;">
-      //     <span style="font-size:24px;margin-bottom:8px;">📸</span>
-      //     <span style="font-size:13px;font-weight:600;color:#007bff">Dépose une image</span>
-      //     <span style="font-size:11px;color:#999;margin-top:4px">ou clique pour parcourir</span>
-      //   </div>`;
-      // }
-
-      // We wrap the content in a wrapper to handle 'overflow:hidden' and 'border-radius'
-      // while allowing the handles (children of 'node') to sit outside visible area.
       const wrapper = document.createElement('div');
       wrapper.className = "el-img-wrapper";
       
       let innerContent = "";
       if (e.imageData){
-        // Changed object-fit to contain to fit image without cropping
+        // Ensure contain to match export
         innerContent = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:contain;">`;
       } else{
-        // Placeholder
         innerContent = `<div style="padding:12px;text-align:center;line-height:1.2;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;">
           <span style="font-size:24px;margin-bottom:8px;">📸</span>
-          <span style="font-size:13px;font-weight:600;color:#007bff">Dépose une image</span>
-          <span style="font-size:11px;color:#999;margin-top:4px">ou double-clique pour parcourir</span>
+          <span style="font-size:13px;font-weight:600;color:#007bff">Double-clique</span>
         </div>`;
       }
       wrapper.innerHTML = innerContent;
       node.appendChild(wrapper);
-
       node.style.cursor = "pointer";
       
-      // Double-click to add image
-      node.addEventListener("dblclick", () => {
+       node.addEventListener("dblclick", (ev) => {
+        ev.stopPropagation(); 
         const input = document.createElement("input");
         input.type = "file";
         input.accept = "image/*";
-        input.onchange = (ev) => {
-          const file = ev.target.files[0];
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-              e.imageData = event.target.result;
-              render();
-            };
-            reader.readAsDataURL(file);
-          }
-        };
-        input.click();
-      });
-      
-      // Drag & drop
-      node.addEventListener("dragover", (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        node.style.opacity = "0.7";
-        node.style.background = "rgba(0,123,255,0.1)";
-      });
-      
-      node.addEventListener("dragleave", (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        node.style.opacity = "1";
-        node.style.background = "";
-      });
-      
-      node.addEventListener("drop", (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        node.style.opacity = "1";
-        node.style.background = "";
-        
-        const files = ev.dataTransfer.files;
-        if (files.length > 0) {
-          const file = files[0];
-          if (file.type.startsWith("image/")) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-              e.imageData = event.target.result;
-              render();
-            };
-            reader.readAsDataURL(file);
-          }
-        }
-      });
-
-      // 2. Double Click to Upload
-      node.addEventListener("dblclick", (ev) => {
-        ev.stopPropagation(); // prevent other dblclick handlers
-        
-        // Create a temporary file input
-        const input = document.createElement("input");
-        input.type = "file";
-        input.accept = "image/*";
-        
         input.onchange = (event) => {
           const file = event.target.files[0];
-          if (file && file.type.startsWith("image/")) {
+          if (file) {
             const reader = new FileReader();
             reader.onload = (loadEvent) => {
               e.imageData = loadEvent.target.result;
@@ -275,43 +270,80 @@ export function render(){
             reader.readAsDataURL(file);
           }
         };
-        
         input.click();
+      });
+      
+      // Drag & Drop events on the node
+      node.addEventListener("dragover", (ev) => { ev.preventDefault(); ev.stopPropagation(); });
+      node.addEventListener("drop", (ev) => {
+        ev.preventDefault(); ev.stopPropagation();
+        const files = ev.dataTransfer.files;
+        if (files.length > 0 && files[0].type.startsWith("image/")) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              e.imageData = event.target.result;
+              render();
+            };
+            reader.readAsDataURL(files[0]);
+        }
       });
     }
 
-    // handles
+    // Handles
     ["tl","tr","bl","br"].forEach(pos=>{
       const h = document.createElement("div");
       h.className = "handle h-" + pos;
       h.dataset.handle = pos;
+      h.addEventListener("mousedown", (ev) => startResize(ev, e.id, pos));
       node.appendChild(h);
     });
 
-    // select
+    // Event Listeners
     node.addEventListener("mousedown", (ev)=>{
       if (ev.target.classList.contains("handle")) return;
       select(e.id);
     });
-
-    // drag move element
     node.addEventListener("mousedown", (ev)=> startMove(ev, e.id));
 
     slideEl.appendChild(node);
   });
+  
+  renderThumbs();
+  
+  // update zoom indicator
+  const z = getZoom();
+  zoomChip.textContent = `Zoom: ${Math.round(z*100)}%`;
 
-  // thumbs
+  // auto save
+  saveState();
+}
+
+// =====================================================
+//  THUMBNAILS
+// =====================================================
+function renderThumbs() {
   thumbsEl.innerHTML = "";
   state.slides.forEach((sl, i) => {
     const t = document.createElement("div");
     t.className = "thumb" + (i === state.activeSlide ? " active" : "");
-    t.innerHTML = `
-      <div class="mini"></div>
-      <div class="label">
+    
+    // Create preview container
+    const miniDiv = document.createElement('div');
+    miniDiv.className = "mini";
+    // Apply background to thumb using helper
+    miniDiv.style.background = getSlideBackgroundStyle(sl);
+
+    // Create Label
+    const label = document.createElement("div");
+    label.className = "label";
+    label.innerHTML = `
         <span>Slide ${i+1}</span>
         <span style="color:rgba(255,255,255,.55)">${sl.elements.length} obj.</span>
-      </div>
     `;
+
+    t.appendChild(miniDiv);
+    t.appendChild(label);
+
     t.addEventListener("click", ()=> {
       state.activeSlide = i;
       selectedId = null;
@@ -319,54 +351,72 @@ export function render(){
     });
     thumbsEl.appendChild(t);
 
-    // render thumbnail preview
-    const miniDiv = t.querySelector('.mini');
+    // Render elements inside thumbnail
     const scale = 0.12;
-    
     sl.elements.forEach(e => {
       const node = document.createElement("div");
-      node.className = "el " + e.type;
+      
+      // Use helper for classes
+      node.className = getElementClasses(e);
+      
+      // Styles for thumbnail (manual scaling needed here)
+      node.style.position = "absolute";
       node.style.left = px(e.x * scale);
       node.style.top = px(e.y * scale);
+      node.style.width = px((e.w) * scale);
+      node.style.height = px((e.h) * scale);
+      
+      // Apply basic colors/styles
+      const styles = getElementStyles(e);
+      if(styles.background) node.style.background = styles.background;
+      if(styles.color) node.style.color = styles.color;
+      if(styles.borderColor) node.style.borderColor = styles.borderColor;
+      if(styles.borderWidth) node.style.borderWidth = "1px"; // Scale border
+      if(styles.borderStyle) node.style.borderStyle = styles.borderStyle;
+      if(styles.opacity) node.style.opacity = styles.opacity;
+
       node.style.pointerEvents = "none";
-      node.style.opacity = "0.8";
+      node.style.overflow = "hidden";
 
-      if (e.type === "shape" || e.type === "image"){
-        node.style.width = px(e.w * scale);
-        node.style.height = px(e.h * scale);
-      } else {
-        node.style.width = px((e.w || 240) * scale);
-        node.style.height = px((e.h || 54) * scale);
-      }
-
+      // Simplified content for thumbnail
       if (e.type === "text"){
         node.innerHTML = e.html || "Texte";
-        node.style.fontSize = "8px";
-        node.style.overflow = "hidden";
+        node.style.fontSize = "4px"; // tiny font
       } else if (e.type === "button"){
-        node.innerHTML = e.html || "Bouton";
-        node.style.fontSize = "8px";
-        node.style.overflow = "hidden";
-      } else if (e.type === "image"){
-        if (e.imageData) {
-          node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:contain;">`;
-        } else {
-          node.innerHTML = `<div style="font-size:6px;padding:2px;">📸</div>`;
-        }
+        node.innerHTML = "";
+        node.style.background = e.color === "#ffffff" ? "#111827" : e.color; // Simplified button look
+      } else if (e.type === "image" && e.imageData){
+        node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:contain;">`;
       }
 
       miniDiv.appendChild(node);
     });
   });
+}
 
-  // attach resize listeners after nodes exist
-  slideEl.querySelectorAll(".el.selected .handle").forEach(h=>{
-    h.addEventListener("mousedown", (ev)=> startResize(ev, h.closest(".el")?.dataset?.id, h.dataset.handle));
-  });
 
-  // update zoom indicator
-  const z = getZoom();
-  zoomChip.textContent = `Zoom: ${Math.round(z*100)}%`;
+// =====================================================
+//  TEXT FORMATTING HELPERS
+// =====================================================
+function applyTextFormatting(command, value = null) {
+  const selection = window.getSelection();
+  if (!selection.toString()) return; // No text selected
+  
+  if (value) {
+    document.execCommand(command, false, value);
+  } else {
+    document.execCommand(command, false, null);
+  }
+}
+
+function getSelectedTextColor() {
+  const selection = window.getSelection();
+  if (!selection.rangeCount) return "#111827";
+  
+  const range = selection.getRangeAt(0);
+  const span = range.commonAncestorContainer;
+  const element = span.nodeType === 3 ? span.parentElement : span;
+  return window.getComputedStyle(element).color || "#111827";
 }
 
 // =====================================================
@@ -378,14 +428,21 @@ function createTextToolbar(element) {
   toolbar.addEventListener("mousedown", (ev) => ev.stopPropagation());
   toolbar.addEventListener("click", (ev) => ev.stopPropagation());
   
-  // Color picker
+  // Color picker - for selected text or element default
   const colorInput = document.createElement("input");
   colorInput.type = "color";
   colorInput.value = element.color || "#111827";
   colorInput.title = "Couleur du texte";
   colorInput.addEventListener("input", (e) => {
-    element.color = e.target.value;
-    render();
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text
+      applyTextFormatting("foreColor", e.target.value);
+    } else {
+      // Apply to whole element
+      element.color = e.target.value;
+      render();
+    }
   });
   
   // Font family
@@ -398,8 +455,15 @@ function createTextToolbar(element) {
     <option value="Verdana" ${element.fontFamily === "Verdana" ? "selected" : ""}>Verdana</option>
   `;
   fontSelect.addEventListener("change", (e) => {
-    element.fontFamily = e.target.value;
-    render();
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text
+      applyTextFormatting("fontName", e.target.value);
+    } else {
+      // Apply to whole element
+      element.fontFamily = e.target.value;
+      render();
+    }
   });
   
   // Font size
@@ -410,8 +474,23 @@ function createTextToolbar(element) {
   sizeInput.max = 120;
   sizeInput.style.width = "60px";
   sizeInput.addEventListener("change", (e) => {
-    element.fontSize = parseInt(e.target.value);
-    render();
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text using inline style
+      try {
+        const range = selection.getRangeAt(0);
+        const span = document.createElement("span");
+        span.style.fontSize = e.target.value + "px";
+        range.surroundContents(span);
+      } catch (err) {
+        // If surroundContents fails, use execCommand as fallback
+        applyTextFormatting("fontSize", 7);
+      }
+    } else {
+      // Apply to whole element
+      element.fontSize = parseInt(e.target.value);
+      render();
+    }
   });
   
   // Bold
@@ -420,8 +499,15 @@ function createTextToolbar(element) {
   boldBtn.title = "Gras";
   boldBtn.className = element.fontWeight === "bold" || element.fontWeight >= 700 ? "active" : "";
   boldBtn.addEventListener("click", () => {
-    element.fontWeight = element.fontWeight === "bold" || element.fontWeight >= 700 ? 400 : 700;
-    render();
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text
+      applyTextFormatting("bold");
+    } else {
+      // Apply to whole element
+      element.fontWeight = element.fontWeight === "bold" || element.fontWeight >= 700 ? 400 : 700;
+      render();
+    }
   });
   
   // Italic
@@ -430,8 +516,15 @@ function createTextToolbar(element) {
   italicBtn.title = "Italique";
   italicBtn.style.fontStyle = "italic";
   italicBtn.addEventListener("click", () => {
-    element.fontStyle = element.fontStyle === "italic" ? "normal" : "italic";
-    render();
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text
+      applyTextFormatting("italic");
+    } else {
+      // Apply to whole element
+      element.fontStyle = element.fontStyle === "italic" ? "normal" : "italic";
+      render();
+    }
   });
   
   // Alignment
@@ -440,8 +533,15 @@ function createTextToolbar(element) {
   alignLeft.title = "Aligner à gauche";
   alignLeft.className = element.textAlign === "left" ? "active" : "";
   alignLeft.addEventListener("click", () => {
-    element.textAlign = "left";
-    render();
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text
+      applyTextFormatting("justifyLeft");
+    } else {
+      // Apply to whole element
+      element.textAlign = "left";
+      render();
+    }
   });
   
   const alignCenter = document.createElement("button");
@@ -449,8 +549,15 @@ function createTextToolbar(element) {
   alignCenter.title = "Centrer";
   alignCenter.className = element.textAlign === "center" ? "active" : "";
   alignCenter.addEventListener("click", () => {
-    element.textAlign = "center";
-    render();
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text
+      applyTextFormatting("justifyCenter");
+    } else {
+      // Apply to whole element
+      element.textAlign = "center";
+      render();
+    }
   });
   
   const alignRight = document.createElement("button");
@@ -458,8 +565,15 @@ function createTextToolbar(element) {
   alignRight.title = "Aligner à droite";
   alignRight.className = element.textAlign === "right" ? "active" : "";
   alignRight.addEventListener("click", () => {
-    element.textAlign = "right";
-    render();
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text
+      applyTextFormatting("justifyRight");
+    } else {
+      // Apply to whole element
+      element.textAlign = "right";
+      render();
+    }
   });
   
   toolbar.appendChild(colorInput);
@@ -478,6 +592,98 @@ function createTextToolbar(element) {
 window.addEventListener("unhandledrejection", (e) => {
   console.warn("Unhandled promise rejection:", e.reason);
 });
+
+function createTableControls(element) {
+  const controls = document.createElement("div");
+  controls.className = "table-controls";
+
+  controls.addEventListener("mousedown", (ev) => ev.stopPropagation());
+  controls.addEventListener("click", (ev) => ev.stopPropagation());
+
+  // + Ligne
+  const addRowBtn = document.createElement("button");
+  addRowBtn.innerHTML = "+ Ligne";
+  addRowBtn.title = "Ajouter une ligne";
+  addRowBtn.addEventListener("click", () => {
+    element.rows = (element.rows || 3) + 1;
+    if (!element.data) element.data = [];
+    element.data.push(Array(element.cols || 3).fill(""));
+    render();
+  });
+  controls.appendChild(addRowBtn);
+
+  // - Ligne
+  const removeRowBtn = document.createElement("button");
+  removeRowBtn.innerHTML = "- Ligne";
+  removeRowBtn.title = "Retirer une ligne";
+  removeRowBtn.addEventListener("click", () => {
+    if ((element.rows || 3) > 1) {
+      element.rows = (element.rows || 3) - 1;
+      if (element.data) element.data.pop();
+      render();
+    }
+  });
+  controls.appendChild(removeRowBtn);
+
+  // Divider
+  const div1 = document.createElement("div");
+  div1.className = "divider";
+  controls.appendChild(div1);
+
+  // + Colonne
+  const addColBtn = document.createElement("button");
+  addColBtn.innerHTML = "+ Colonne";
+  addColBtn.title = "Ajouter une colonne";
+  addColBtn.addEventListener("click", () => {
+    element.cols = (element.cols || 3) + 1;
+    if (!element.data) element.data = Array(element.rows || 3).fill(null).map(() => Array(element.cols).fill(""));
+    else element.data.forEach(row => row.push(""));
+    render();
+  });
+  controls.appendChild(addColBtn);
+
+  // - Colonne
+  const removeColBtn = document.createElement("button");
+  removeColBtn.innerHTML = "- Colonne";
+  removeColBtn.title = "Retirer une colonne";
+  removeColBtn.addEventListener("click", () => {
+    if ((element.cols || 3) > 1) {
+      element.cols = (element.cols || 3) - 1;
+      if (element.data) element.data.forEach(row => row.pop());
+      render();
+    }
+  });
+  controls.appendChild(removeColBtn);
+  
+  // Divider
+  const div2 = document.createElement("div");
+  div2.className = "divider";
+  controls.appendChild(div2);
+
+  // Border Color
+  const borderColor = document.createElement("input");
+  borderColor.type = "color";
+  borderColor.title = "Couleur Bordure";
+  borderColor.value = element.borderColor || "#cccccc";
+  borderColor.addEventListener("input", (e) => {
+    element.borderColor = e.target.value;
+    render();
+  });
+  controls.appendChild(borderColor);
+
+  // Header Color
+  const headerColor = document.createElement("input");
+  headerColor.type = "color";
+  headerColor.title = "Couleur En-tête";
+  headerColor.value = element.headerColor || "#f3f4f6";
+  headerColor.addEventListener("input", (e) => {
+    element.headerColor = e.target.value;
+    render();
+  });
+  controls.appendChild(headerColor);
+  
+  return controls;
+}
 
 function createShapeControls(element) {
   const controls = document.createElement("div");
@@ -552,19 +758,25 @@ function createShapeControls(element) {
   const opacityLabel = document.createElement("label");
   opacityLabel.textContent = "Opacité:";
   
+  const opacityValue = document.createElement("span");
+  opacityValue.className = "opacity-value";
+  opacityValue.textContent = Math.round((element.opacity !== undefined ? element.opacity : 1) * 100) + "%";
+  
   const opacitySlider = document.createElement("input");
   opacitySlider.type = "range";
   opacitySlider.min = 0;
   opacitySlider.max = 1;
-  opacitySlider.step = 0.1;
+  opacitySlider.step = 0.01;
   opacitySlider.value = element.opacity !== undefined ? element.opacity : 1;
   opacitySlider.addEventListener("input", (e) => {
     element.opacity = parseFloat(e.target.value);
+    opacityValue.textContent = Math.round(e.target.value * 100) + "%";
     render();
   });
   
   opacityGroup.appendChild(opacityLabel);
   opacityGroup.appendChild(opacitySlider);
+  opacityGroup.appendChild(opacityValue);
   
   controls.appendChild(shapeGroup);
   controls.appendChild(fillGroup);
@@ -631,6 +843,8 @@ function addFromTool(toolType, x, y){
     el = { ...base, type:"button", w: 220, h: 54, html:"Bouton", color: "#ffffff", fontSize: 16, fontWeight: 700, fontFamily: "Arial", textAlign: "center" };
   } else if (toolType === "image"){
     el = { ...base, type:"image", w: 360, h: 240 };
+  } else if (toolType === "table"){
+    el = { ...base, type:"table", w: 400, h: 200, rows: 3, cols: 3, borderColor: "#cccccc", headerColor: "#f3f4f6" };
   } else if (toolType === "twoCols"){
     s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-360,0,820), y: clamp(y-140,0,460), w: 420, h: 60, html:"Titre (2 colonnes)", color: "#111827", fontSize: 28, fontWeight: 800, fontFamily: "Arial", textAlign: "left" });
     s.elements.push({ id: cryptoId(), type:"text", x: clamp(x-360,0,820), y: clamp(y-70,0,470), w: 420, h: 120, html:"Texte descriptif…", color: "#111827", fontSize: 18, fontWeight: 400, fontFamily: "Arial", textAlign: "left" });
@@ -658,14 +872,21 @@ function startMove(ev, id){
   if (!target) return;
 
   // IMPORTANT: si on clique dans un bandeau, on ne drag pas
-  if (ev.target.closest(".text-toolbar") || ev.target.closest(".shape-controls")) {
+  if (ev.target.closest(".text-toolbar") || ev.target.closest(".shape-controls") || ev.target.closest(".table-controls")) {
     return;
   }
 
   if (ev.target.classList.contains("handle")) return;
 
   const isEditable = (target.classList.contains("text") || target.classList.contains("button"));
+  const isTableCell = (ev.target.tagName === "TD" || ev.target.tagName === "TH");
+  
   if (isEditable && document.activeElement === target && window.getSelection()?.type === "Range") {
+    return;
+  }
+  
+  // Don't drag when editing table cells
+  if (isTableCell && document.activeElement === ev.target) {
     return;
   }
 
@@ -887,7 +1108,14 @@ function stopDragSide() {
   resizerX.classList.remove("resizing");
   document.body.style.cursor = "";
 }
+const btnArbre = document.getElementById("btnArbre");
 
+if (btnArbre) {
+  btnArbre.addEventListener("click", () => {
+    const target = "src/html/arbre.html";
+    window.location.href = `${import.meta.env.BASE_URL}${target}`;
+  });
+}
 
 
 render();
@@ -899,8 +1127,8 @@ setZoom(1);
 import './imporExport.js';
 import './present.js';
 import './slides.js';
+import { createTextToolbar, createShapeControls, createTableControls } from './createShapeControls.js';
 
 import { initContextMenu } from './contextMenu.js';
 
 initContextMenu(slideEl);
-
