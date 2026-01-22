@@ -27,10 +27,7 @@ export const state = {
 
 export function saveState() {
   try {
-    localStorage.setItem(
-      'slides_state',
-      JSON.stringify(state)
-    );
+    localStorage.setItem('slides_state', JSON.stringify(state));
     console.log('✓ État sauvegardé');
   } catch (e) {
     console.error('Erreur lors de la sauvegarde:', e);
@@ -1127,7 +1124,6 @@ setZoom(1);
 import './imporExport.js';
 import './present.js';
 import './slides.js';
-import { createTextToolbar, createShapeControls, createTableControls } from './createShapeControls.js';
 
 import { initContextMenu } from './contextMenu.js';
 
