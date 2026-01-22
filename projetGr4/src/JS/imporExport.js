@@ -75,7 +75,7 @@ function hrefToLinkValue(href) {
   const s = String(href).trim();
   if (!s) return null;
 
-  // ✅ Si c'est déjà un numéro (depuis data-link), on le garde
+  // Si c'est déjà un numéro (depuis data-link), on le garde
   if (/^\d+$/.test(s)) return s;
 
   // Externe => on garde tel quel
@@ -83,13 +83,13 @@ function hrefToLinkValue(href) {
 
   // Nos formats internes possibles
   let m = s.match(/^slide-(\d+)\.html$/i);
-  if (m) return m[1]; // ✅ "slide-2.html" -> "2"
+  if (m) return m[1]; // "slide-2.html" -> "2"
 
   m = s.match(/^#slide:(\d+)$/i);
-  if (m) return m[1]; // ✅ "#slide:2" -> "2"
+  if (m) return m[1]; // "#slide:2" -> "2"
 
   m = s.match(/^#slide-(\d+)$/i);
-  if (m) return m[1]; // ✅ "#slide-2" -> "2"
+  if (m) return m[1]; // "#slide-2" -> "2"
 
   // Sinon on garde (ex: "page.html" ou autre)
   return s;
@@ -129,6 +129,26 @@ function readSlideMeta(doc) {
   };
 }
 
+function readSlideBackgroundColor(doc) {
+  const slide = doc.querySelector(".stage .slide");
+  if (!slide) return null;
+
+  const style = slide.getAttribute("style") || "";
+
+  // 1) background-color
+  let m = style.match(/background-color\s*:\s*([^;]+)/i);
+  if (m) return m[1].trim();
+
+  // 2) background (mais PAS gradient)
+  m = style.match(/background\s*:\s*([^;]+)/i);
+  if (m && !m[1].includes("gradient")) {
+    return m[1].trim();
+  }
+
+  return null;
+}
+
+
 // =====================================================
 //  PARSE HTML -> { elements, meta }
 // =====================================================
@@ -138,7 +158,7 @@ function parseSlideHTML(htmlContent) {
   const doc = parser.parseFromString(htmlContent, "text/html");
 
   const meta = readSlideMeta(doc);
-
+  const backgroundColor = readSlideBackgroundColor(doc);
   const elements = [];
 
   // 1) Nouveau format: .stage .slide .el
@@ -269,7 +289,8 @@ function parseSlideHTML(htmlContent) {
       pos: meta?.pos ?? { x: 0, y: 0 },
       buttonsMeta
     },
-    elements
+    elements,
+    backgroundColor
   };
 }
 
@@ -307,7 +328,8 @@ function loadSlidesFromFiles(files) {
         arbre: {
           title: meta.title ?? file.name.replace(/\.html$/i, ""),
           pos: meta.pos ?? { x: 0, y: 0 }
-        }
+        },
+        backgroundColor: parsed.backgroundColor || "#ffffff",
       };
 
 
