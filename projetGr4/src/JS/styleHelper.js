@@ -34,6 +34,18 @@ export function getElementStyles(el) {
     if (el.fontFamily) styles.fontFamily = el.fontFamily;
     if (el.textAlign) styles.textAlign = el.textAlign;
     if (el.fontStyle) styles.fontStyle = el.fontStyle;
+
+    if (el.type === 'button') {
+        styles.display = 'flex';
+        styles.alignItems = 'center'; // Always center vertically
+        // Map textAlign to justifyContent
+        const alignMap = { left: 'flex-start', right: 'flex-end', center: 'center' };
+        styles.justifyContent = alignMap[el.textAlign] || 'center';
+        styles.textAlign = el.textAlign; // Keep for reference
+    } else {
+        // Text elements use standard text-align
+        if (el.textAlign) styles.textAlign = el.textAlign;
+    }
   }
 
   // --- SHAPE STYLES ---

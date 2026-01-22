@@ -141,15 +141,23 @@ function renderPresentationSlide(index, container) {
     if (e.type === "text" || e.type === "button") {
       node.innerHTML = e.html || "";
       // [FIX] Separate logic: Buttons use Flexbox for centering, Text uses default Block for alignment
-      if (e.type === "button") {
-        node.style.display = "flex";
-        node.style.alignItems = "center";
-        node.style.justifyContent = "center";
+      // if (e.type === "button") {
+      //   node.style.display = "flex";
+      //   node.style.alignItems = "center";
+      //   node.style.justifyContent = "center";
         
+      //   node.style.cursor = "pointer";
+      //   node.onclick = () => nextSlide();
+      // } else {
+      //   // Text elements must remain "block" for text-align to work (left/center/right)
+      //   node.style.display = "block";
+      // }
+
+      if (e.type === "button") {
         node.style.cursor = "pointer";
         node.onclick = () => nextSlide();
       } else {
-        // Text elements must remain "block" for text-align to work (left/center/right)
+        // Text elements must remain "block" for text-align to work (handled by helper not setting flex)
         node.style.display = "block";
       }
     } 
