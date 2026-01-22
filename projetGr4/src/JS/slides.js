@@ -1,15 +1,5 @@
-// slides.js
-import {
-  thumbsEl,
-  state,
-  cryptoId,
-  setSelectedId,
-  render,
-  setZoom,
-  getZoom,
-  slideId,
-  getActive
-} from "./editor.js";
+import {thumbsEl, state, cryptoId, setSelectedId, render, getActive, slideId} from "./editor.js";
+import { generateExportStyle, getElementClasses, getSlideBackgroundStyle } from './styleHelper.js';
 
 // =====================================================
 //  HELPERS (local)
@@ -208,6 +198,9 @@ export function generateSlideHTML(slideIndex) {
     buttons: []
   };
 
+  // [STRATEGY] Get background
+  const bgStyle = getSlideBackgroundStyle(slide);
+
   let html = `<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -242,16 +235,13 @@ ${exportBaseCSS()}
   }
 
   for (const el of slide.elements) {
-    const left = Math.round(el.x ?? 0);
-    const top = Math.round(el.y ?? 0);
-    const w = Math.round(el.w ?? 240);
-    const h = Math.round(el.h ?? 54);
-
-    const style = `style="left:${left}px;top:${top}px;width:${w}px;height:${h}px;"`;
+    // [STRATEGY] Generate Style String and Classes
+    const cssString = generateExportStyle(el);
+    const styleAttr = `style="${cssString}"`;
+    const classNames = getElementClasses(el);
 
     if (el.type === "text") {
-      const inner = `      <div class="el text" ${style}>${el.html || "Texte"}</div>\n`;
-      html += wrapWithLink(inner, el.link);
+      html += `      <div class="${classNames}" ${styleAttr}>${el.html || "Texte"}</div>\n`;
     }
 
     else if (el.type === "button") {
@@ -276,28 +266,52 @@ ${exportBaseCSS()}
 
       // 3) Rendu visuel: PAS besoin de mettre <a> dedans.
       const safeInner = (el.html && el.html.trim()) ? el.html : "Bouton";
-
-      const inner = `      <div class="el button" data-btn-id="${el.id}" ${style}>${safeInner}</div>\n`;
-      // hrefFinal est déjà normalisé => wrap direct sans renormaliser
-      if (hrefFinal) {
-        html += `<a href="${hrefFinal}" style="text-decoration:none;color:inherit;display:contents;">${inner}</a>`;
-      } else {
-        html += inner;
-      }
+      html += `      <div class="${classNames}" data-btn-id="${el.id}" ${styleAttr}>${safeInner}</div>\n`;
     }
 
+    //   const inner = `      <div class="el button" data-btn-id="${el.id}" ${style}>${safeInner}</div>\n`;
+    //   // hrefFinal est déjà normalisé => wrap direct sans renormaliser
+    //   if (hrefFinal) {
+    //     html += `<a href="${hrefFinal}" style="text-decoration:none;color:inherit;display:contents;">${inner}</a>`;
+    //   } else {
+    //     html += inner;
+    //   }
+    // }
+
     else if (el.type === "shape") {
-      const inner = `      <div class="el shape" ${style}></div>\n`;
-      html += wrapWithLink(inner, el.link);
+      html += `      <div class="${classNames}" ${styleAttr}></div>\n`;
     }
 
     else if (el.type === "image") {
-      const inner = el.imageData
-        ? `      <div class="el image" ${style}><img src="${el.imageData}" alt=""></div>\n`
-        : `      <div class="el image" ${style}></div>\n`;
+      if (el.imageData) {
+         html += `      <div class="${classNames}" ${styleAttr}><img src="${el.imageData}" style="width:100%;height:100%;object-fit:contain;display:block;"></div>\n`;
+      } else {
+         html += `      <div class="${classNames}" ${styleAttr}></div>\n`;
+      }
+    
+    } else if (el.type === "table") {
 
-      html += wrapWithLink(inner, el.link);
+      let tableHtml = `<table class="data-table" style="${el.borderColor ? `--table-border-color:${el.borderColor}` : ''}">`;
+      const rows = el.rows || 3;
+      const cols = el.cols || 3;
+      const data = el.data || Array(rows).fill(null).map(() => Array(cols).fill(""));
+      
+      for(let i=0; i<rows; i++){
+        tableHtml += "<tr>";
+        for(let j=0; j<cols; j++){
+          const tag = (i===0) ? "th" : "td";
+          const bg = (i===0 && el.headerColor) ? `background:${el.headerColor};` : "";
+          const bd = (el.borderColor) ? `border-color:${el.borderColor};` : "";
+          const txt = data[i]?.[j] || "";
+          tableHtml += `<${tag} style="${bg}${bd}">${txt}</${tag}>`;
+        }
+        tableHtml += "</tr>";
+      }
+      tableHtml += "</table>";
+      
+      html += `      <div class="${classNames}" ${styleAttr}>${tableHtml}</div>\n`;
     }
+    
   }
 
   // On injecte le JSON dans le HTML exporté

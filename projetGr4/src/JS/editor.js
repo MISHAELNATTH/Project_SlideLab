@@ -1,3 +1,4 @@
+import { getElementStyles, getElementClasses, getSlideBackgroundStyle, px } from './styleHelper.js';
 // =====================================================
 //  DONNÉES ET CONFIGURATION
 // =====================================================
@@ -87,9 +88,6 @@ export function getActive(){
   return state.slides[state.activeSlide];
 }
 
-function px(n){ 
-  return Math.round(n) + "px"; 
-}
 
 function clearSelection(){
   selectedId = null;
@@ -123,62 +121,44 @@ loadState();
 export function render(){
   const s = getActive();
   
-  // Apply slide background
-  if (s.backgroundGradient) {
-    slideEl.style.background = s.backgroundGradient;
-  } else {
-    slideEl.style.background = s.backgroundColor || "#ffffff";
-  }
+  // [STRATEGY] Use helper for background
+  slideEl.style.background = getSlideBackgroundStyle(s);
   
-  // Render slide elements
+  // Clear previous elements
   slideEl.querySelectorAll(".el").forEach(n => n.remove());
 
   s.elements.forEach(e => {
     const node = document.createElement("div");
-    node.className = "el " + e.type + (e.id === selectedId ? " selected" : "");
-    if (e.shapeType) {
-      node.classList.add(e.shapeType);
-    }
+    
+    // [STRATEGY] Use helper for classes
+    node.className = getElementClasses(e) + (e.id === selectedId ? " selected" : "");
     node.dataset.id = e.id;
-    node.style.left = px(e.x);
-    node.style.top  = px(e.y);
 
-    if (e.type === "shape" || e.type === "image"){
-      node.style.width  = px(e.w);
-      node.style.height = px(e.h);
-    } else {
-      node.style.width  = px(e.w || 240);
-      node.style.height = px(e.h || 54);
-    }
+    // [STRATEGY] Use helper for all CSS styles (pos, size, font, color, border...)
+    const styles = getElementStyles(e);
+    Object.assign(node.style, styles);
 
-    // Apply text styles
+    // --- TEXT & BUTTON ---
     if (e.type === "text" || e.type === "button"){
       node.contentEditable = "true";
       node.spellcheck = false;
       node.innerHTML = e.html || (e.type === "text" ? "Texte" : "Bouton");
-      if (e.color) node.style.color = e.color;
-      if (e.fontSize) node.style.fontSize = px(e.fontSize);
-      if (e.fontWeight) node.style.fontWeight = e.fontWeight;
-      if (e.fontFamily) node.style.fontFamily = e.fontFamily;
-      if (e.textAlign) node.style.textAlign = e.textAlign;
       
-      // Add text formatting toolbar
+      // --- FIX IS HERE: Defined the toolbar before using it ---
       const toolbar = createTextToolbar(e);
       node.appendChild(toolbar);
     }
 
-    // Apply table styles
+    // --- TABLE ---
     if (e.type === "table"){
-      // Create table element
       const tableEl = document.createElement("table");
       tableEl.className = "data-table";
       
-      // Apply custom border color if set
+      // Internal Table Styling (Specific to table structure, not container)
       if (e.borderColor) {
         tableEl.style.setProperty('--table-border-color', e.borderColor);
       }
       
-      // Render table rows and cells
       const rows = e.rows || 3;
       const cols = e.cols || 3;
       const data = e.data || Array(rows).fill(null).map(() => Array(cols).fill(""));
@@ -188,11 +168,10 @@ export function render(){
         for (let j = 0; j < cols; j++) {
           const cell = i === 0 ? document.createElement("th") : document.createElement("td");
           cell.contentEditable = "true";
-          cell.textContent = data[i][j] || (i === 0 ? `Col ${j + 1}` : "");
+          cell.textContent = data[i]?.[j] || (i === 0 ? `Col ${j + 1}` : "");
           cell.dataset.row = i;
           cell.dataset.col = j;
           
-          // Apply custom colors
           if (i === 0 && e.headerColor) {
             cell.style.background = e.headerColor;
           }
@@ -200,9 +179,9 @@ export function render(){
             cell.style.borderColor = e.borderColor;
           }
           
-          // Save cell content on blur
           cell.addEventListener("blur", () => {
             if (!e.data) e.data = Array(rows).fill(null).map(() => Array(cols).fill(""));
+            if (!e.data[i]) e.data[i] = Array(cols).fill("");
             e.data[i][j] = cell.textContent;
           });
           
@@ -212,159 +191,44 @@ export function render(){
       }
       
       node.appendChild(tableEl);
-      
-      // Add table controls
       const controls = createTableControls(e);
       node.appendChild(controls);
     }
 
-    // Apply shape styles
+    // --- SHAPE ---
     if (e.type === "shape"){
-      // Create a wrapper for the shape visual content (to apply opacity without affecting controls)
-      const shapeWrapper = document.createElement("div");
-      shapeWrapper.className = "shape-content-wrapper";
-      
-      // Apply visual styles to the wrapper
-      if (e.fillColor) shapeWrapper.style.background = e.fillColor;
-      if (e.opacity !== undefined) shapeWrapper.style.opacity = e.opacity;
-      
-      // Apply border to the wrapper if borderColor is set
-      if (e.borderColor) {
-        shapeWrapper.style.border = `3px solid ${e.borderColor}`;
-      }
-      
-      // Add the wrapper to the node
-      node.appendChild(shapeWrapper);
-      
-      // Add shape controls (outside the wrapper so they're not affected by opacity)
+      // Visuals (bg, border) are applied to 'node' by styleHelper.
       const controls = createShapeControls(e);
       node.appendChild(controls);
     }
 
+    // --- IMAGE ---
     if (e.type === "image"){
-      // if (e.imageData){
-      //   // afficher l'image réelle
-      //   node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:cntain;">`;
-      // } else{
-      //   // afficher le placeholder
-      //   node.innerHTML = `<div style="padding:12px;text-align:center;line-height:1.2;cursor:pointer;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;">
-      //     <span style="font-size:24px;margin-bottom:8px;">📸</span>
-      //     <span style="font-size:13px;font-weight:600;color:#007bff">Dépose une image</span>
-      //     <span style="font-size:11px;color:#999;margin-top:4px">ou clique pour parcourir</span>
-      //   </div>`;
-      // }
-
-      // We wrap the content in a wrapper to handle 'overflow:hidden' and 'border-radius'
-      // while allowing the handles (children of 'node') to sit outside visible area.
       const wrapper = document.createElement('div');
       wrapper.className = "el-img-wrapper";
       
       let innerContent = "";
       if (e.imageData){
-        // Changed object-fit to contain to fit image without cropping
+        // Ensure contain to match export
         innerContent = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:contain;">`;
       } else{
-        // Placeholder
         innerContent = `<div style="padding:12px;text-align:center;line-height:1.2;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;">
           <span style="font-size:24px;margin-bottom:8px;">📸</span>
-          <span style="font-size:13px;font-weight:600;color:#007bff">Dépose une image</span>
-          <span style="font-size:11px;color:#999;margin-top:4px">ou double-clique pour parcourir</span>
+          <span style="font-size:13px;font-weight:600;color:#007bff">Double-clique</span>
         </div>`;
       }
       wrapper.innerHTML = innerContent;
       node.appendChild(wrapper);
-
       node.style.cursor = "pointer";
       
-      // Double-click to add image
-      node.addEventListener("dblclick", () => {
+       node.addEventListener("dblclick", (ev) => {
+        ev.stopPropagation(); 
         const input = document.createElement("input");
         input.type = "file";
         input.accept = "image/*";
-        input.onchange = (ev) => {
-          const file = ev.target.files[0];
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-              e.imageData = event.target.result;
-              render();
-            };
-            reader.readAsDataURL(file);
-          }
-        };
-        input.click();
-      });
-      
-      // Drag & drop
-      node.addEventListener("dragover", (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        node.style.opacity = "0.7";
-        node.style.background = "rgba(0,123,255,0.1)";
-      });
-      
-      node.addEventListener("dragleave", (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        node.style.opacity = "1";
-        node.style.background = "";
-      });
-      
-      node.addEventListener("drop", (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        node.style.opacity = "1";
-        node.style.background = "";
-        
-        const files = ev.dataTransfer.files;
-        if (files.length > 0) {
-          const file = files[0];
-          if (file.type.startsWith("image/")) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-              e.imageData = event.target.result;
-              
-              // Charger l'image pour obtenir ses dimensions
-              const img = new Image();
-              img.onload = () => {
-                // Adapter la taille du bloc à l'image
-                // Garder un ratio max de 400x300 pour la slide
-                const maxWidth = 400;
-                const maxHeight = 300;
-                
-                let width = img.naturalWidth;
-                let height = img.naturalHeight;
-                
-                // Redimensionner si trop grand
-                if (width > maxWidth || height > maxHeight) {
-                  const ratio = Math.min(maxWidth / width, maxHeight / height);
-                  width = Math.round(width * ratio);
-                  height = Math.round(height * ratio);
-                }
-                
-                e.w = width;
-                e.h = height;
-                render();
-              };
-              img.src = e.imageData;
-            };
-            reader.readAsDataURL(file);
-          }
-        }
-      });
-
-      // 2. Double Click to Upload
-      node.addEventListener("dblclick", (ev) => {
-        ev.stopPropagation(); // prevent other dblclick handlers
-        
-        // Create a temporary file input
-        const input = document.createElement("input");
-        input.type = "file";
-        input.accept = "image/*";
-        
         input.onchange = (event) => {
           const file = event.target.files[0];
-          if (file && file.type.startsWith("image/")) {
+          if (file) {
             const reader = new FileReader();
             reader.onload = (loadEvent) => {
               e.imageData = loadEvent.target.result;
@@ -373,12 +237,26 @@ export function render(){
             reader.readAsDataURL(file);
           }
         };
-        
         input.click();
+      });
+      
+      // Drag & Drop events on the node
+      node.addEventListener("dragover", (ev) => { ev.preventDefault(); ev.stopPropagation(); });
+      node.addEventListener("drop", (ev) => {
+        ev.preventDefault(); ev.stopPropagation();
+        const files = ev.dataTransfer.files;
+        if (files.length > 0 && files[0].type.startsWith("image/")) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              e.imageData = event.target.result;
+              render();
+            };
+            reader.readAsDataURL(files[0]);
+        }
       });
     }
 
-    // handles
+    // Handles
     ["tl","tr","bl","br"].forEach(pos=>{
       const h = document.createElement("div");
       h.className = "handle h-" + pos;
@@ -386,82 +264,18 @@ export function render(){
       node.appendChild(h);
     });
 
-    // select
+    // Event Listeners
     node.addEventListener("mousedown", (ev)=>{
       if (ev.target.classList.contains("handle")) return;
       select(e.id);
     });
-
-    // drag move element
     node.addEventListener("mousedown", (ev)=> startMove(ev, e.id));
 
     slideEl.appendChild(node);
   });
-
-  // thumbs
-  thumbsEl.innerHTML = "";
-  state.slides.forEach((sl, i) => {
-    const t = document.createElement("div");
-    t.className = "thumb" + (i === state.activeSlide ? " active" : "");
-    t.innerHTML = `
-      <div class="mini"></div>
-      <div class="label">
-        <span>Slide ${i+1}</span>
-        <span style="color:rgba(255,255,255,.55)">${sl.elements.length} obj.</span>
-      </div>
-    `;
-    t.addEventListener("click", ()=> {
-      state.activeSlide = i;
-      selectedId = null;
-      render();
-    });
-    thumbsEl.appendChild(t);
-
-    // render thumbnail preview
-    const miniDiv = t.querySelector('.mini');
-    const scale = 0.12;
-    
-    sl.elements.forEach(e => {
-      const node = document.createElement("div");
-      node.className = "el " + e.type;
-      node.style.left = px(e.x * scale);
-      node.style.top = px(e.y * scale);
-      node.style.pointerEvents = "none";
-      node.style.opacity = "0.8";
-
-      if (e.type === "shape" || e.type === "image"){
-        node.style.width = px(e.w * scale);
-        node.style.height = px(e.h * scale);
-      } else {
-        node.style.width = px((e.w || 240) * scale);
-        node.style.height = px((e.h || 54) * scale);
-      }
-
-      if (e.type === "text"){
-        node.innerHTML = e.html || "Texte";
-        node.style.fontSize = "8px";
-        node.style.overflow = "hidden";
-      } else if (e.type === "button"){
-        node.innerHTML = e.html || "Bouton";
-        node.style.fontSize = "8px";
-        node.style.overflow = "hidden";
-      } else if (e.type === "image"){
-        if (e.imageData) {
-          node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:contain;">`;
-        } else {
-          node.innerHTML = `<div style="font-size:6px;padding:2px;">📸</div>`;
-        }
-      }
-
-      miniDiv.appendChild(node);
-    });
-  });
-
-  // attach resize listeners after nodes exist
-  slideEl.querySelectorAll(".el.selected .handle").forEach(h=>{
-    h.addEventListener("mousedown", (ev)=> startResize(ev, h.closest(".el")?.dataset?.id, h.dataset.handle));
-  });
-
+  
+  renderThumbs();
+  
   // update zoom indicator
   const z = getZoom();
   zoomChip.textContent = `Zoom: ${Math.round(z*100)}%`;
@@ -469,6 +283,85 @@ export function render(){
   // auto save
   saveState();
 }
+
+// =====================================================
+//  THUMBNAILS
+// =====================================================
+function renderThumbs() {
+  thumbsEl.innerHTML = "";
+  state.slides.forEach((sl, i) => {
+    const t = document.createElement("div");
+    t.className = "thumb" + (i === state.activeSlide ? " active" : "");
+    
+    // Create preview container
+    const miniDiv = document.createElement('div');
+    miniDiv.className = "mini";
+    // Apply background to thumb using helper
+    miniDiv.style.background = getSlideBackgroundStyle(sl);
+
+    // Create Label
+    const label = document.createElement("div");
+    label.className = "label";
+    label.innerHTML = `
+        <span>Slide ${i+1}</span>
+        <span style="color:rgba(255,255,255,.55)">${sl.elements.length} obj.</span>
+    `;
+
+    t.appendChild(miniDiv);
+    t.appendChild(label);
+
+    t.addEventListener("click", ()=> {
+      state.activeSlide = i;
+      selectedId = null;
+      render();
+    });
+    thumbsEl.appendChild(t);
+
+    // Render elements inside thumbnail
+    const scale = 0.12;
+    sl.elements.forEach(e => {
+      const node = document.createElement("div");
+      
+      // Use helper for classes
+      node.className = getElementClasses(e);
+      
+      // Styles for thumbnail (manual scaling needed here)
+      node.style.position = "absolute";
+      node.style.left = px(e.x * scale);
+      node.style.top = px(e.y * scale);
+      node.style.width = px((e.w) * scale);
+      node.style.height = px((e.h) * scale);
+      
+      // Apply basic colors/styles
+      const styles = getElementStyles(e);
+      if(styles.background) node.style.background = styles.background;
+      if(styles.color) node.style.color = styles.color;
+      if(styles.borderColor) node.style.borderColor = styles.borderColor;
+      if(styles.borderWidth) node.style.borderWidth = "1px"; // Scale border
+      if(styles.borderStyle) node.style.borderStyle = styles.borderStyle;
+      if(styles.opacity) node.style.opacity = styles.opacity;
+
+      node.style.pointerEvents = "none";
+      node.style.overflow = "hidden";
+
+      // Simplified content for thumbnail
+      if (e.type === "text"){
+        node.innerHTML = e.html || "Texte";
+        node.style.fontSize = "4px"; // tiny font
+      } else if (e.type === "button"){
+        node.innerHTML = "";
+        node.style.background = e.color === "#ffffff" ? "#111827" : e.color; // Simplified button look
+      } else if (e.type === "image" && e.imageData){
+        node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:contain;">`;
+      }
+
+      miniDiv.appendChild(node);
+    });
+  });
+}
+
+
+
 
 // =====================================================
 //  TOOLBARS
