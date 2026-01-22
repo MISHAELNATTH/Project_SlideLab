@@ -1,3 +1,4 @@
+import { getElementStyles, getElementClasses, getSlideBackgroundStyle, px } from './styleHelper.js';
 // =====================================================
 //  DONNÉES ET CONFIGURATION
 // =====================================================
@@ -26,10 +27,7 @@ export const state = {
 
 export function saveState() {
   try {
-    localStorage.setItem(
-      'slides_state',
-      JSON.stringify(state)
-    );
+    localStorage.setItem('slides_state', JSON.stringify(state));
     console.log('✓ État sauvegardé');
   } catch (e) {
     console.error('Erreur lors de la sauvegarde:', e);
@@ -87,9 +85,6 @@ export function getActive(){
   return state.slides[state.activeSlide];
 }
 
-function px(n){ 
-  return Math.round(n) + "px"; 
-}
 
 function clearSelection(){
   selectedId = null;
@@ -123,76 +118,84 @@ loadState();
 export function render(){
   const s = getActive();
   
-  // Apply slide background
-  if (s.backgroundGradient) {
-    slideEl.style.background = s.backgroundGradient;
-  } else {
-    slideEl.style.background = s.backgroundColor || "#ffffff";
-  }
+  // [STRATEGY] Use helper for background
+  slideEl.style.background = getSlideBackgroundStyle(s);
   
-  // Render slide elements
+  // Clear previous elements
   slideEl.querySelectorAll(".el").forEach(n => n.remove());
 
   s.elements.forEach(e => {
     const node = document.createElement("div");
-    node.className = "el " + e.type + (e.id === selectedId ? " selected" : "");
-    if (e.shapeType) {
-      node.classList.add(e.shapeType);
-    }
+    
+    // [STRATEGY] Use helper for classes
+    node.className = getElementClasses(e) + (e.id === selectedId ? " selected" : "");
     node.dataset.id = e.id;
-    node.style.left = px(e.x);
-    node.style.top  = px(e.y);
 
-    if (e.type === "shape" || e.type === "image"){
-      node.style.width  = px(e.w);
-      node.style.height = px(e.h);
-    } else {
-      node.style.width  = px(e.w || 240);
-      node.style.height = px(e.h || 54);
-    }
+    // [STRATEGY] Use helper for all CSS styles (pos, size, font, color, border...)
+    const styles = getElementStyles(e);
+    Object.assign(node.style, styles);
 
-    // Apply text styles
+    // --- TEXT & BUTTON ---
     if (e.type === "text" || e.type === "button"){
       node.contentEditable = "true";
       node.spellcheck = false;
       node.innerHTML = e.html || (e.type === "text" ? "Texte" : "Bouton");
-      if (e.color) node.style.color = e.color;
-      if (e.fontSize) node.style.fontSize = px(e.fontSize);
-      if (e.fontWeight) node.style.fontWeight = e.fontWeight;
-      if (e.fontFamily) node.style.fontFamily = e.fontFamily;
-      if (e.textAlign) node.style.textAlign = e.textAlign;
       
-      // Add text formatting toolbar
+      // --- FIX IS HERE: Defined the toolbar before using it ---
       const toolbar = createTextToolbar(e);
       node.appendChild(toolbar);
     }
 
-    // Apply table styles
+    // --- TABLE ---
     if (e.type === "table"){
-      // Create table element
+
+      const wrapper = document.createElement("div");
+      Object.assign(wrapper.style, {
+        width: "100%",
+        height: "100%",
+        overflow: "hidden", // [FIX] Clip content so no scrollbars appear
+        position: "relative"
+      });
+
       const tableEl = document.createElement("table");
       tableEl.className = "data-table";
-      
-      // Apply custom border color if set
+      Object.assign(tableEl.style, {
+        width: "100%",
+        height: "100%",
+        tableLayout: "fixed", // Helps with resizing predictability
+        borderCollapse: "collapse"
+      });
+      // Internal Table Styling (Specific to table structure, not container)
       if (e.borderColor) {
         tableEl.style.setProperty('--table-border-color', e.borderColor);
       }
       
-      // Render table rows and cells
       const rows = e.rows || 3;
       const cols = e.cols || 3;
-      const data = e.data || Array(rows).fill(null).map(() => Array(cols).fill(""));
+      
+      // Initialize data with default column names if not already set
+      if (!e.data) {
+        e.data = [];
+        for (let i = 0; i < rows; i++) {
+          e.data[i] = [];
+          for (let j = 0; j < cols; j++) {
+            e.data[i][j] = i === 0 ? `Col ${j + 1}` : "";
+          }
+        }
+      }
+      const data = e.data;
       
       for (let i = 0; i < rows; i++) {
         const tr = document.createElement("tr");
         for (let j = 0; j < cols; j++) {
           const cell = i === 0 ? document.createElement("th") : document.createElement("td");
           cell.contentEditable = "true";
-          cell.textContent = data[i][j] || (i === 0 ? `Col ${j + 1}` : "");
+          cell.spellcheck = false;
+          // Use innerHTML to preserve formatted text with inline styles
+          cell.innerHTML = data[i]?.[j] || (i === 0 ? `Col ${j + 1}` : "");
           cell.dataset.row = i;
           cell.dataset.col = j;
           
-          // Apply custom colors
           if (i === 0 && e.headerColor) {
             cell.style.background = e.headerColor;
           }
@@ -200,171 +203,62 @@ export function render(){
             cell.style.borderColor = e.borderColor;
           }
           
-          // Save cell content on blur
           cell.addEventListener("blur", () => {
             if (!e.data) e.data = Array(rows).fill(null).map(() => Array(cols).fill(""));
-            e.data[i][j] = cell.textContent;
+            if (!e.data[i]) e.data[i] = Array(cols).fill("");
+            // Save innerHTML to preserve formatting
+            e.data[i][j] = cell.innerHTML || cell.textContent;
           });
           
           tr.appendChild(cell);
         }
         tableEl.appendChild(tr);
       }
+      wrapper.appendChild(tableEl);
+      node.appendChild(wrapper);
       
-      node.appendChild(tableEl);
+      // Add toolbar for table formatting
+      const textToolbar = createTextToolbar(e);
+      node.appendChild(textToolbar);
       
-      // Add table controls
       const controls = createTableControls(e);
       node.appendChild(controls);
     }
 
-    // Apply shape styles
+    // --- SHAPE ---
     if (e.type === "shape"){
-      // Create a wrapper for the shape visual content (to apply opacity without affecting controls)
-      const shapeWrapper = document.createElement("div");
-      shapeWrapper.className = "shape-content-wrapper";
-      
-      // Apply visual styles to the wrapper
-      if (e.fillColor) shapeWrapper.style.background = e.fillColor;
-      if (e.opacity !== undefined) shapeWrapper.style.opacity = e.opacity;
-      
-      // Apply border to the wrapper if borderColor is set
-      if (e.borderColor) {
-        shapeWrapper.style.border = `3px solid ${e.borderColor}`;
-      }
-      
-      // Add the wrapper to the node
-      node.appendChild(shapeWrapper);
-      
-      // Add shape controls (outside the wrapper so they're not affected by opacity)
+      // Visuals (bg, border) are applied to 'node' by styleHelper.
       const controls = createShapeControls(e);
       node.appendChild(controls);
     }
 
+    // --- IMAGE ---
     if (e.type === "image"){
-      // if (e.imageData){
-      //   // afficher l'image réelle
-      //   node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:cntain;">`;
-      // } else{
-      //   // afficher le placeholder
-      //   node.innerHTML = `<div style="padding:12px;text-align:center;line-height:1.2;cursor:pointer;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;">
-      //     <span style="font-size:24px;margin-bottom:8px;">📸</span>
-      //     <span style="font-size:13px;font-weight:600;color:#007bff">Dépose une image</span>
-      //     <span style="font-size:11px;color:#999;margin-top:4px">ou clique pour parcourir</span>
-      //   </div>`;
-      // }
-
-      // We wrap the content in a wrapper to handle 'overflow:hidden' and 'border-radius'
-      // while allowing the handles (children of 'node') to sit outside visible area.
       const wrapper = document.createElement('div');
       wrapper.className = "el-img-wrapper";
       
       let innerContent = "";
       if (e.imageData){
-        // Changed object-fit to contain to fit image without cropping
+        // Ensure contain to match export
         innerContent = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:contain;">`;
       } else{
-        // Placeholder
         innerContent = `<div style="padding:12px;text-align:center;line-height:1.2;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;">
           <span style="font-size:24px;margin-bottom:8px;">📸</span>
-          <span style="font-size:13px;font-weight:600;color:#007bff">Dépose une image</span>
-          <span style="font-size:11px;color:#999;margin-top:4px">ou double-clique pour parcourir</span>
+          <span style="font-size:13px;font-weight:600;color:#007bff">Double-clique</span>
         </div>`;
       }
       wrapper.innerHTML = innerContent;
       node.appendChild(wrapper);
-
       node.style.cursor = "pointer";
       
-      // Double-click to add image
-      node.addEventListener("dblclick", () => {
+       node.addEventListener("dblclick", (ev) => {
+        ev.stopPropagation(); 
         const input = document.createElement("input");
         input.type = "file";
         input.accept = "image/*";
-        input.onchange = (ev) => {
-          const file = ev.target.files[0];
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-              e.imageData = event.target.result;
-              render();
-            };
-            reader.readAsDataURL(file);
-          }
-        };
-        input.click();
-      });
-      
-      // Drag & drop
-      node.addEventListener("dragover", (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        node.style.opacity = "0.7";
-        node.style.background = "rgba(0,123,255,0.1)";
-      });
-      
-      node.addEventListener("dragleave", (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        node.style.opacity = "1";
-        node.style.background = "";
-      });
-      
-      node.addEventListener("drop", (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        node.style.opacity = "1";
-        node.style.background = "";
-        
-        const files = ev.dataTransfer.files;
-        if (files.length > 0) {
-          const file = files[0];
-          if (file.type.startsWith("image/")) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-              e.imageData = event.target.result;
-              
-              // Charger l'image pour obtenir ses dimensions
-              const img = new Image();
-              img.onload = () => {
-                // Adapter la taille du bloc à l'image
-                // Garder un ratio max de 400x300 pour la slide
-                const maxWidth = 400;
-                const maxHeight = 300;
-                
-                let width = img.naturalWidth;
-                let height = img.naturalHeight;
-                
-                // Redimensionner si trop grand
-                if (width > maxWidth || height > maxHeight) {
-                  const ratio = Math.min(maxWidth / width, maxHeight / height);
-                  width = Math.round(width * ratio);
-                  height = Math.round(height * ratio);
-                }
-                
-                e.w = width;
-                e.h = height;
-                render();
-              };
-              img.src = e.imageData;
-            };
-            reader.readAsDataURL(file);
-          }
-        }
-      });
-
-      // 2. Double Click to Upload
-      node.addEventListener("dblclick", (ev) => {
-        ev.stopPropagation(); // prevent other dblclick handlers
-        
-        // Create a temporary file input
-        const input = document.createElement("input");
-        input.type = "file";
-        input.accept = "image/*";
-        
         input.onchange = (event) => {
           const file = event.target.files[0];
-          if (file && file.type.startsWith("image/")) {
+          if (file) {
             const reader = new FileReader();
             reader.onload = (loadEvent) => {
               e.imageData = loadEvent.target.result;
@@ -373,95 +267,46 @@ export function render(){
             reader.readAsDataURL(file);
           }
         };
-        
         input.click();
+      });
+      
+      // Drag & Drop events on the node
+      node.addEventListener("dragover", (ev) => { ev.preventDefault(); ev.stopPropagation(); });
+      node.addEventListener("drop", (ev) => {
+        ev.preventDefault(); ev.stopPropagation();
+        const files = ev.dataTransfer.files;
+        if (files.length > 0 && files[0].type.startsWith("image/")) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              e.imageData = event.target.result;
+              render();
+            };
+            reader.readAsDataURL(files[0]);
+        }
       });
     }
 
-    // handles
+    // Handles
     ["tl","tr","bl","br"].forEach(pos=>{
       const h = document.createElement("div");
       h.className = "handle h-" + pos;
       h.dataset.handle = pos;
+      h.addEventListener("mousedown", (ev) => startResize(ev, e.id, pos));
       node.appendChild(h);
     });
 
-    // select
+    // Event Listeners
     node.addEventListener("mousedown", (ev)=>{
       if (ev.target.classList.contains("handle")) return;
       select(e.id);
     });
-
-    // drag move element
     node.addEventListener("mousedown", (ev)=> startMove(ev, e.id));
 
     slideEl.appendChild(node);
   });
-
-  // thumbs
-  thumbsEl.innerHTML = "";
-  state.slides.forEach((sl, i) => {
-    const t = document.createElement("div");
-    t.className = "thumb" + (i === state.activeSlide ? " active" : "");
-    t.innerHTML = `
-      <div class="mini"></div>
-      <div class="label">
-        <span>Slide ${i+1}</span>
-        <span style="color:rgba(255,255,255,.55)">${sl.elements.length} obj.</span>
-      </div>
-    `;
-    t.addEventListener("click", ()=> {
-      state.activeSlide = i;
-      selectedId = null;
-      render();
-    });
-    thumbsEl.appendChild(t);
-
-    // render thumbnail preview
-    const miniDiv = t.querySelector('.mini');
-    const scale = 0.12;
-    
-    sl.elements.forEach(e => {
-      const node = document.createElement("div");
-      node.className = "el " + e.type;
-      node.style.left = px(e.x * scale);
-      node.style.top = px(e.y * scale);
-      node.style.pointerEvents = "none";
-      node.style.opacity = "0.8";
-
-      if (e.type === "shape" || e.type === "image"){
-        node.style.width = px(e.w * scale);
-        node.style.height = px(e.h * scale);
-      } else {
-        node.style.width = px((e.w || 240) * scale);
-        node.style.height = px((e.h || 54) * scale);
-      }
-
-      if (e.type === "text"){
-        node.innerHTML = e.html || "Texte";
-        node.style.fontSize = "8px";
-        node.style.overflow = "hidden";
-      } else if (e.type === "button"){
-        node.innerHTML = e.html || "Bouton";
-        node.style.fontSize = "8px";
-        node.style.overflow = "hidden";
-      } else if (e.type === "image"){
-        if (e.imageData) {
-          node.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:contain;">`;
-        } else {
-          node.innerHTML = `<div style="font-size:6px;padding:2px;">📸</div>`;
-        }
-      }
-
-      miniDiv.appendChild(node);
-    });
-  });
-
-  // attach resize listeners after nodes exist
-  slideEl.querySelectorAll(".el.selected .handle").forEach(h=>{
-    h.addEventListener("mousedown", (ev)=> startResize(ev, h.closest(".el")?.dataset?.id, h.dataset.handle));
-  });
-
+  
+  renderThumbs();
+  
   // update zoom indicator
   const z = getZoom();
   zoomChip.textContent = `Zoom: ${Math.round(z*100)}%`;
@@ -470,7 +315,524 @@ export function render(){
   saveState();
 }
 
+// =====================================================
+//  THUMBNAILS
+// =====================================================
+function renderThumbs() {
+  thumbsEl.innerHTML = "";
+  state.slides.forEach((sl, i) => {
+    const t = document.createElement("div");
+    t.className = "thumb" + (i === state.activeSlide ? " active" : "");
+    
+    // Conteneur qui respecte le ratio et le padding CSS
+    const miniWrapper = document.createElement('div');
+    miniWrapper.className = "mini"; 
+    
+    // Le "canvas" interne à 960x540
+    const miniDiv = document.createElement('div');
+    miniDiv.style.position = "absolute";
+    miniDiv.style.width = "960px";
+    miniDiv.style.height = "540px";
+    miniDiv.style.top = "0";
+    miniDiv.style.left = "0";
+    miniDiv.style.transformOrigin = "top left";
+    
+    // CALCUL DE L'ÉCHELLE : 
+    // (Largeur du thumb 120px - Padding 16px) / Largeur base 960px
+    const scale = 104 / 960; 
+    miniDiv.style.transform = `scale(${scale})`;
+    
+    miniDiv.style.background = getSlideBackgroundStyle(sl);
 
+    // Rendu des éléments (votre boucle existante)
+    sl.elements.forEach(e => {
+      const node = document.createElement("div");
+      node.className = getElementClasses(e);
+      Object.assign(node.style, getElementStyles(e));
+      
+      if (e.type === "text" || e.type === "button"){
+        node.innerHTML = e.html || (e.type === "text" ? "Texte" : "Bouton");
+      }
+
+      // --- TABLE ---
+      if (e.type === "table"){
+        const wrapper = document.createElement("div");
+        Object.assign(wrapper.style, {
+          width: "100%",
+          height: "100%",
+          overflow: "hidden",
+          position: "relative"
+        });
+
+        const tableEl = document.createElement("table");
+        tableEl.className = "data-table";
+        Object.assign(tableEl.style, {
+          width: "100%",
+          height: "100%",
+          tableLayout: "fixed",
+          borderCollapse: "collapse"
+        });
+        
+        if (e.borderColor) {
+          tableEl.style.setProperty('--table-border-color', e.borderColor);
+        }
+        
+        const rows = e.rows || 3;
+        const cols = e.cols || 3;
+        const data = e.data || Array(rows).fill(null).map(() => Array(cols).fill(""));
+        
+        for (let i = 0; i < rows; i++) {
+          const tr = document.createElement("tr");
+          for (let j = 0; j < cols; j++) {
+            const cell = i === 0 ? document.createElement("th") : document.createElement("td");
+            cell.innerHTML = data[i]?.[j] || "";
+            
+            if (i === 0 && e.headerColor) {
+              cell.style.background = e.headerColor;
+            }
+            if (e.borderColor) {
+              cell.style.borderColor = e.borderColor;
+            }
+            
+            tr.appendChild(cell);
+          }
+          tableEl.appendChild(tr);
+        }
+        wrapper.appendChild(tableEl);
+        node.appendChild(wrapper);
+      }
+
+      // --- IMAGE ---
+      if (e.type === "image"){
+        const wrapper = document.createElement('div');
+        wrapper.className = "el-img-wrapper";
+        
+        if (e.imageData){
+          wrapper.innerHTML = `<img src="${e.imageData}" style="width:100%;height:100%;object-fit:contain;">`;
+        } else {
+          wrapper.innerHTML = `<div style="width:100%;height:100%;background:#eee;"></div>`;
+        }
+        node.appendChild(wrapper);
+      }
+
+      node.style.pointerEvents = "none";
+      miniDiv.appendChild(node);
+    });
+
+   miniWrapper.appendChild(miniDiv); // On met le contenu mis à l'échelle dans le wrapper
+    t.appendChild(miniWrapper);       // On met le wrapper dans la vignette
+
+    // Create Label
+    const label = document.createElement("div");
+    label.className = "label";
+    label.innerHTML = `
+        <span>Slide ${i+1}</span>
+        <span style="color:rgba(255,255,255,.55)">${sl.elements.length} obj.</span>
+    `;
+
+    // t.appendChild(miniDiv); <--- SUPPRIME CETTE LIGNE, elle déplace l'élément au mauvais endroit
+    t.appendChild(label);
+
+    t.addEventListener("click", ()=> {
+      state.activeSlide = i;
+      selectedId = null;
+      render();
+    });
+    thumbsEl.appendChild(t);
+  });
+}
+
+
+// =====================================================
+//  TEXT FORMATTING HELPERS
+// =====================================================
+function applyTextFormatting(command, value = null) {
+  const selection = window.getSelection();
+  if (!selection.toString()) return; // No text selected
+  
+  if (value) {
+    document.execCommand(command, false, value);
+  } else {
+    document.execCommand(command, false, null);
+  }
+}
+
+function getSelectedTextColor() {
+  const selection = window.getSelection();
+  if (!selection.rangeCount) return "#111827";
+  
+  const range = selection.getRangeAt(0);
+  const span = range.commonAncestorContainer;
+  const element = span.nodeType === 3 ? span.parentElement : span;
+  return window.getComputedStyle(element).color || "#111827";
+}
+
+// =====================================================
+//  TOOLBARS
+// =====================================================
+function createTextToolbar(element) {
+  const toolbar = document.createElement("div");
+  toolbar.className = "text-toolbar";
+  toolbar.addEventListener("mousedown", (ev) => ev.stopPropagation());
+  toolbar.addEventListener("click", (ev) => ev.stopPropagation());
+  
+  // Color picker - for selected text or element default
+  const colorInput = document.createElement("input");
+  colorInput.type = "color";
+  colorInput.value = element.color || "#111827";
+  colorInput.title = "Couleur du texte";
+  colorInput.addEventListener("input", (e) => {
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text
+      applyTextFormatting("foreColor", e.target.value);
+    } else {
+      // Apply to whole element
+      element.color = e.target.value;
+      render();
+    }
+  });
+  
+  // Font family
+  const fontSelect = document.createElement("select");
+  fontSelect.innerHTML = `
+    <option value="Arial" ${element.fontFamily === "Arial" ? "selected" : ""}>Arial</option>
+    <option value="Georgia" ${element.fontFamily === "Georgia" ? "selected" : ""}>Georgia</option>
+    <option value="Times New Roman" ${element.fontFamily === "Times New Roman" ? "selected" : ""}>Times New Roman</option>
+    <option value="Courier New" ${element.fontFamily === "Courier New" ? "selected" : ""}>Courier New</option>
+    <option value="Verdana" ${element.fontFamily === "Verdana" ? "selected" : ""}>Verdana</option>
+  `;
+  fontSelect.addEventListener("change", (e) => {
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text
+      applyTextFormatting("fontName", e.target.value);
+    } else {
+      // Apply to whole element
+      element.fontFamily = e.target.value;
+      render();
+    }
+  });
+  
+  // Font size
+  const sizeInput = document.createElement("input");
+  sizeInput.type = "number";
+  sizeInput.value = element.fontSize || 28;
+  sizeInput.min = 8;
+  sizeInput.max = 120;
+  sizeInput.style.width = "60px";
+  sizeInput.addEventListener("change", (e) => {
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text using inline style
+      try {
+        const range = selection.getRangeAt(0);
+        const span = document.createElement("span");
+        span.style.fontSize = e.target.value + "px";
+        range.surroundContents(span);
+      } catch (err) {
+        // If surroundContents fails, use execCommand as fallback
+        applyTextFormatting("fontSize", 7);
+      }
+    } else {
+      // Apply to whole element
+      element.fontSize = parseInt(e.target.value);
+      render();
+    }
+  });
+  
+  // Bold
+  const boldBtn = document.createElement("button");
+  boldBtn.innerHTML = "B";
+  boldBtn.title = "Gras";
+  boldBtn.className = element.fontWeight === "bold" || element.fontWeight >= 700 ? "active" : "";
+  boldBtn.addEventListener("click", () => {
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text
+      applyTextFormatting("bold");
+    } else {
+      // Apply to whole element
+      element.fontWeight = element.fontWeight === "bold" || element.fontWeight >= 700 ? 400 : 700;
+      render();
+    }
+  });
+  
+  // Italic
+  const italicBtn = document.createElement("button");
+  italicBtn.innerHTML = "I";
+  italicBtn.title = "Italique";
+  italicBtn.style.fontStyle = "italic";
+  italicBtn.addEventListener("click", () => {
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text
+      applyTextFormatting("italic");
+    } else {
+      // Apply to whole element
+      element.fontStyle = element.fontStyle === "italic" ? "normal" : "italic";
+      render();
+    }
+  });
+  
+  // Alignment
+  const alignLeft = document.createElement("button");
+  alignLeft.innerHTML = "⫷";
+  alignLeft.title = "Aligner à gauche";
+  alignLeft.className = element.textAlign === "left" ? "active" : "";
+  alignLeft.addEventListener("click", () => {
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text
+      applyTextFormatting("justifyLeft");
+    } else {
+      // Apply to whole element
+      element.textAlign = "left";
+      render();
+    }
+  });
+  
+  const alignCenter = document.createElement("button");
+  alignCenter.innerHTML = "≡";
+  alignCenter.title = "Centrer";
+  alignCenter.className = element.textAlign === "center" ? "active" : "";
+  alignCenter.addEventListener("click", () => {
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text
+      applyTextFormatting("justifyCenter");
+    } else {
+      // Apply to whole element
+      element.textAlign = "center";
+      render();
+    }
+  });
+  
+  const alignRight = document.createElement("button");
+  alignRight.innerHTML = "⫸";
+  alignRight.title = "Aligner à droite";
+  alignRight.className = element.textAlign === "right" ? "active" : "";
+  alignRight.addEventListener("click", () => {
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      // Apply to selected text
+      applyTextFormatting("justifyRight");
+    } else {
+      // Apply to whole element
+      element.textAlign = "right";
+      render();
+    }
+  });
+  
+  toolbar.appendChild(colorInput);
+  toolbar.appendChild(fontSelect);
+  toolbar.appendChild(sizeInput);
+  toolbar.appendChild(document.createElement("div")).className = "divider";
+  toolbar.appendChild(boldBtn);
+  toolbar.appendChild(italicBtn);
+  toolbar.appendChild(document.createElement("div")).className = "divider";
+  toolbar.appendChild(alignLeft);
+  toolbar.appendChild(alignCenter);
+  toolbar.appendChild(alignRight);
+  
+  return toolbar;
+}
+window.addEventListener("unhandledrejection", (e) => {
+  console.warn("Unhandled promise rejection:", e.reason);
+});
+
+function createTableControls(element) {
+  const controls = document.createElement("div");
+  controls.className = "table-controls";
+
+  controls.addEventListener("mousedown", (ev) => ev.stopPropagation());
+  controls.addEventListener("click", (ev) => ev.stopPropagation());
+
+  // + Ligne
+  const addRowBtn = document.createElement("button");
+  addRowBtn.innerHTML = "+ Ligne";
+  addRowBtn.title = "Ajouter une ligne";
+  addRowBtn.addEventListener("click", () => {
+    element.rows = (element.rows || 3) + 1;
+    if (!element.data) element.data = [];
+    element.data.push(Array(element.cols || 3).fill(""));
+    render();
+  });
+  controls.appendChild(addRowBtn);
+
+  // - Ligne
+  const removeRowBtn = document.createElement("button");
+  removeRowBtn.innerHTML = "- Ligne";
+  removeRowBtn.title = "Retirer une ligne";
+  removeRowBtn.addEventListener("click", () => {
+    if ((element.rows || 3) > 1) {
+      element.rows = (element.rows || 3) - 1;
+      if (element.data) element.data.pop();
+      render();
+    }
+  });
+  controls.appendChild(removeRowBtn);
+
+  // Divider
+  const div1 = document.createElement("div");
+  div1.className = "divider";
+  controls.appendChild(div1);
+
+  // + Colonne
+  const addColBtn = document.createElement("button");
+  addColBtn.innerHTML = "+ Colonne";
+  addColBtn.title = "Ajouter une colonne";
+  addColBtn.addEventListener("click", () => {
+    element.cols = (element.cols || 3) + 1;
+    if (!element.data) element.data = Array(element.rows || 3).fill(null).map(() => Array(element.cols).fill(""));
+    else element.data.forEach(row => row.push(""));
+    render();
+  });
+  controls.appendChild(addColBtn);
+
+  // - Colonne
+  const removeColBtn = document.createElement("button");
+  removeColBtn.innerHTML = "- Colonne";
+  removeColBtn.title = "Retirer une colonne";
+  removeColBtn.addEventListener("click", () => {
+    if ((element.cols || 3) > 1) {
+      element.cols = (element.cols || 3) - 1;
+      if (element.data) element.data.forEach(row => row.pop());
+      render();
+    }
+  });
+  controls.appendChild(removeColBtn);
+  
+  // Divider
+  const div2 = document.createElement("div");
+  div2.className = "divider";
+  controls.appendChild(div2);
+
+  // Border Color
+  const borderColor = document.createElement("input");
+  borderColor.type = "color";
+  borderColor.title = "Couleur Bordure";
+  borderColor.value = element.borderColor || "#cccccc";
+  borderColor.addEventListener("input", (e) => {
+    element.borderColor = e.target.value;
+    render();
+  });
+  controls.appendChild(borderColor);
+
+  // Header Color
+  const headerColor = document.createElement("input");
+  headerColor.type = "color";
+  headerColor.title = "Couleur En-tête";
+  headerColor.value = element.headerColor || "#f3f4f6";
+  headerColor.addEventListener("input", (e) => {
+    element.headerColor = e.target.value;
+    render();
+  });
+  controls.appendChild(headerColor);
+  
+  return controls;
+}
+
+function createShapeControls(element) {
+  const controls = document.createElement("div");
+  controls.className = "shape-controls";
+  controls.addEventListener("mousedown", (ev) => ev.stopPropagation());
+  controls.addEventListener("click", (ev) => ev.stopPropagation());
+  
+  
+  // Shape type selector
+  const shapeGroup = document.createElement("div");
+  shapeGroup.className = "control-group";
+  
+  const shapeLabel = document.createElement("label");
+  shapeLabel.textContent = "Forme:";
+  
+  const shapeSelect = document.createElement("select");
+  shapeSelect.innerHTML = `
+    <option value="rectangle" ${element.shapeType === "rectangle" ? "selected" : ""}>Rectangle</option>
+    <option value="circle" ${element.shapeType === "circle" ? "selected" : ""}>Cercle</option>
+    <option value="triangle" ${element.shapeType === "triangle" ? "selected" : ""}>Triangle</option>
+    <option value="star" ${element.shapeType === "star" ? "selected" : ""}>Étoile</option>
+    <option value="diamond" ${element.shapeType === "diamond" ? "selected" : ""}>Losange</option>
+  `;
+  shapeSelect.addEventListener("change", (e) => {
+    element.shapeType = e.target.value;
+    render();
+  });
+  
+  shapeGroup.appendChild(shapeLabel);
+  shapeGroup.appendChild(shapeSelect);
+  
+  // Fill color
+  const fillGroup = document.createElement("div");
+  fillGroup.className = "control-group";
+  
+  const fillLabel = document.createElement("label");
+  fillLabel.textContent = "Remplissage:";
+  
+  const fillColor = document.createElement("input");
+  fillColor.type = "color";
+  fillColor.value = element.fillColor || "#7c5cff";
+  fillColor.addEventListener("input", (e) => {
+    element.fillColor = e.target.value;
+    render();
+  });
+  
+  fillGroup.appendChild(fillLabel);
+  fillGroup.appendChild(fillColor);
+  
+  // Border color
+  const borderGroup = document.createElement("div");
+  borderGroup.className = "control-group";
+  
+  const borderLabel = document.createElement("label");
+  borderLabel.textContent = "Bordure:";
+  
+  const borderColor = document.createElement("input");
+  borderColor.type = "color";
+  borderColor.value = element.borderColor || "#37d6ff";
+  borderColor.addEventListener("input", (e) => {
+    element.borderColor = e.target.value;
+    render();
+  });
+  
+  borderGroup.appendChild(borderLabel);
+  borderGroup.appendChild(borderColor);
+  
+  // Opacity
+  const opacityGroup = document.createElement("div");
+  opacityGroup.className = "control-group";
+  
+  const opacityLabel = document.createElement("label");
+  opacityLabel.textContent = "Opacité:";
+  
+  const opacityValue = document.createElement("span");
+  opacityValue.className = "opacity-value";
+  opacityValue.textContent = Math.round((element.opacity !== undefined ? element.opacity : 1) * 100) + "%";
+  
+  const opacitySlider = document.createElement("input");
+  opacitySlider.type = "range";
+  opacitySlider.min = 0;
+  opacitySlider.max = 1;
+  opacitySlider.step = 0.01;
+  opacitySlider.value = element.opacity !== undefined ? element.opacity : 1;
+  opacitySlider.addEventListener("input", (e) => {
+    element.opacity = parseFloat(e.target.value);
+    opacityValue.textContent = Math.round(e.target.value * 100) + "%";
+    render();
+  });
+  
+  opacityGroup.appendChild(opacityLabel);
+  opacityGroup.appendChild(opacitySlider);
+  opacityGroup.appendChild(opacityValue);
+  
+  controls.appendChild(shapeGroup);
+  controls.appendChild(fillGroup);
+  controls.appendChild(borderGroup);
+  controls.appendChild(opacityGroup);
+  
+  return controls;
+}
 
 // =====================================================
 //  DRAG & DROP - AJOUTER ÉLÉMENTS
@@ -813,7 +1175,6 @@ setZoom(1);
 import './imporExport.js';
 import './present.js';
 import './slides.js';
-import { createTextToolbar, createShapeControls, createTableControls } from './createShapeControls.js';
 
 import { initContextMenu } from './contextMenu.js';
 

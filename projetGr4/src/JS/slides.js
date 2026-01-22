@@ -1,15 +1,5 @@
-// slides.js
-import {
-  thumbsEl,
-  state,
-  cryptoId,
-  setSelectedId,
-  render,
-  setZoom,
-  getZoom,
-  slideId,
-  getActive
-} from "./editor.js";
+import {thumbsEl, state, cryptoId, setSelectedId, render, getActive, slideId, setZoom, getZoom} from "./editor.js";
+import { generateExportStyle, getElementClasses, getSlideBackgroundStyle } from './styleHelper.js';
 
 // =====================================================
 //  HELPERS (local)
@@ -25,7 +15,27 @@ function escHtml(s = "") {
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;");
 }
-
+function normalizeHref(href) {
+  if (!href) return null;
+  const s = String(href).trim();
+  if (!s) return null;
+  
+  // Externe => on garde tel quel
+  if (/^https?:\/\//i.test(s)) return s;
+  
+  // Nos formats internes possibles
+  let m = s.match(/^slide-(\d+)\.html$/i);
+  if (m) return s;
+  
+  m = s.match(/^#slide:(\d+)$/i);
+  if (m) return s;
+  
+  m = s.match(/^#slide-(\d+)$/i);
+  if (m) return s;
+  
+  // Sinon on garde (ex: "page.html" ou autre)
+  return s;
+}
 // =====================================================
 //  GESTION DES SLIDES
 // =====================================================
@@ -170,48 +180,17 @@ function exportBaseCSS() {
 export function generateSlideHTML(slideIndex) {
   const slide = state.slides[slideIndex];
 
-    function normalizeHref(link) {
-      if (!link) return null;
-      const s = String(link).trim();
-      if (!s) return null;
-
-      // Déjà une URL externe
-      if (/^https?:\/\//i.test(s)) return s;
-
-      // Déjà un href "slide-2.html"
-      if (/^slide-\d+\.html$/i.test(s)) return s;
-
-      // Déjà une autre page html explicite (optionnel mais utile)
-      if (/\.html$/i.test(s)) return s;
-
-      // Cas "2" => slide-2.html
-      return `slide-${s}.html`;
-    }
-
-    function wrapWithLink(innerHtml, link) {
-      const href = normalizeHref(link);
-      if (!href) return innerHtml;
-
-      // Le <a> est "invisible" (pas de soulignement/bleu), seul le contenu s'affiche.
-      // display:contents évite de rajouter une "boîte" autour (meilleur pour le layout).
-      return `<a href="${href}" style="text-decoration:none;color:inherit;display:contents;">${innerHtml}</a>`;
-    }
 
 
-  // --- META (title + pos uniquement) ---
-  const meta = (slide.arbre && typeof slide.arbre === "object")
-    ? {
-        title: typeof slide.arbre.title === "string" ? slide.arbre.title : null,
-        pos: (slide.arbre.pos && typeof slide.arbre.pos.x === "number" && typeof slide.arbre.pos.y === "number")
-          ? { x: slide.arbre.pos.x, y: slide.arbre.pos.y }
-          : { x: 0, y: 0 }
-      }
-    : null;
-
-  // plus bas, quand tu construis le HTML final :
-  const metaScript = meta
-    ? `  <script id="slide-meta" type="application/json">${JSON.stringify(meta)}</script>\n`
-    : "";
+  // --- META qu’on veut sauvegarder dans le HTML ---
+  // Position par défaut 0,0 (comme demandé)
+  const meta = {
+    version: 1,
+    title: slide.title ?? `Slide ${slideIndex + 1}`,
+    pos: { x: 0, y: 0 },
+    // rempli plus bas en fonction des boutons réellement présents
+    buttons: []
+  };
 
   let html = `<!DOCTYPE html>
 <html lang="fr">
@@ -223,7 +202,9 @@ ${exportBaseCSS()}
 </head>
 <body>
   <div class="stage">
-    <div class="slide" role="img" aria-label="${meta.title}">
+    <div class="slide" role="img" aria-label="${meta.title}"> 
+    
+    
 `;
 
   // helper: convertit une href en "slide target"
@@ -247,20 +228,21 @@ ${exportBaseCSS()}
   }
 
   for (const el of slide.elements) {
-    const left = Math.round(el.x ?? 0);
-    const top = Math.round(el.y ?? 0);
-    const w = Math.round(el.w ?? 240);
-    const h = Math.round(el.h ?? 54);
-
-    const style = `style="left:${left}px;top:${top}px;width:${w}px;height:${h}px;"`;
+    // [STRATEGY] Generate Style String and Classes
+    const cssString = generateExportStyle(el);
+    const styleAttr = `style="${cssString}"`;
+    const classNames = getElementClasses(el);
 
     if (el.type === "text") {
-      const inner = `      <div class="el text" ${style}>${el.html || "Texte"}</div>\n`;
-      html += wrapWithLink(inner, el.link);
+      const linkAttr = el.link ? ` data-link="${el.link}"` : "";
+      html += `      <div class="${classNames}" data-id="${el.id}"${linkAttr} ${styleAttr}>${el.html || "Texte"}</div>\n`;
     }
 
     else if (el.type === "button") {
-      // 1) Ancien système: href dans le HTML interne (si présent)
+
+      // IMPORTANT :
+      // - on force un data-btn-id stable = el.id
+      // - on tente de récupérer un href existant dans el.html
       let hrefFromHtml = null;
       try {
         const tmp = document.createElement("div");
@@ -275,28 +257,56 @@ ${exportBaseCSS()}
 
       // 3) Rendu visuel: PAS besoin de mettre <a> dedans.
       const safeInner = (el.html && el.html.trim()) ? el.html : "Bouton";
-
-      const inner = `      <div class="el button" data-btn-id="${el.id}" ${style}>${safeInner}</div>\n`;
-      // hrefFinal est déjà normalisé => wrap direct sans renormaliser
-      if (hrefFinal) {
-        html += `<a href="${hrefFinal}" style="text-decoration:none;color:inherit;display:contents;">${inner}</a>`;
-      } else {
-        html += inner;
-      }
+      const linkAttr = el.link ? ` data-link="${el.link}"` : "";
+      html += `      <div class="${classNames}" data-btn-id="${el.id}" data-id="${el.id}"${linkAttr} ${styleAttr}>${safeInner}</div>\n`;
     }
 
+    //   const inner = `      <div class="el button" data-btn-id="${el.id}" ${style}>${safeInner}</div>\n`;
+    //   // hrefFinal est déjà normalisé => wrap direct sans renormaliser
+    //   if (hrefFinal) {
+    //     html += `<a href="${hrefFinal}" style="text-decoration:none;color:inherit;display:contents;">${inner}</a>`;
+    //   } else {
+    //     html += inner;
+    //   }
+    // }
+
     else if (el.type === "shape") {
-      const inner = `      <div class="el shape" ${style}></div>\n`;
-      html += wrapWithLink(inner, el.link);
+      const linkAttr = el.link ? ` data-link="${el.link}"` : "";
+      html += `      <div class="${classNames}" data-id="${el.id}"${linkAttr} ${styleAttr}></div>\n`;
     }
 
     else if (el.type === "image") {
-      const inner = el.imageData
-        ? `      <div class="el image" ${style}><img src="${el.imageData}" alt=""></div>\n`
-        : `      <div class="el image" ${style}></div>\n`;
+      const linkAttr = el.link ? ` data-link="${el.link}"` : "";
+      if (el.imageData) {
+         html += `      <div class="${classNames}" data-id="${el.id}"${linkAttr} ${styleAttr}><img src="${el.imageData}" style="width:100%;height:100%;object-fit:contain;display:block;"></div>\n`;
+      } else {
+         html += `      <div class="${classNames}" data-id="${el.id}"${linkAttr} ${styleAttr}></div>\n`;
+      }
+    
+    } else if (el.type === "table") {
 
-      html += wrapWithLink(inner, el.link);
+      let tableHtml = `<table class="data-table" style="${el.borderColor ? `--table-border-color:${el.borderColor}` : ''}">`;
+      const rows = el.rows || 3;
+      const cols = el.cols || 3;
+      const data = el.data || Array(rows).fill(null).map(() => Array(cols).fill(""));
+      
+      for(let i=0; i<rows; i++){
+        tableHtml += "<tr>";
+        for(let j=0; j<cols; j++){
+          const tag = (i===0) ? "th" : "td";
+          const bg = (i===0 && el.headerColor) ? `background:${el.headerColor};` : "";
+          const bd = (el.borderColor) ? `border-color:${el.borderColor};` : "";
+          const txt = data[i]?.[j] || "";
+          tableHtml += `<${tag} style="${bg}${bd}">${txt}</${tag}>`;
+        }
+        tableHtml += "</tr>";
+      }
+      tableHtml += "</table>";
+      
+      const linkAttr = el.link ? ` data-link="${el.link}"` : "";
+      html += `      <div class="${classNames}" data-id="${el.id}"${linkAttr} ${styleAttr}>${tableHtml}</div>\n`;
     }
+    
   }
 
   // On injecte le JSON dans le HTML exporté
