@@ -544,8 +544,8 @@ select.dropdown-select option:checked {
   font-size:28px;
   font-weight:800;
   letter-spacing:-.02em;
-  color:#111827;
-  background: rgba(255,255,255,.92);
+  color:white;
+  background-color: transparent;
   cursor: text;
 }
 .el.button{

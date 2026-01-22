@@ -550,7 +550,7 @@ function createTextToolbar(element) {
   // Color picker - for selected text or element default
   const colorInput = document.createElement("input");
   colorInput.type = "color";
-  colorInput.value = element.color || "#111827";
+  colorInput.value = element.color || "#ffff";
   colorInput.title = "Couleur du texte";
   colorInput.addEventListener("input", (e) => {
     const selection = window.getSelection();
@@ -957,7 +957,7 @@ function addFromTool(toolType, x, y){
   let el = null;
 
   if (toolType === "text"){
-    el = { ...base, type:"text", w: 520, h: 70, html:"Nouveau texte", color: "#111827", fontSize: 28, fontWeight: 800, fontFamily: "Arial", textAlign: "left" };
+    el = { ...base, type:"text", w: 520, h: 70, html:"Nouveau texte", color: "#ffff", backgroundColor: "none", fontSize: 28, fontWeight: 800, fontFamily: "Arial", textAlign: "left" };
   } else if (toolType === "shape"){
     el = { ...base, type:"shape", w: 320, h: 180, shapeType: "rectangle", fillColor: "#7c5cff", borderColor: "#37d6ff", opacity: 1 };
   } else if (toolType === "button"){
