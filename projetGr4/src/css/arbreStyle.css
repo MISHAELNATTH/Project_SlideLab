@@ -1262,3 +1262,32 @@ path.connection-line {
   box-shadow: 0 0 0 2px rgba(124, 92, 255, 0.25);
 }
 
+/* ===============================
+   Zoom responsive du graphe
+================================ */
+
+.canvas-area {
+    transform-origin: top left;
+}
+
+/* Petit laptop / écrans moyens */
+@media (max-width: 1200px) {
+    .canvas-area {
+        transform: scale(0.85);
+    }
+}
+
+/* Tablettes / petits laptops */
+@media (max-width: 900px) {
+    .canvas-area {
+        transform: scale(0.7);
+    }
+}
+
+/* Smartphones */
+@media (max-width: 600px) {
+    .canvas-area {
+        transform: scale(0.55);
+    }
+}
+
