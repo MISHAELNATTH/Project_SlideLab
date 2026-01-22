@@ -160,57 +160,17 @@ function exportBaseCSS() {
 export function generateSlideHTML(slideIndex) {
   const slide = state.slides[slideIndex];
 
-    function normalizeHref(link) {
-      if (!link) return null;
-      const s = String(link).trim();
-      if (!s) return null;
-
-      // Déjà une URL externe
-      if (/^https?:\/\//i.test(s)) return s;
-
-      // Déjà un href "slide-2.html"
-      if (/^slide-\d+\.html$/i.test(s)) return s;
-
-      // Déjà une autre page html explicite (optionnel mais utile)
-      if (/\.html$/i.test(s)) return s;
-
-      // Cas "2" => slide-2.html
-      return `slide-${s}.html`;
-    }
-
-    function wrapWithLink(innerHtml, link) {
-      const href = normalizeHref(link);
-      if (!href) return innerHtml;
-
-      // Le <a> est "invisible" (pas de soulignement/bleu), seul le contenu s'affiche.
-      // display:contents évite de rajouter une "boîte" autour (meilleur pour le layout).
-      return `<a href="${href}" style="text-decoration:none;color:inherit;display:contents;">${innerHtml}</a>`;
-    }
 
 
-  // --- META (title + pos uniquement) ---
-  if (!slide) {
-    throw new Error(`generateSlideHTML: slide introuvable à l’index ${slideIndex}`);
-  }
-
-  const meta = (slide.arbre && typeof slide.arbre === "object")
-    ? {
-        title: typeof slide.arbre.title === "string" ? slide.arbre.title : null,
-        pos: (slide.arbre.pos && typeof slide.arbre.pos.x === "number" && typeof slide.arbre.pos.y === "number")
-          ? { x: slide.arbre.pos.x, y: slide.arbre.pos.y }
-          : { x: 0, y: 0 }
-      }
-    : { title: null, pos: { x: 0, y: 0 } };
-
-  const title = meta.title ?? `Slide ${slideIndex + 1}`;
-
-  // plus bas, quand tu construis le HTML final :
-  const metaScript = meta
-    ? `  <script id="slide-meta" type="application/json">${JSON.stringify(meta)}</script>\n`
-    : "";
-
-  // [STRATEGY] Get background
-  const bgStyle = getSlideBackgroundStyle(slide);
+  // --- META qu’on veut sauvegarder dans le HTML ---
+  // Position par défaut 0,0 (comme demandé)
+  const meta = {
+    version: 1,
+    title: slide.title ?? `Slide ${slideIndex + 1}`,
+    pos: { x: 0, y: 0 },
+    // rempli plus bas en fonction des boutons réellement présents
+    buttons: []
+  };
 
   let html = `<!DOCTYPE html>
 <html lang="fr">
@@ -222,7 +182,9 @@ ${exportBaseCSS()}
 </head>
 <body>
   <div class="stage">
-    <div class="slide" role="img" aria-label="${meta.title}">
+    <div class="slide" role="img" aria-label="${meta.title}"> 
+    
+    
 `;
 
   // helper: convertit une href en "slide target"
@@ -256,8 +218,11 @@ ${exportBaseCSS()}
     }
 
     else if (el.type === "button") {
-      // 1) Ancien système: href dans le HTML interne (si présent)
-      let hrefFromHtml = null;
+
+      // IMPORTANT :
+      // - on force un data-btn-id stable = el.id
+      // - on tente de récupérer un href existant dans el.html
+      let href = null;
       try {
         const tmp = document.createElement("div");
         tmp.innerHTML = el.html || "";
