@@ -75,6 +75,9 @@ function hrefToLinkValue(href) {
   const s = String(href).trim();
   if (!s) return null;
 
+  // ✅ Si c'est déjà un numéro (depuis data-link), on le garde
+  if (/^\d+$/.test(s)) return s;
+
   // Externe => on garde tel quel
   if (/^https?:\/\//i.test(s)) return s;
 
@@ -165,12 +168,16 @@ function parseSlideHTML(htmlContent) {
       slideId();
     
     // --- Link detection ---
-    // l'élément contient un <a href="..."> (ancien bouton ou wrapper interne)
-    let link = null;
-    const aInside = node.querySelector?.("a[href]");
-    if (aInside) link = aInside.getAttribute("href");
+    // 1) Priorité: data-link (nouveau système)
+    let link = node.getAttribute("data-link") || null;
 
-    // l'élément est englobé par un <a href="..."> (wrapper externe)
+    // 2) Fallback: l'élément contient un <a href="..."> (ancien bouton ou wrapper interne)
+    if (!link) {
+      const aInside = node.querySelector?.("a[href]");
+      if (aInside) link = aInside.getAttribute("href");
+    }
+
+    // 3) Fallback: l'élément est englobé par un <a href="..."> (wrapper externe)
     if (!link) {
       const aParent = node.closest?.("a[href]");
       if (aParent) link = aParent.getAttribute("href");
