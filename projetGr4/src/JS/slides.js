@@ -184,13 +184,21 @@ export function generateSlideHTML(slideIndex) {
 
   // --- META qu’on veut sauvegarder dans le HTML ---
   // Position par défaut 0,0 (comme demandé)
-  const meta = {
-    version: 1,
-    title: slide.title ?? `Slide ${slideIndex + 1}`,
-    pos: { x: 0, y: 0 },
-    // rempli plus bas en fonction des boutons réellement présents
-    buttons: []
-  };
+  const meta =
+  slide.arbre && typeof slide.arbre === "object"
+    ? {
+        title:
+          typeof slide.arbre.title === "string"
+            ? slide.arbre.title
+            : null,
+        pos:
+          slide.arbre.pos &&
+          typeof slide.arbre.pos.x === "number" &&
+          typeof slide.arbre.pos.y === "number"
+            ? { x: slide.arbre.pos.x, y: slide.arbre.pos.y }
+            : { x: 0, y: 0 }
+      }
+    : null;
 
   let html = `<!DOCTYPE html>
 <html lang="fr">
@@ -251,7 +259,7 @@ ${exportBaseCSS()}
         if (a) hrefFromHtml = a.getAttribute("href");
       } catch {}
 
-      // 2) Nouveau système: priorité à el.link
+      // 2) Nouveau système: priorité à el.link (ta règle)
       const hrefFinal = normalizeHref(el.link) || hrefFromHtml || null;
       const target = hrefToTarget(hrefFinal);
 
@@ -310,7 +318,7 @@ ${exportBaseCSS()}
   }
 
   // On injecte le JSON dans le HTML exporté
-  //  On doit échapper </script> au cas où
+  // ⚠️ On doit échapper </script> au cas où
   const metaJson = meta
   ? JSON.stringify(meta).replace(/<\/script/gi, "<\\/script")
   : null;
