@@ -170,6 +170,36 @@ function exportBaseCSS() {
     object-fit:contain;  /* --- newly added to fit the image --- */
     display:block;
   }
+
+  /* Table styles */
+  .data-table {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .data-table th,
+  .data-table td {
+    border: 1px solid #cccccc;
+    padding: 8px 12px;
+    text-align: left;
+    min-width: 60px;
+  }
+
+  .data-table th {
+    background: #f3f4f6;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .data-table td {
+    background: #ffffff;
+    color: #374151;
+  }
 </style>
 `.trim();
 }
@@ -180,17 +210,27 @@ function exportBaseCSS() {
 export function generateSlideHTML(slideIndex) {
   const slide = state.slides[slideIndex];
 
-
+  // Get slide background style
+  const slideBackgroundStyle = getSlideBackgroundStyle(slide);
+  const slideBgAttr = slideBackgroundStyle ? ` style="background: ${slideBackgroundStyle};"` : "";
 
   // --- META qu’on veut sauvegarder dans le HTML ---
   // Position par défaut 0,0 (comme demandé)
-  const meta = {
-    version: 1,
-    title: slide.title ?? `Slide ${slideIndex + 1}`,
-    pos: { x: 0, y: 0 },
-    // rempli plus bas en fonction des boutons réellement présents
-    buttons: []
-  };
+  const meta =
+  slide.arbre && typeof slide.arbre === "object"
+    ? {
+        title:
+          typeof slide.arbre.title === "string"
+            ? slide.arbre.title
+            : null,
+        pos:
+          slide.arbre.pos &&
+          typeof slide.arbre.pos.x === "number" &&
+          typeof slide.arbre.pos.y === "number"
+            ? { x: slide.arbre.pos.x, y: slide.arbre.pos.y }
+            : { x: 0, y: 0 }
+      }
+    : null;
 
   let html = `<!DOCTYPE html>
 <html lang="fr">
@@ -202,7 +242,7 @@ ${exportBaseCSS()}
 </head>
 <body>
   <div class="stage">
-    <div class="slide" role="img" aria-label="${meta.title}"> 
+    <div class="slide" role="img" aria-label="${meta.title}"${slideBgAttr}> 
     
     
 `;
@@ -251,7 +291,7 @@ ${exportBaseCSS()}
         if (a) hrefFromHtml = a.getAttribute("href");
       } catch {}
 
-      // 2) Nouveau système: priorité à el.link
+      // 2) Nouveau système: priorité à el.link (ta règle)
       const hrefFinal = normalizeHref(el.link) || hrefFromHtml || null;
       const target = hrefToTarget(hrefFinal);
 
@@ -310,7 +350,7 @@ ${exportBaseCSS()}
   }
 
   // On injecte le JSON dans le HTML exporté
-  //  On doit échapper </script> au cas où
+  // ⚠️ On doit échapper </script> au cas où
   const metaJson = meta
   ? JSON.stringify(meta).replace(/<\/script/gi, "<\\/script")
   : null;
