@@ -796,11 +796,11 @@ body{
 
 .thumb{
   flex:0 0 auto;
-  width: 180px;
+  width: 120px;
   border:1px solid var(--border);
   background: rgba(0,0,0,.14);
   border-radius: 14px;
-  padding:10px;
+  padding:8px;
   cursor:pointer;
   transition: transform .08s ease, border-color .12s ease, background .12s ease;
 }
@@ -809,13 +809,13 @@ body{
   border-color: rgba(124,92,255,.75);
   background: rgba(124,92,255,.14);
 }
-.thumb .mini{
-  width: 100%;
-  aspect-ratio: 16/9;
-  border-radius: 12px;
+.thumb .mini {
+  width: 100%; /* Prend les 104px dispo (120 - padding) */
+  aspect-ratio: 16 / 9;
+  border-radius: 8px; /* Un peu plus petit que le thumb pour l'esthétique */
   background: #fff;
-  position:relative;
-  overflow:hidden;
+  position: relative; /* IMPORTANT */
+  overflow: hidden;
 }
 .thumb .label{
   margin-top:8px;
