@@ -1,4 +1,4 @@
-import {thumbsEl, state, cryptoId, setSelectedId, render, getActive, slideId} from "./editor.js";
+import {thumbsEl, state, cryptoId, setSelectedId, render, getActive, slideId, setZoom, getZoom} from "./editor.js";
 import { generateExportStyle, getElementClasses, getSlideBackgroundStyle } from './styleHelper.js';
 
 // =====================================================
