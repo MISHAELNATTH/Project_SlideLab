@@ -121,10 +121,8 @@ function readSlideMeta(doc) {
   const buttonsMeta = Array.isArray(meta.buttons) ? meta.buttons : [];
 
   return {
-    version: meta.version ?? 1,
     title,
-    pos,
-    buttonsMeta
+    pos
   };
 }
 
@@ -296,14 +294,15 @@ function loadSlidesFromFiles(files) {
         const elements = parsed.elements;
         const meta = parsed.meta;
 
-        const slideObj = {
-          id: slideId(),
-          elements,
-          // ce que tu veux sauvegarder
+       const slideObj = {
+        id: slideId(),
+        elements,
+        arbre: {
           title: meta.title ?? file.name.replace(/\.html$/i, ""),
-          pos: meta.pos ?? { x: 0, y: 0 },
-          buttonsMeta: meta.buttonsMeta ?? []
-        };
+          pos: meta.pos ?? { x: 0, y: 0 }
+        }
+      };
+
 
         // Replace or add slide
         if (index === 0) {
