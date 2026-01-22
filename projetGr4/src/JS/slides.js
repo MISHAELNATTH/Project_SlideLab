@@ -234,7 +234,8 @@ ${exportBaseCSS()}
     const classNames = getElementClasses(el);
 
     if (el.type === "text") {
-      html += `      <div class="${classNames}" ${styleAttr}>${el.html || "Texte"}</div>\n`;
+      const linkAttr = el.link ? ` data-link="${el.link}"` : "";
+      html += `      <div class="${classNames}" data-id="${el.id}"${linkAttr} ${styleAttr}>${el.html || "Texte"}</div>\n`;
     }
 
     else if (el.type === "button") {
@@ -256,7 +257,8 @@ ${exportBaseCSS()}
 
       // 3) Rendu visuel: PAS besoin de mettre <a> dedans.
       const safeInner = (el.html && el.html.trim()) ? el.html : "Bouton";
-      html += `      <div class="${classNames}" data-btn-id="${el.id}" ${styleAttr}>${safeInner}</div>\n`;
+      const linkAttr = el.link ? ` data-link="${el.link}"` : "";
+      html += `      <div class="${classNames}" data-btn-id="${el.id}" data-id="${el.id}"${linkAttr} ${styleAttr}>${safeInner}</div>\n`;
     }
 
     //   const inner = `      <div class="el button" data-btn-id="${el.id}" ${style}>${safeInner}</div>\n`;
@@ -269,14 +271,16 @@ ${exportBaseCSS()}
     // }
 
     else if (el.type === "shape") {
-      html += `      <div class="${classNames}" ${styleAttr}></div>\n`;
+      const linkAttr = el.link ? ` data-link="${el.link}"` : "";
+      html += `      <div class="${classNames}" data-id="${el.id}"${linkAttr} ${styleAttr}></div>\n`;
     }
 
     else if (el.type === "image") {
+      const linkAttr = el.link ? ` data-link="${el.link}"` : "";
       if (el.imageData) {
-         html += `      <div class="${classNames}" ${styleAttr}><img src="${el.imageData}" style="width:100%;height:100%;object-fit:contain;display:block;"></div>\n`;
+         html += `      <div class="${classNames}" data-id="${el.id}"${linkAttr} ${styleAttr}><img src="${el.imageData}" style="width:100%;height:100%;object-fit:contain;display:block;"></div>\n`;
       } else {
-         html += `      <div class="${classNames}" ${styleAttr}></div>\n`;
+         html += `      <div class="${classNames}" data-id="${el.id}"${linkAttr} ${styleAttr}></div>\n`;
       }
     
     } else if (el.type === "table") {
@@ -299,7 +303,8 @@ ${exportBaseCSS()}
       }
       tableHtml += "</table>";
       
-      html += `      <div class="${classNames}" ${styleAttr}>${tableHtml}</div>\n`;
+      const linkAttr = el.link ? ` data-link="${el.link}"` : "";
+      html += `      <div class="${classNames}" data-id="${el.id}"${linkAttr} ${styleAttr}>${tableHtml}</div>\n`;
     }
     
   }
