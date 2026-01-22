@@ -178,7 +178,10 @@ body{
   background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(124,92,255,.55));
   border-color: rgba(124,92,255,.65);
 }
-.btn:hover{filter:brightness(1.05)}
+.btn:hover{
+  transform: scale(1.05);
+  background: rgba(255,255,255,.12);
+}
 
 /* Zone centrale (canvas + barre) */
 .main{
