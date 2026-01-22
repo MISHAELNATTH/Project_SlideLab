@@ -15,7 +15,27 @@ function escHtml(s = "") {
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;");
 }
-
+function normalizeHref(href) {
+  if (!href) return null;
+  const s = String(href).trim();
+  if (!s) return null;
+  
+  // Externe => on garde tel quel
+  if (/^https?:\/\//i.test(s)) return s;
+  
+  // Nos formats internes possibles
+  let m = s.match(/^slide-(\d+)\.html$/i);
+  if (m) return s;
+  
+  m = s.match(/^#slide:(\d+)$/i);
+  if (m) return s;
+  
+  m = s.match(/^#slide-(\d+)$/i);
+  if (m) return s;
+  
+  // Sinon on garde (ex: "page.html" ou autre)
+  return s;
+}
 // =====================================================
 //  GESTION DES SLIDES
 // =====================================================
@@ -222,7 +242,7 @@ ${exportBaseCSS()}
       // IMPORTANT :
       // - on force un data-btn-id stable = el.id
       // - on tente de récupérer un href existant dans el.html
-      let href = null;
+      let hrefFromHtml = null;
       try {
         const tmp = document.createElement("div");
         tmp.innerHTML = el.html || "";
