@@ -1,5 +1,5 @@
 import { state, render, getActive, cryptoId, getSelectedId, setSelectedId } from './editor.js';
-
+import { generateSlideHTML } from './slides.js';
 /* =====================================================
     VARIABLES
 ===================================================== */
@@ -98,7 +98,10 @@ function getSlideOptions() {
     { label: "Coller", action: "paste", icon: "📋" },
     { type: "divider" },
     { label: "Dupliquer la page", action: "dupPage", icon: "📄" },
-    { label: "Nouvelle page", action: "addPage", icon: "➕" }
+    { label: "Nouvelle page", action: "addPage", icon: "➕" },
+    { type: "divider" },
+    { label: "Télécharger la page", action: "downloadPage", icon: "⬇️" },
+    { label: "Supprimer la page", action: "deletePage", icon: "🗑️", danger: true }
   ];
 }
 
@@ -159,6 +162,39 @@ function executeAction(action) {
     
     case 'addPage':
       document.getElementById('addSlideBtn').click(); // Reuse existing button logic
+      break;
+
+    case 'deletePage':
+      if (state.slides.length > 1) {
+        // Remove the active slide
+        state.slides.splice(state.activeSlide, 1);
+        
+        // Adjust active index if we deleted the last one
+        if (state.activeSlide >= state.slides.length) {
+          state.activeSlide = state.slides.length - 1;
+        }
+        
+        setSelectedId(null);
+        render();
+      } else {
+        alert("Impossible de supprimer la dernière page.");
+      }
+      break;
+
+    case 'downloadPage':
+      // Generate HTML for the current slide
+      const html = generateSlideHTML(state.activeSlide);
+      
+      // Create download link
+      const blob = new Blob([html], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `slide-${state.activeSlide + 1}.html`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
       break;
 
     // --- ELEMENT OPS ---
