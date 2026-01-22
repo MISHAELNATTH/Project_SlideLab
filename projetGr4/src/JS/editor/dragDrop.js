@@ -66,7 +66,7 @@ function addFromTool(toolType, x, y) {
       w: 520,
       h: 70,
       html: "Nouveau texte",
-      color: "#111827",
+      color: "#ffff",
       fontSize: 28,
       fontWeight: 800,
       fontFamily: "Arial",
