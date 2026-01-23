@@ -1,3 +1,8 @@
+/**
+ * dom.js (arbre)
+ * Sélecteurs DOM et petits helpers pour valider la présence des éléments
+ * essentiels de l'interface d'édition de graphe (canvas, layers, sidebar).
+ */
 export const dom = {
   nodesLayer: document.getElementById("nodes-layer"),
   svgLayer: document.getElementById("svg-layer"),

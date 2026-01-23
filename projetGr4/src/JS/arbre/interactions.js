@@ -1,3 +1,9 @@
+/**
+ * interactions.js (arbre)
+ * Gère les interactions de l'utilisateur avec la vue graphe : désélection
+ * en cliquant sur le canvas, début de drag d'un node, et écouteurs globaux
+ * pour déplacer/relâcher les nodes. Expose `installInteractions`.
+ */
 import { dom } from "./dom.js";
 import { appState } from "./state.js";
 import { render } from "./render.js";

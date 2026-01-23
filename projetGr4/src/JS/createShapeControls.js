@@ -1,3 +1,10 @@
+/**
+ * createShapeControls.js
+ * Fournit des barres d'outils dynamiques pour les types d'éléments
+ * (texte, tableau, etc.). Chaque fonction crée un conteneur DOM
+ * avec contrôles (couleur, taille, alignement...) et lie les events
+ * pour modifier l'élément en mémoire puis appeler `render()`.
+ */
 import { render } from "./editor.js";
 
 // =====================================================

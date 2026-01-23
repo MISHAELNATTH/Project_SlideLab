@@ -1,5 +1,13 @@
+/**
+ * contextMenu.js
+ * Gestion du menu contextuel (clic droit) dans l'éditeur.
+ * Ce fichier initialise le menu, calcule les options selon la cible
+ * (slide ou élément) et rend le HTML du menu. Les handlers empêchent
+ * la propagation pour éviter d'interférer avec la sélection native.
+ */
 import { state, render, getActive, cryptoId, getSelectedId, setSelectedId } from './editor.js';
 import { generateSlideHTML } from './slides.js';
+
 /* =====================================================
     VARIABLES
 ===================================================== */

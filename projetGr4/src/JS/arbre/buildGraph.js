@@ -1,3 +1,9 @@
+/**
+ * buildGraph.js
+ * Transforme `slides_state` en représentation graphique `appState.nodes` utilisée
+ * par l'éditeur d'arbre. Cette transformation normalise les positions, titres
+ * et construit la liste des sorties (outputs) par élément.
+ */
 import { appState } from "./state.js";
 import { render } from "./render.js";
 import { renderSidebar } from "./sidebar.js";

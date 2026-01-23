@@ -1,3 +1,8 @@
+/**
+ * io.js (arbre)
+ * Import / export pour l'éditeur d'arbre (JSON). Fournit des utilitaires
+ * pour télécharger l'état courant et importer depuis un fichier JSON.
+ */
 import { appState } from "./state.js";
 import { requestSave } from "./storage.js";
 import { buildGraphFromSlidesState } from "./buildGraph.js";

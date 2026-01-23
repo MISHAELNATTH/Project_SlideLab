@@ -1,6 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import "./css/style.css";
+import "./css/home.css";
 
 function App() {
 
@@ -22,7 +22,7 @@ return (
     </header>
 
     <main className="home-center">
-      <h1 className="home-title">Mini Canva</h1>
+      <h1 className="home-title">SlideLab</h1>
       <p className="home-subtitle">
         Créez, structurez et donnez vie à vos idées visuelles
       </p>

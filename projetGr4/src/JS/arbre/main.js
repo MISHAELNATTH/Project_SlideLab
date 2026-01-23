@@ -1,3 +1,9 @@
+/**
+ * main.js (arbre)
+ * Initialisation du sous-module 'arbre' : lecture du slides_state,
+ * installation des interactions, boutons et contrôle caméra, puis
+ * construction du graph initial.
+ */
 import { assertDom, dom } from "./dom.js";
 import { appState } from "./state.js";
 import { loadSlidesStateFromLocalStorage, requestSave } from "./storage.js";
@@ -5,6 +11,7 @@ import { buildGraphFromSlidesState } from "./buildGraph.js";
 import { addSlide } from "./actions.js";
 import { exportJsonDownload } from "./io.js";
 import { installInteractions } from "./interactions.js";
+import { installCameraControls, applyCameraTransform } from "./camera.js";
 
 export function initArbre() {
   assertDom();
@@ -31,6 +38,8 @@ export function initArbre() {
   }
 
   buildGraphFromSlidesState();
+  installCameraControls();
+  applyCameraTransform();
 }
 
 initArbre();
