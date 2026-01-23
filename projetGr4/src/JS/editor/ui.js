@@ -37,6 +37,49 @@ export function initUI() {
     }
   });
 
+    // ==============================
+    // IMPORT PROJET (JSON)
+    // ==============================
+    const importBtn = document.getElementById("importProjectBtn");
+    const importInput = document.getElementById("importProjectInput");
+
+    if (importBtn && importInput) {
+    importBtn.addEventListener("click", () => {
+        importInput.value = ""; // reset
+        importInput.click();
+    });
+
+    importInput.addEventListener("change", () => {
+        const file = importInput.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+        try {
+            const data = JSON.parse(e.target.result);
+
+            // Validation minimale
+            if (!data || !Array.isArray(data.slides)) {
+            alert("Fichier invalide : structure incorrecte");
+            return;
+            }
+
+            // Remplacement TOTAL de l'état
+            localStorage.setItem("slides_state", JSON.stringify(data));
+
+            // Recharge proprement l'éditeur
+            window.location.reload();
+        } catch (err) {
+            console.error(err);
+            alert("Erreur lors de l'import du projet");
+        }
+        };
+
+        reader.readAsText(file);
+    });
+    }
+
+
 
   const deleteBtn = document.getElementById("deleteBtn");
   if (deleteBtn) deleteBtn.addEventListener("click", deleteSelected);
@@ -139,6 +182,13 @@ export function initUI() {
     btnArbre.addEventListener("click", () => {
       const target = "src/html/arbre.html";
       window.location.href = `${import.meta.env.BASE_URL}${target}`;
+    });
+  }
+
+  const homeBtn = document.getElementById("homeBtn");
+  if (homeBtn) {
+    homeBtn.addEventListener("click", () => {
+      window.location.href = `${import.meta.env.BASE_URL}index.html`;
     });
   }
 

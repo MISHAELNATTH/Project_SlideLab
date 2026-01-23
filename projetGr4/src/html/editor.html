@@ -6,7 +6,8 @@
   <title>SlideLab - Éditeur</title>
   <link rel="stylesheet" href="/src/css/style.css"> 
 </head>
-
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <body>
   <div class="app">
     <!-- LEFT SIDEBAR -->
@@ -67,8 +68,10 @@
       </div>
 
       <div class="bottom">
-        <button class="btn" id="deleteBtn" title="Suppr (Del)">Supprimer</button>
-        <button class="btn" id="openFolderBtn">📁 Ouvrir</button>
+        <button class="btn" id="importProjectBtn">📥 Ouvrir Projet</button>
+        <input type="file" id="importProjectInput" accept=".json" style="display:none"/>
+        <button class="btn" id="downloadProjectBtn">⬇️ Tél. projet</button>
+        <button class="btn" id="openFolderBtn">📁 Ouvrir Slide</button>
         <input type="file" id="fileInput" multiple accept=".html" style="display:none;">
         <button class="btn primary" id="addSlideBtn">+ Slide</button>
       </div>
@@ -79,7 +82,7 @@
       <div class="topbar">
         <div class="left">
           <span class="title">Projet :</span>
-          <span class="chip">Sans titre</span>
+          <span class="chip">SlideLab</span>
           <span class="chip" id="zoomChip">Zoom: 100%</span>
         </div>
         <div class="center">
@@ -91,8 +94,10 @@
         </div>
         <div class="right">
           <button class="btn" id="fitBtn">Ajuster</button>
+          <button class="btn" id="homeBtn">Home</button>
           <button class="btn" id="btnArbre">Arborescence</button>
           <button class="btn" id="exportBtn">Exporter Slide</button>
+          <button class="btn" id="exportPdfProjectBtn">Exporter en PDF</button>
           <button class="btn" id="presentBtn">Presenter</button>
         </div>
       </div>

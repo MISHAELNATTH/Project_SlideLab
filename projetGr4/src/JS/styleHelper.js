@@ -78,26 +78,26 @@ export function getShapeWrapperStyles(el) {
     pointerEvents: 'none',
     boxSizing: 'border-box'
   };
-  
-  // Apply fill color (without opacity baked in - apply opacity separately like presentation mode)
-  if (el.fillColor) {
-    styles.background = el.fillColor;
+
+  // Injecter min-width/min-height pour le losange via variables CSS
+  if (el.type === "shape" && el.shapeType === "diamond") {
+    styles["--diamond-min-w"] = px(el.w);
+    styles["--diamond-min-h"] = px(el.h);
   }
-  
-  // Apply opacity as separate property (matches presentation mode)
-  if (el.opacity !== undefined) {
-    styles.opacity = el.opacity;
-  }
-  
-  // Apply border
+
+  if (el.fillColor) styles.background = el.fillColor;
+  if (el.opacity !== undefined) styles.opacity = el.opacity;
+
   if (el.borderColor) {
     styles.borderColor = el.borderColor;
     styles.borderWidth = '2px';
     styles.borderStyle = 'solid';
   }
-  
+
   return styles;
 }
+
+
 
 /**
  * Converts style object to inline CSS string

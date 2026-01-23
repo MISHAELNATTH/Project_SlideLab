@@ -167,6 +167,37 @@ function detectShapeTypeFromClasses(classList) {
   return "rectangle";
 }
 
+// ==============================
+// IMPORT PROJECT (JSON with base64)
+// ==============================
+export function importProjectFromJSON(jsonText) {
+  return new Promise((resolve, reject) => {
+    // ⚠️ Laisse respirer le navigateur
+    setTimeout(() => {
+      try {
+        const data = JSON.parse(jsonText);
+
+        // Validation minimale
+        if (!data || !Array.isArray(data.slides)) {
+          reject("Structure JSON invalide");
+          return;
+        }
+
+        // Remplacement TOTAL de l'état
+        state.slides = data.slides;
+        state.activeSlide = data.activeSlide ?? 0;
+
+        // Nettoyage sélection
+        setSelectedId(null);
+
+        resolve();
+      } catch (err) {
+        reject(err);
+      }
+    }, 0);
+  });
+}
+
 
 
 // =====================================================
@@ -240,7 +271,16 @@ function parseSlideHTML(htmlContent) {
       } else if (node.classList.contains("image")) {
         type = "image";
         const img = node.querySelector("img");
-        if (img?.getAttribute("src")) imageData = img.getAttribute("src");
+        if (type === "image" && imageData) {
+          // On garde seulement une info légère
+          // si c'est une dataURL (base64), on stocke juste un nom placeholder
+          if (imageData.startsWith("data:image/")) {
+            obj.imageName = obj.imageName || "image_importee.png";
+          } else {
+            // si c'est déjà une URL/chemin relatif web, on le garde comme src
+            obj.imageSrc = imageData;
+          }
+        }
       }
     }
 
@@ -459,3 +499,191 @@ document.getElementById("exportBtn").addEventListener("click", () => {
   });
   
 });
+
+// ==============================
+// UI: IMPORT PROJECT BUTTON
+// ==============================
+const importBtn = document.getElementById("importProjectBtn");
+const importInput = document.getElementById("importProjectInput");
+
+if (importBtn && importInput) {
+  importBtn.addEventListener("click", () => {
+    importInput.value = "";
+    importInput.click();
+  });
+
+  importInput.addEventListener("change", () => {
+    const file = importInput.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      importProjectFromJSON(e.target.result)
+        .then(() => {
+          render();
+          thumbsEl.scrollLeft = 0;
+          alert("✓ Projet importé avec succès");
+        })
+        .catch((err) => {
+          console.error(err);
+          alert("Erreur lors de l'import du projet");
+        });
+    };
+    const importImagesInput = document.getElementById("importImagesInput");
+
+    function relinkImagesWithFiles(files) {
+      const map = new Map(Array.from(files).map(f => [f.name, f]));
+
+      state.slides.forEach(slide => {
+        (slide.elements || []).forEach(el => {
+          if (el.type === "image" && el.imageName) {
+            const f = map.get(el.imageName);
+            if (f) el.imageSrc = URL.createObjectURL(f);
+          }
+        });
+      });
+    }
+
+    let waitingImages = false;
+
+    importInput.addEventListener("change", () => {
+      reader.onload = (e) => {
+        importProjectFromJSON(e.target.result)
+          .then(() => {
+            waitingImages = true;
+            importImagesInput.value = "";
+            importImagesInput.click();
+          })
+          .catch(() => alert("Erreur import projet"));
+      };
+    });
+
+    importImagesInput.addEventListener("change", (ev) => {
+      if (!waitingImages) return;
+      waitingImages = false;
+
+      relinkImagesWithFiles(ev.target.files);
+      render();
+      thumbsEl.scrollLeft = 0;
+      ev.target.value = "";
+    });
+    reader.readAsText(file);
+  });
+}
+
+
+// ==============================
+// UI: DOWNLOAD PROJECT (slides_state JSON)
+// ==============================
+const downloadProjectBtn = document.getElementById("downloadProjectBtn");
+
+if (downloadProjectBtn) {
+  downloadProjectBtn.addEventListener("click", () => {
+    // On exporte l'état courant (sans toucher aux autres fichiers)
+    const project = {
+      activeSlide: state.activeSlide,
+      slides: state.slides,
+    };
+
+    const json = JSON.stringify(project, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+
+    // Nom de fichier propre
+    const date = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    const fileName = `slides_state_${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+      date.getDate()
+    )}_${pad(date.getHours())}-${pad(date.getMinutes())}.json`;
+
+    a.download = fileName;
+
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+}
+
+const exportPdfProjectBtn = document.getElementById("exportPdfProjectBtn");
+
+if (exportPdfProjectBtn) {
+  exportPdfProjectBtn.addEventListener("click", async () => {
+    const { jsPDF } = window.jspdf;
+
+    const slidesCount = state.slides.length;
+    if (!slidesCount) {
+      alert("Aucune slide à exporter");
+      return;
+    }
+
+    const prev = state.activeSlide;
+
+    const pdf = new jsPDF({
+      orientation: "landscape",
+      unit: "mm",
+      format: "a4",
+    });
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    // petit helper pour attendre que le DOM se mette à jour
+    const nextFrame = () => new Promise((r) => requestAnimationFrame(() => r()));
+    const waitDOM = async () => { await nextFrame(); await nextFrame(); };
+
+    for (let i = 0; i < slidesCount; i++) {
+      state.activeSlide = i;
+      render();
+      await waitDOM();
+
+      const slideEl = document.getElementById("slide");
+      if (!slideEl) {
+        console.warn("Élément #slide introuvable");
+        break;
+      }
+
+      // capture
+      const canvas = await html2canvas(slideEl, {
+        scale: 2,
+        backgroundColor: null,
+        useCORS: true,
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+
+      // calcul du scale pour rentrer dans A4
+      const imgRatio = canvas.width / canvas.height;
+      const pageRatio = pageWidth / pageHeight;
+
+      let renderW, renderH;
+      if (imgRatio > pageRatio) {
+        renderW = pageWidth;
+        renderH = pageWidth / imgRatio;
+      } else {
+        renderH = pageHeight;
+        renderW = pageHeight * imgRatio;
+      }
+
+      const x = (pageWidth - renderW) / 2;
+      const y = (pageHeight - renderH) / 2;
+
+      // ✅ IMPORTANT : on ajoute la page APRES avoir une image valide
+      if (i > 0) {
+        pdf.addPage();
+        pdf.setPage(pdf.getNumberOfPages());
+      } else {
+        pdf.setPage(1);
+      }
+
+      pdf.addImage(imgData, "PNG", x, y, renderW, renderH);
+    }
+
+    state.activeSlide = prev;
+    render();
+
+    pdf.save("SlideLab_projet.pdf");
+  });
+}
