@@ -7,11 +7,24 @@ import { dom } from "./dom.js";
 import { appState } from "./state.js";
 import { linkToSlideIndex } from "./mapping.js";
 
+/**
+ * render()
+ * Rendu haut niveau pour la vue 'arbre' : reconstruit les nodes puis
+ * les connexions SVG. Séparé en deux fonctions pour permettre un recalcul
+ * partiel si besoin.
+ */
 export function render() {
   renderNodes();
   renderConnections();
 }
 
+/**
+ * renderNodes()
+ * Construit et positionne les éléments visuels représentant chaque node.
+ * - crée un élément .node pour chaque entrée dans `appState.nodes`
+ * - calcule la hauteur en fonction du nombre de ports
+ * - ajoute un handler `mousedown` qui délègue à `__ARBRE_START_DRAG__`
+ */
 export function renderNodes() {
   dom.nodesLayer.innerHTML = "";
 
@@ -51,6 +64,12 @@ export function renderNodes() {
   });
 }
 
+/**
+ * renderConnections()
+ * Parcourt chaque node et dessine les chemins SVG reliant un port
+ * à la slide cible identifiée par le lien. Ignore les liens invalides.
+ * Le tracé utilise une courbe de Bézier cubic pour une apparence fluide.
+ */
 export function renderConnections() {
   dom.svgLayer.innerHTML = "";
 

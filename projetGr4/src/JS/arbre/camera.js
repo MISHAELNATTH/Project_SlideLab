@@ -18,16 +18,32 @@ export const camera = {
   start: { x: 0, y: 0 },
 };
 
+// Bornes et vitesse du zoom
 const ZOOM_MIN = 0.2;
 const ZOOM_MAX = 2.5;
 const ZOOM_SPEED = 0.001;
 
+/**
+ * applyCameraTransform()
+ * Applique la transformation CSS (translate + scale) aux calques de nodes
+ * et du SVG afin de refléter la position et le zoom de la caméra.
+ */
 export function applyCameraTransform() {
   const t = `translate(${camera.x}px, ${camera.y}px) scale(${camera.zoom})`;
   dom.nodesLayer.style.transform = t;
   dom.svgLayer.style.transform = t;
 }
 
+/**
+ * installCameraControls()
+ * Installe les handlers souris pour :
+ * - panning (drag du fond) : capture mousedown/mousemove/mouseup
+ * - zoom via molette : calcule un nouveau `camera.zoom` et recentre
+ *   le zoom sous la souris pour un comportement naturel.
+ *
+ * Le recentrage se fait en convertissant la position souris en coordonnées
+ * "monde" avant la modification du zoom, puis en recalculant `camera.x/y`.
+ */
 export function installCameraControls() {
   /* ------------------ PAN (drag souris vide) ------------------ */
   dom.canvasEl.addEventListener("mousedown", (e) => {
@@ -69,6 +85,7 @@ export function installCameraControls() {
       const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
 
+      // Convertit en coordonnées 'monde' avant changement de zoom
       const worldX = (mouseX - camera.x) / camera.zoom;
       const worldY = (mouseY - camera.y) / camera.zoom;
 

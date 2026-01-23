@@ -131,8 +131,5 @@ export function generateExportStyle(el) {
  * Returns the background style for a slide
  */
 export function getSlideBackgroundStyle(slide) {
-    /*if (slide.backgroundGradient) {
-        return slide.backgroundGradient;
-    }*/
-    return slide.backgroundColor ? slide.backgroundColor : "#ffffff";
+  return slide.backgroundColor ? slide.backgroundColor : "#ffffff";
 }

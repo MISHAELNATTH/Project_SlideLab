@@ -9,18 +9,42 @@
 
 export let id = 1;
 
+/**
+ * cryptoId()
+ * Retourne un identifiant pseudo-unique utilisable pour les slides
+ * et éléments. Utilise `crypto.randomUUID` si disponible, sinon
+ * génère une chaîne probabiliste. Ne garantit pas l'unicité absolue
+ * mais est suffisante pour ce contexte d'éditeur côté client.
+ */
 export function cryptoId() {
   return crypto?.randomUUID?.() || "id_" + Math.random().toString(16).slice(2);
 }
 
+/**
+ * slideId()
+ * Génère un identifiant lisible pour un fichier slide (ex: "slide-2.html").
+ * Incrémente un compteur local `id`. Utile pour duplication/création rapide.
+ */
 export function slideId() {
   return "slide-" + id++ + ".html";
 }
 
+/**
+ * clamp(n, a, b)
+ * Limite la valeur `n` entre `a` et `b` inclus. Utilisé pour fixer
+ * des bornes sur positions, tailles, et zooms afin d'éviter des valeurs
+ * invalides ou hors écran.
+ */
 export function clamp(n, a, b) {
   return Math.max(a, Math.min(b, n));
 }
 
+/**
+ * `state` - état applicatif de l'éditeur
+ * Structure minimale conservée en localStorage et utilisée partout.
+ * - `activeSlide`: index de la slide courante
+ * - `slides`: tableau des slides avec leurs éléments
+ */
 export const state = {
   activeSlide: 0,
   slides: [
@@ -74,6 +98,12 @@ export const state = {
   ],
 };
 
+/**
+ * saveState()
+ * Sauvegarde l'objet `state` dans `localStorage` sous la clé
+ * `slides_state`. Enrobe dans un try/catch pour éviter que
+ * l'application ne plante si l'espace est plein.
+ */
 export function saveState() {
   try {
     localStorage.setItem("slides_state", JSON.stringify(state));
@@ -83,6 +113,12 @@ export function saveState() {
   }
 }
 
+/**
+ * loadState()
+ * Tente de restaurer l'état depuis `localStorage`. Si un état valide
+ * est trouvé, remplace les propriétés principales (`activeSlide` et
+ * `slides`) et retourne `true`. Sinon retourne `false`.
+ */
 export function loadState() {
   try {
     const saved = localStorage.getItem("slides_state");
@@ -99,6 +135,11 @@ export function loadState() {
   return false;
 }
 
+/**
+ * getActive()
+ * Renvoie la slide active (objet) depuis `state.slides`.
+ * Usage récurrent dans le rendu et les handlers pour manipuler la slide courante.
+ */
 export function getActive() {
   return state.slides[state.activeSlide];
 }
@@ -106,9 +147,20 @@ export function getActive() {
 // --- selection ---
 let selectedId = null;
 
+/**
+ * setSelectedId(v)
+ * Définit l'identifiant sélectionné dans l'éditeur. Aucune autre
+ * logique n'est exécutée ici (le rendu se base sur `getSelectedId`).
+ */
 export function setSelectedId(v) {
   selectedId = v;
 }
+
+/**
+ * getSelectedId()
+ * Renvoie l'identifiant de l'élément actuellement sélectionné, ou `null`
+ * s'il n'y a pas de sélection.
+ */
 export function getSelectedId() {
   return selectedId;
 }

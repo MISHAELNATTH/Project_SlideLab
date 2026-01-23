@@ -23,6 +23,13 @@ export function deselectAll(e) {
   }
 }
 
+/**
+ * deselectAll(e)
+ * Handler utilisé lorsque l'utilisateur clique sur le canvas/fond.
+ * Si le clic cible le fond, on efface la sélection courante et on
+ * redessine la vue + la sidebar.
+ */
+
 export function startDrag(e, nodeId) {
   if (e.button !== 0) return;
   e.stopPropagation();
@@ -40,6 +47,16 @@ export function startDrag(e, nodeId) {
   appState.dragOffset.x = e.clientX - node.x;
   appState.dragOffset.y = e.clientY - node.y;
 }
+
+/**
+ * startDrag(e, nodeId)
+ * Déclenché par un mousedown sur un node :
+ * - vérifie le bouton (uniquement bouton gauche)
+ * - marque l'élément comme sélectionné
+ * - initialise l'état de drag (`isDragging`, `draggedNodeId`, `dragOffset`)
+ * L'état initial stocke l'offset souris→node pour que le déplacement soit
+ * fluide et reprenne la position relative d'origine.
+ */
 
 /**
  * Installe listeners globaux (mousemove/up) + expose startDrag pour render.js
@@ -70,3 +87,11 @@ export function installInteractions() {
     appState.draggedNodeId = null;
   });
 }
+
+/**
+ * installInteractions()
+ * Installe les listeners globaux nécessaires à l'édition du graphe :
+ * - click sur canvas pour désélection
+ * - expose `__ARBRE_START_DRAG__` pour éviter import circulaire
+ * - écoute mousemove/up pour suivre le drag des nodes
+ */

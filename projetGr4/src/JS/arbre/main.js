@@ -26,7 +26,7 @@ export function initArbre() {
   if (dom.btnSave) {
     dom.btnSave.addEventListener("click", () => {
       requestSave();         // force save
-      exportJsonDownload();  // optionnel
+      exportJsonDownload();  // export JSON
     });
   }
 

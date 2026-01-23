@@ -8,6 +8,19 @@ import { appState } from "./state.js";
 import { render } from "./render.js";
 import { renderSidebar } from "./sidebar.js";
 
+/**
+ * buildGraphFromSlidesState()
+ * Transforme la structure persistée `appState.slides_state` en une
+ * représentation `appState.nodes` optimisée pour l'affichage du graphe.
+ *
+ * Pour chaque slide :
+ * - normalise `arbre.pos` (remplit avec des positions par défaut si absent)
+ * - construit un objet node contenant `id`, `slideIndex`, `slideId`,
+ *   coordonnées `x,y`, `label` et `outputs` (liste des éléments avec leurs liens)
+ *
+ * Effets de bord : met à jour `appState.nodes`, réinitialise la sélection
+ * si elle devient invalide, puis invoque `render()` et `renderSidebar()`.
+ */
 export function buildGraphFromSlidesState() {
   const ss = appState.slides_state;
 

@@ -179,7 +179,7 @@ function detectShapeTypeFromClasses(classList) {
 // ==============================
 export function importProjectFromJSON(jsonText) {
   return new Promise((resolve, reject) => {
-    // ⚠️ Laisse respirer le navigateur
+    // Laisse respirer le navigateur
     setTimeout(() => {
       try {
         const data = JSON.parse(jsonText);
@@ -677,7 +677,7 @@ if (exportPdfProjectBtn) {
       const x = (pageWidth - renderW) / 2;
       const y = (pageHeight - renderH) / 2;
 
-      // ✅ IMPORTANT : on ajoute la page APRES avoir une image valide
+      // on ajoute la page APRES avoir une image valide
       if (i > 0) {
         pdf.addPage();
         pdf.setPage(pdf.getNumberOfPages());

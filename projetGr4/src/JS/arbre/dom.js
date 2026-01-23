@@ -21,3 +21,10 @@ export function assertDom() {
     throw new Error("DOM manquant : nodes-layer/svg-layer/properties-content/sidebar-subtitle/canvas");
   }
 }
+
+/**
+ * assertDom()
+ * Vérifie que les éléments DOM essentiels pour l'éditeur d'arbre
+ * sont présents. Lance une exception explicite si l'un des éléments
+ * requis est manquant, facilitant le debug à l'initialisation.
+ */

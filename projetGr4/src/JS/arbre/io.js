@@ -41,3 +41,10 @@ export function importFromFile(file) {
   };
   reader.readAsText(file);
 }
+
+/**
+ * exportJsonDownload()
+ * Sérialise l'état `appState.slides_state` et déclenche le téléchargement
+ * d'un fichier JSON nommé `slides_state.json`. Utilise un `Blob` et crée
+ * un objet URL, puis le révoque après usage.
+ */
