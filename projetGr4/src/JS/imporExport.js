@@ -167,6 +167,37 @@ function detectShapeTypeFromClasses(classList) {
   return "rectangle";
 }
 
+// ==============================
+// IMPORT PROJECT (JSON with base64)
+// ==============================
+export function importProjectFromJSON(jsonText) {
+  return new Promise((resolve, reject) => {
+    // ⚠️ Laisse respirer le navigateur
+    setTimeout(() => {
+      try {
+        const data = JSON.parse(jsonText);
+
+        // Validation minimale
+        if (!data || !Array.isArray(data.slides)) {
+          reject("Structure JSON invalide");
+          return;
+        }
+
+        // Remplacement TOTAL de l'état
+        state.slides = data.slides;
+        state.activeSlide = data.activeSlide ?? 0;
+
+        // Nettoyage sélection
+        setSelectedId(null);
+
+        resolve();
+      } catch (err) {
+        reject(err);
+      }
+    }, 0);
+  });
+}
+
 
 
 // =====================================================
@@ -240,7 +271,16 @@ function parseSlideHTML(htmlContent) {
       } else if (node.classList.contains("image")) {
         type = "image";
         const img = node.querySelector("img");
-        if (img?.getAttribute("src")) imageData = img.getAttribute("src");
+        if (type === "image" && imageData) {
+          // On garde seulement une info légère
+          // si c'est une dataURL (base64), on stocke juste un nom placeholder
+          if (imageData.startsWith("data:image/")) {
+            obj.imageName = obj.imageName || "image_importee.png";
+          } else {
+            // si c'est déjà une URL/chemin relatif web, on le garde comme src
+            obj.imageSrc = imageData;
+          }
+        }
       }
     }
 
@@ -459,3 +499,75 @@ document.getElementById("exportBtn").addEventListener("click", () => {
   });
   
 });
+
+// ==============================
+// UI: IMPORT PROJECT BUTTON
+// ==============================
+const importBtn = document.getElementById("importProjectBtn");
+const importInput = document.getElementById("importProjectInput");
+
+if (importBtn && importInput) {
+  importBtn.addEventListener("click", () => {
+    importInput.value = "";
+    importInput.click();
+  });
+
+  importInput.addEventListener("change", () => {
+    const file = importInput.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      importProjectFromJSON(e.target.result)
+        .then(() => {
+          render();
+          thumbsEl.scrollLeft = 0;
+          alert("✓ Projet importé avec succès");
+        })
+        .catch((err) => {
+          console.error(err);
+          alert("Erreur lors de l'import du projet");
+        });
+    };
+    const importImagesInput = document.getElementById("importImagesInput");
+
+    function relinkImagesWithFiles(files) {
+      const map = new Map(Array.from(files).map(f => [f.name, f]));
+
+      state.slides.forEach(slide => {
+        (slide.elements || []).forEach(el => {
+          if (el.type === "image" && el.imageName) {
+            const f = map.get(el.imageName);
+            if (f) el.imageSrc = URL.createObjectURL(f);
+          }
+        });
+      });
+    }
+
+    let waitingImages = false;
+
+    importInput.addEventListener("change", () => {
+      reader.onload = (e) => {
+        importProjectFromJSON(e.target.result)
+          .then(() => {
+            waitingImages = true;
+            importImagesInput.value = "";
+            importImagesInput.click();
+          })
+          .catch(() => alert("Erreur import projet"));
+      };
+    });
+
+    importImagesInput.addEventListener("change", (ev) => {
+      if (!waitingImages) return;
+      waitingImages = false;
+
+      relinkImagesWithFiles(ev.target.files);
+      render();
+      thumbsEl.scrollLeft = 0;
+      ev.target.value = "";
+    });
+    reader.readAsText(file);
+  });
+}
