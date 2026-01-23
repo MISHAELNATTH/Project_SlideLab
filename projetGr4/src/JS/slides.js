@@ -141,38 +141,45 @@ function exportBaseCSS() {
     font-weight:800;
   }
 
-
   .el.shape{
     padding:0;
-    border-radius:18px;
     background: transparent;
     border:none;
-    box-shadow: none;
+    box-shadow:none;
+    overflow: visible;
   }
 
-  /* Shape type styles */
-  .el.shape.rectangle {
-    border-radius: 18px;
+  /* wrapper visuel (fill/border/opacity) */
+  .el.shape .shape-content-wrapper{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    box-sizing:border-box;
   }
 
-  .el.shape.circle {
-    border-radius: 50%;
+  /* formes appliquées AU WRAPPER (comme l’éditeur) */
+  .el.shape.rectangle .shape-content-wrapper{
+    border-radius:18px;
   }
-
-  .el.shape.triangle {
+  .el.shape.circle .shape-content-wrapper{
+    border-radius:50%;
+  }
+  .el.shape.triangle .shape-content-wrapper{
     clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-    border-radius: 0;
+    border-radius:0;
   }
-
-  .el.shape.star {
+  .el.shape.star .shape-content-wrapper{
     clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-    border-radius: 0;
+    border-radius:0;
   }
 
-  .el.shape.diamond {
+  .el.shape.diamond .shape-content-wrapper{
     clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-    border-radius: 0;
+    border-radius:0;
   }
+
 
   .el.button{
     border-radius:999px;
@@ -193,17 +200,22 @@ function exportBaseCSS() {
     border:none;
     box-shadow:none;
 
+    padding: 0;           /* IMPORTANT */
+    overflow: hidden;     /* si tu veux couper l’image aux bords */
+
     display:flex;
-    align-items:center;
-    justify-content:center;
+    align-items:stretch;
+    justify-content:stretch;
   }
 
   .el.image img{
     width:100%;
     height:100%;
-    object-fit:contain;  /* --- newly added to fit the image --- */
     display:block;
+    object-fit: cover;    /* cover = prend toute la place */
+    /* si tu préfères garder tout visible : object-fit: contain; */
   }
+
 
   /* Table styles */
   .data-table {
@@ -347,8 +359,12 @@ ${exportBaseCSS()}
       // Use helper function to get shape wrapper styles
       const wrapperStyles = getShapeWrapperStyles(el);
       const wrapperStyleString = stylesToString(wrapperStyles);
-      
-      html += `      <div class="${classNames}" data-id="${el.id}"${linkAttr} ${styleAttr}><div class="shape-content-wrapper" style="${wrapperStyleString}"></div></div>\n`;
+
+      html += `
+        <div class="${getElementClasses(el)}" style="${generateExportStyle(el)}">
+          <div class="shape-content-wrapper" style="${wrapperStyleString}"></div>
+        </div>
+      `;
     }
 
     else if (el.type === "image") {
