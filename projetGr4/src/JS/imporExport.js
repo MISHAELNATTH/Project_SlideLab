@@ -571,3 +571,38 @@ if (importBtn && importInput) {
     reader.readAsText(file);
   });
 }
+
+
+// ==============================
+// UI: DOWNLOAD PROJECT (slides_state JSON)
+// ==============================
+const downloadProjectBtn = document.getElementById("downloadProjectBtn");
+
+if (downloadProjectBtn) {
+  downloadProjectBtn.addEventListener("click", () => {
+    // On exporte l'état courant (sans toucher aux autres fichiers)
+    const project = {
+      activeSlide: state.activeSlide,
+      slides: state.slides,
+    };
+
+    const json = JSON.stringify(project, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+
+    // Nom de fichier propre
+    const date = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    const fileName = `slides_state_${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+      date.getDate()
+    )}_${pad(date.getHours())}-${pad(date.getMinutes())}.json`;
+
+    a.download = fileName;
+
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+}
