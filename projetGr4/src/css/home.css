@@ -106,3 +106,18 @@ body{
   letter-spacing:.02em;
   opacity:.75;
 }
+
+.doc-link {
+  text-decoration: none;      /* enlève le soulignement */
+  color: inherit;             /* garde la couleur du texte */
+  cursor: pointer;            /* curseur “main” */
+}
+
+.doc-link:hover {
+  opacity: 0.75;              /* feedback visuel discret */
+}
+
+.doc-link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}

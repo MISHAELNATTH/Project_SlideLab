@@ -1,0 +1,280 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> arbre/actions.js</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    Documentation
+                </a>
+                
+                <a
+                    href="../index.html"
+                    class="link"
+                >
+                    Retour vers SlideLab
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Global</h3><ul><li><a href="global.html#addSlide">addSlide</a></li><li><a href="global.html#applyCameraTransform">applyCameraTransform</a></li><li><a href="global.html#applyTextFormatting">applyTextFormatting</a></li><li><a href="global.html#clamp">clamp</a></li><li><a href="global.html#cleanupLinksAfterSlideDelete">cleanupLinksAfterSlideDelete</a></li><li><a href="global.html#clearSelection">clearSelection</a></li><li><a href="global.html#configureDragDrop">configureDragDrop</a></li><li><a href="global.html#configureMoveResize">configureMoveResize</a></li><li><a href="global.html#configureThumbs">configureThumbs</a></li><li><a href="global.html#configureToolbars">configureToolbars</a></li><li><a href="global.html#createTextToolbar">createTextToolbar</a></li><li><a href="global.html#cryptoId">cryptoId</a></li><li><a href="global.html#debounce">debounce</a></li><li><a href="global.html#deleteSelected">deleteSelected</a></li><li><a href="global.html#deleteSlideByIndex">deleteSlideByIndex</a></li><li><a href="global.html#dom">dom</a></li><li><a href="global.html#endMove">endMove</a></li><li><a href="global.html#endResize">endResize</a></li><li><a href="global.html#getActive">getActive</a></li><li><a href="global.html#getElementClasses">getElementClasses</a></li><li><a href="global.html#getElementStyles">getElementStyles</a></li><li><a href="global.html#getSelectedId">getSelectedId</a></li><li><a href="global.html#getShapeWrapperStyles">getShapeWrapperStyles</a></li><li><a href="global.html#getSlideBackgroundStyle">getSlideBackgroundStyle</a></li><li><a href="global.html#getZoom">getZoom</a></li><li><a href="global.html#hrefToTarget">hrefToTarget</a></li><li><a href="global.html#initUI">initUI</a></li><li><a href="global.html#installCameraControls">installCameraControls</a></li><li><a href="global.html#installInteractions">installInteractions</a></li><li><a href="global.html#linkToSlideIndex">linkToSlideIndex</a></li><li><a href="global.html#loadSlidesStateFromLocalStorage">loadSlidesStateFromLocalStorage</a></li><li><a href="global.html#loadState">loadState</a></li><li><a href="global.html#lockPointerEvents">lockPointerEvents</a></li><li><a href="global.html#lockPointerEventsDeep">lockPointerEventsDeep</a></li><li><a href="global.html#onMove">onMove</a></li><li><a href="global.html#onResize">onResize</a></li><li><a href="global.html#px">px</a></li><li><a href="global.html#readSlideMeta">readSlideMeta</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#renderConnections">renderConnections</a></li><li><a href="global.html#renderNodes">renderNodes</a></li><li><a href="global.html#renderSidebar">renderSidebar</a></li><li><a href="global.html#renderThumbs">renderThumbs</a></li><li><a href="global.html#requestSave">requestSave</a></li><li><a href="global.html#saveSlidesStateToLocalStorage">saveSlidesStateToLocalStorage</a></li><li><a href="global.html#saveState">saveState</a></li><li><a href="global.html#searchEl">searchEl</a></li><li><a href="global.html#select">select</a></li><li><a href="global.html#setElementLinkInSlidesState">setElementLinkInSlidesState</a></li><li><a href="global.html#setSelectedId">setSelectedId</a></li><li><a href="global.html#setSlidePos">setSlidePos</a></li><li><a href="global.html#setSlideTitle">setSlideTitle</a></li><li><a href="global.html#setZoom">setZoom</a></li><li><a href="global.html#slideEl">slideEl</a></li><li><a href="global.html#slideId">slideId</a></li><li><a href="global.html#slideIndexToLink">slideIndexToLink</a></li><li><a href="global.html#startDrag">startDrag</a></li><li><a href="global.html#startMove">startMove</a></li><li><a href="global.html#startResize">startResize</a></li><li><a href="global.html#state">state</a></li><li><a href="global.html#stylesToString">stylesToString</a></li><li><a href="global.html#thumbsEl">thumbsEl</a></li><li><a href="global.html#zoomChip">zoomChip</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Source</p>
+                    <h1>arbre/actions.js</h1>
+                </header>
+                
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * actions.js
+ * Ce fichier contient des utilitaires et actions manipulant l'état des "slides"
+ * et les données spécifiques au module "arbre" (titre, position, liens entre slides).
+ * Les fonctions exportées sont de petites opérations atomiques (ajout/suppression,
+ * mise à jour de propriété) et provoquent une sauvegarde / rebuild lorsque nécessaire.
+ *
+ * Principales fonctions:
+ * - uuid(): génère un identifiant unique pour slides/éléments
+ * - setSlideTitle, setSlidePos: mettent à jour le titre/position de la slide
+ * - setElementLinkInSlidesState: met à jour le lien d'un élément
+ * - cleanupLinksAfterSlideDelete: renumérote/clean les liens après suppression
+ * - deleteSlideByIndex, addSlide: suppriment/ajoutent des slides et déclenchent save
+ */
+import { appState } from "./state.js";
+import { requestSave, saveSlidesStateToLocalStorage } from "./storage.js";
+import { buildGraphFromSlidesState } from "./buildGraph.js";
+
+export function uuid() {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r &amp; 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+/**
+ * setSlideTitle(srcSlideIndex, newTitle)
+ * Met à jour le titre interne (`arbre.title`) d'une slide identifiée
+ * par son index source `srcSlideIndex` dans `appState.slides_state.slides`.
+ * Effet de bord : déclenche `requestSave()` pour persister la modification
+ * de manière asynchrone.
+ */
+
+export function setSlideTitle(srcSlideIndex, newTitle) {
+  const s = appState.slides_state?.slides?.[srcSlideIndex];
+  if (!s) return;
+  if (!s.arbre) s.arbre = {};
+  s.arbre.title = newTitle;
+  requestSave();
+}
+
+/**
+ * setSlidePos(srcSlideIndex, x, y)
+ * Met à jour la position stockée (`arbre.pos`) d'une slide utilisée
+ * pour l'affichage dans la vue graphe. Crée les structures manquantes
+ * si nécessaire puis appelle `requestSave()`.
+ */
+
+export function setSlidePos(srcSlideIndex, x, y) {
+  const s = appState.slides_state?.slides?.[srcSlideIndex];
+  if (!s) return;
+  if (!s.arbre) s.arbre = {};
+  if (!s.arbre.pos) s.arbre.pos = { x: 0, y: 0 };
+  s.arbre.pos.x = x;
+  s.arbre.pos.y = y;
+  requestSave();
+}
+
+/**
+ * setElementLinkInSlidesState(srcSlideIndex, elementIndex, newLink)
+ * Met à jour la propriété `link` d'un élément donné (index d'élément)
+ * dans la slide `srcSlideIndex`. Vérifications : existence de la slide
+ * et du tableau `elements`.
+ * Effet de bord : `requestSave()`.
+ */
+
+export function setElementLinkInSlidesState(srcSlideIndex, elementIndex, newLink) {
+  const slide = appState.slides_state?.slides?.[srcSlideIndex];
+  if (!slide || !Array.isArray(slide.elements)) return;
+
+  const el = slide.elements[elementIndex];
+  if (!el) return;
+
+  el.link = newLink;
+  requestSave();
+}
+
+/**
+ * Nettoie les links (elements[].link) après suppression d'une slide.
+ */
+export function cleanupLinksAfterSlideDelete(slides_state, deletedIndex) {
+  const deletedLink = deletedIndex + 1; // link "1..N" (avant suppression)
+  if (!slides_state?.slides?.length) return;
+
+  slides_state.slides.forEach((slide) => {
+    if (!Array.isArray(slide.elements)) return;
+
+    slide.elements.forEach((el) => {
+      if (!el || el.link == null) return;
+
+      const n = parseInt(el.link, 10);
+      if (!Number.isFinite(n) || n &lt;= 0) {
+        el.link = null;
+        return;
+      }
+
+      if (n === deletedLink) el.link = null;
+      else if (n > deletedLink) el.link = String(n - 1);
+    });
+  });
+}
+
+/**
+ * deleteSlideByIndex(deleteIndex)
+ * Supprime la slide à l'index `deleteIndex` dans `appState.slides_state.slides`.
+ * Procédure :
+ *  1) retirer la slide
+ *  2) renumérotation/nettoyage des liens internes via `cleanupLinksAfterSlideDelete`
+ *  3) forcer une sauvegarde synchrone via `saveSlidesStateToLocalStorage`
+ *  4) reset sélection et rebuild du graphe
+ * Cette fonction a des effets globaux sur l'état de l'application.
+ */
+
+export function deleteSlideByIndex(deleteIndex) {
+  if (!appState.slides_state?.slides?.length) return;
+
+  // 1) Supprimer la slide
+  appState.slides_state.slides.splice(deleteIndex, 1);
+
+  // 2) Nettoie/renumérote tous les links
+  cleanupLinksAfterSlideDelete(appState.slides_state, deleteIndex);
+
+  // 3) Sauve + rebuild
+  saveSlidesStateToLocalStorage(appState.slides_state);
+  appState.selectedNodeId = null;
+  buildGraphFromSlidesState();
+}
+
+/**
+ * addSlide()
+ * Ajoute une nouvelle slide par défaut à la fin de `slides_state.slides`.
+ * Initialise `arbre.title` et `arbre.pos` pour permettre son affichage
+ * immédiat dans la vue graphe. Déclenche `requestSave()` et rebuild.
+ */
+
+export function addSlide() {
+  if (!appState.slides_state) {
+    appState.slides_state = { activeSlide: 0, slides: [] };
+  }
+  if (!Array.isArray(appState.slides_state.slides)) appState.slides_state.slides = [];
+
+  const idx = appState.slides_state.slides.length;
+
+  appState.slides_state.slides.push({
+    id: uuid(),
+    backgroundColor: "#ffffff",
+    backgroundGradient: "",
+    elements: [],
+    arbre: {
+      title: `Slide ${idx + 1}`,
+      pos: { x: 100 + idx * 260, y: 120 + (idx % 4) * 160 },
+    },
+  });
+
+  requestSave();
+  buildGraphFromSlidesState();
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+
+</body>
+</html>

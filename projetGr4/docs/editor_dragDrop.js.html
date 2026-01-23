@@ -1,0 +1,330 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> editor/dragDrop.js</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    Documentation
+                </a>
+                
+                <a
+                    href="../index.html"
+                    class="link"
+                >
+                    Retour vers SlideLab
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Global</h3><ul><li><a href="global.html#addSlide">addSlide</a></li><li><a href="global.html#applyCameraTransform">applyCameraTransform</a></li><li><a href="global.html#applyTextFormatting">applyTextFormatting</a></li><li><a href="global.html#clamp">clamp</a></li><li><a href="global.html#cleanupLinksAfterSlideDelete">cleanupLinksAfterSlideDelete</a></li><li><a href="global.html#clearSelection">clearSelection</a></li><li><a href="global.html#configureDragDrop">configureDragDrop</a></li><li><a href="global.html#configureMoveResize">configureMoveResize</a></li><li><a href="global.html#configureThumbs">configureThumbs</a></li><li><a href="global.html#configureToolbars">configureToolbars</a></li><li><a href="global.html#createTextToolbar">createTextToolbar</a></li><li><a href="global.html#cryptoId">cryptoId</a></li><li><a href="global.html#debounce">debounce</a></li><li><a href="global.html#deleteSelected">deleteSelected</a></li><li><a href="global.html#deleteSlideByIndex">deleteSlideByIndex</a></li><li><a href="global.html#dom">dom</a></li><li><a href="global.html#endMove">endMove</a></li><li><a href="global.html#endResize">endResize</a></li><li><a href="global.html#getActive">getActive</a></li><li><a href="global.html#getElementClasses">getElementClasses</a></li><li><a href="global.html#getElementStyles">getElementStyles</a></li><li><a href="global.html#getSelectedId">getSelectedId</a></li><li><a href="global.html#getShapeWrapperStyles">getShapeWrapperStyles</a></li><li><a href="global.html#getSlideBackgroundStyle">getSlideBackgroundStyle</a></li><li><a href="global.html#getZoom">getZoom</a></li><li><a href="global.html#hrefToTarget">hrefToTarget</a></li><li><a href="global.html#initUI">initUI</a></li><li><a href="global.html#installCameraControls">installCameraControls</a></li><li><a href="global.html#installInteractions">installInteractions</a></li><li><a href="global.html#linkToSlideIndex">linkToSlideIndex</a></li><li><a href="global.html#loadSlidesStateFromLocalStorage">loadSlidesStateFromLocalStorage</a></li><li><a href="global.html#loadState">loadState</a></li><li><a href="global.html#lockPointerEvents">lockPointerEvents</a></li><li><a href="global.html#lockPointerEventsDeep">lockPointerEventsDeep</a></li><li><a href="global.html#onMove">onMove</a></li><li><a href="global.html#onResize">onResize</a></li><li><a href="global.html#px">px</a></li><li><a href="global.html#readSlideMeta">readSlideMeta</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#renderConnections">renderConnections</a></li><li><a href="global.html#renderNodes">renderNodes</a></li><li><a href="global.html#renderSidebar">renderSidebar</a></li><li><a href="global.html#renderThumbs">renderThumbs</a></li><li><a href="global.html#requestSave">requestSave</a></li><li><a href="global.html#saveSlidesStateToLocalStorage">saveSlidesStateToLocalStorage</a></li><li><a href="global.html#saveState">saveState</a></li><li><a href="global.html#searchEl">searchEl</a></li><li><a href="global.html#select">select</a></li><li><a href="global.html#setElementLinkInSlidesState">setElementLinkInSlidesState</a></li><li><a href="global.html#setSelectedId">setSelectedId</a></li><li><a href="global.html#setSlidePos">setSlidePos</a></li><li><a href="global.html#setSlideTitle">setSlideTitle</a></li><li><a href="global.html#setZoom">setZoom</a></li><li><a href="global.html#slideEl">slideEl</a></li><li><a href="global.html#slideId">slideId</a></li><li><a href="global.html#slideIndexToLink">slideIndexToLink</a></li><li><a href="global.html#startDrag">startDrag</a></li><li><a href="global.html#startMove">startMove</a></li><li><a href="global.html#startResize">startResize</a></li><li><a href="global.html#state">state</a></li><li><a href="global.html#stylesToString">stylesToString</a></li><li><a href="global.html#thumbsEl">thumbsEl</a></li><li><a href="global.html#zoomChip">zoomChip</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Source</p>
+                    <h1>editor/dragDrop.js</h1>
+                </header>
+                
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * dragDrop.js (editor)
+ * Implémente l'ajout d'éléments via glisser-déposer depuis la palette
+ * d'outils vers la zone de slide. Calcule la position en tenant compte
+ * du zoom et crée des éléments par défaut selon le type d'outil.
+ */
+// src/JS/editor/dragDrop.js
+import { slideEl } from "./dom.js";
+import { getZoom } from "./zoom.js";
+import { getActive, clamp, cryptoId, setSelectedId } from "./core.js";
+
+let renderFn = null;
+/**
+ * configureDragDrop({ render })
+ * Enregistre une fonction `render` fournie par le module appelant afin de
+ * pouvoir déclencher un rerender lorsque des éléments sont ajoutés via
+ * drag&amp;drop. Ceci évite d'importer directement `render` et garde
+ * une dépendance plus légère.
+ */
+export function configureDragDrop({ render }) {
+  renderFn = render;
+}
+function rerender() {
+  if (typeof renderFn === "function") renderFn();
+}
+
+export function initDragDrop() {
+  document.querySelectorAll(".tool").forEach((tool) => {
+    tool.addEventListener("dragstart", (ev) => {
+      ev.dataTransfer.setData("text/plain", tool.dataset.tool);
+      ev.dataTransfer.effectAllowed = "copy";
+    });
+  });
+
+  slideEl.addEventListener("dragover", (ev) => {
+    ev.preventDefault();
+    slideEl.classList.add("dragover");
+    ev.dataTransfer.dropEffect = "copy";
+  });
+
+  slideEl.addEventListener("dragleave", () => {
+    slideEl.classList.remove("dragover");
+  });
+
+  slideEl.addEventListener("drop", (ev) => {
+    ev.preventDefault();
+    slideEl.classList.remove("dragover");
+
+    const toolType = ev.dataTransfer.getData("text/plain");
+    if (!toolType) return;
+
+    const rect = slideEl.getBoundingClientRect();
+    const z = getZoom();
+    const x = (ev.clientX - rect.left) / z;
+    const y = (ev.clientY - rect.top) / z;
+
+    addFromTool(toolType, x, y);
+    rerender();
+  });
+}
+
+function addFromTool(toolType, x, y) {
+  const s = getActive();
+
+  const base = {
+    id: cryptoId(),
+    x: clamp(x - 80, 0, 960 - 40),
+    y: clamp(y - 20, 0, 540 - 40),
+    w: 260,
+    h: 60,
+  };
+
+  let el = null;
+
+  if (toolType === "text") {
+    el = {
+      ...base,
+      type: "text",
+      w: 520,
+      h: 70,
+      html: "Nouveau texte",
+      color: "#ffff",
+      fontSize: 28,
+      fontWeight: 800,
+      fontFamily: "Arial",
+      textAlign: "left",
+    };
+  } else if (toolType === "shape") {
+    el = {
+      ...base,
+      type: "shape",
+      w: 320,
+      h: 180,
+      shapeType: "rectangle",
+      fillColor: "#7c5cff",
+      borderColor: "#37d6ff",
+      opacity: 1,
+    };
+  } else if (toolType === "button") {
+    el = {
+      ...base,
+      type: "button",
+      w: 220,
+      h: 54,
+      html: "Bouton",
+      color: "#ffffff",
+      fontSize: 16,
+      fontWeight: 700,
+      fontFamily: "Arial",
+      textAlign: "center",
+    };
+  } else if (toolType === "image") {
+    el = { ...base, type: "image", w: 360, h: 240 };
+  } else if (toolType === "table") {
+    el = {
+      ...base,
+      type: "table",
+      w: 400,
+      h: 200,
+      rows: 3,
+      cols: 3,
+      borderColor: "#cccccc",
+      headerColor: "#f3f4f6",
+    };
+  } else if (toolType === "twoCols") {
+    s.elements.push({
+      id: cryptoId(),
+      type: "text",
+      x: clamp(x - 360, 0, 820),
+      y: clamp(y - 140, 0, 460),
+      w: 420,
+      h: 60,
+      html: "Titre (2 colonnes)",
+      color: "#111827",
+      fontSize: 28,
+      fontWeight: 800,
+      fontFamily: "Arial",
+      textAlign: "left",
+    });
+    s.elements.push({
+      id: cryptoId(),
+      type: "text",
+      x: clamp(x - 360, 0, 820),
+      y: clamp(y - 70, 0, 470),
+      w: 420,
+      h: 120,
+      html: "Texte descriptif…",
+      color: "#111827",
+      fontSize: 18,
+      fontWeight: 400,
+      fontFamily: "Arial",
+      textAlign: "left",
+    });
+    s.elements.push({
+      id: cryptoId(),
+      type: "image",
+      x: clamp(x + 80, 0, 600),
+      y: clamp(y - 140, 0, 300),
+      w: 320,
+      h: 240,
+    });
+    return;
+  } else if (toolType === "titleSubtitle") {
+    s.elements.push({
+      id: cryptoId(),
+      type: "text",
+      x: clamp(x - 320, 0, 600),
+      y: clamp(y - 120, 0, 460),
+      w: 700,
+      h: 70,
+      html: "Titre",
+      color: "#111827",
+      fontSize: 36,
+      fontWeight: 800,
+      fontFamily: "Arial",
+      textAlign: "left",
+    });
+    s.elements.push({
+      id: cryptoId(),
+      type: "text",
+      x: clamp(x - 320, 0, 600),
+      y: clamp(y - 40, 0, 490),
+      w: 700,
+      h: 60,
+      html: "Sous-titre",
+      color: "#111827",
+      fontSize: 24,
+      fontWeight: 400,
+      fontFamily: "Arial",
+      textAlign: "left",
+    });
+    return;
+  }
+
+  if (el) {
+    s.elements.push(el);
+    setSelectedId(el.id);
+  }
+}
+
+/**
+ * addFromTool(toolType, x, y)
+ * Crée un élément par défaut (text/shape/button/image/table/structures
+ * composées) positionné aux coordonnées `x,y` (sous la coordonnée du slide,
+ * déjà convertie selon le zoom). La fonction prend soin d'utiliser `clamp`
+ * pour éviter de créer un élément hors du canevas et définit `setSelectedId`
+ * sur le nouvel élément pour que l'utilisateur puisse éditer immédiatement.
+ */
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+
+</body>
+</html>
