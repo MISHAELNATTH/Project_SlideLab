@@ -1,3 +1,9 @@
+/**
+ * sidebar.js (arbre)
+ * Rend la colonne de propriétés pour la slide sélectionnée dans la
+ * vue "arbre" : titre, suppression, et gestion des connexions
+ * par élément (sélection d'une target interne ou lien externe).
+ */
 import { dom } from "./dom.js";
 import { appState } from "./state.js";
 import { slideIndexToLink } from "./mapping.js";

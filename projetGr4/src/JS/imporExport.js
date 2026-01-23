@@ -1,3 +1,10 @@
+/**
+ * imporExport.js
+ * Fonctions d'import/export du projet (JSON, HTML, ZIP si besoin).
+ * Contient des helpers pour parser/transformer des fragments HTML,
+ * nettoyer le HTML éditable, détecter des liens internes/externe,
+ * et réinitialiser l'état de l'application lors d'un import.
+ */
 import { thumbsEl, state, slideId, setSelectedId, render, slideEl } from "./editor.js";
 import { generateSlideHTML } from "./slides.js";
 

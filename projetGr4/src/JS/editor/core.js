@@ -1,3 +1,10 @@
+/**
+ * core.js (editor)
+ * Fonctions et état de base pour l'éditeur : génération d'identifiants,
+ * gestion du `state` minimal (slides, activeSlide) et API pour sélection
+ * (`setSelectedId` / `getSelectedId`). C'est la source utility-level
+ * utilisée par les autres modules de l'éditeur.
+ */
 // src/JS/editor/core.js
 
 export let id = 1;

@@ -1,3 +1,9 @@
+/**
+ * styleHelper.js
+ * Contient les utilitaires pour produire les classes CSS et styles en ligne
+ * appliqués aux éléments de slide. Utilisé à la fois par l'éditeur
+ * et le mode présentation/export pour garantir un rendu identique.
+ */
 export function px(n) {
   return Math.round(n) + "px";
 }

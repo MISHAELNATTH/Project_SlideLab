@@ -1,3 +1,10 @@
+/**
+ * toolbars.js (editor)
+ * Fournit la logique de barres d'outils intégrées aux éléments (formatage
+ * texte, couleurs, dropdowns custom, contrôles de table, etc.). Les fonctions
+ * exposées créent des conteneurs DOM prêts à l'emploi et évitent la fuite
+ * d'événements vers l'éditeur principal.
+ */
 // src/JS/editor/toolbars.js
 
 let renderFn = null;

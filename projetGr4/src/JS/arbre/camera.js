@@ -1,3 +1,9 @@
+/**
+ * camera.js
+ * Gestion de la caméra (pan/zoom) pour la vue en graphe. Fournit
+ * des utilitaires pour appliquer la transformation et installer
+ * les contrôles souris (drag sur fond + roulette pour zoom centré).
+ */
 // camera.js
 import { dom } from "./dom.js";
 import { appState } from "./state.js";

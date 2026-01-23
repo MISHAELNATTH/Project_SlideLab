@@ -1,3 +1,9 @@
+/**
+ * ui.js (editor)
+ * Initialisation globale de l'interface utilisateur : listeners clavier,
+ * gestion des boutons d'import/export, redimensionneurs et navigation.
+ * Configure aussi le drag&drop et les raccourcis (zoom, suppression).
+ */
 // src/JS/editor/ui.js
 import { slideEl } from "./dom.js";
 import { getActive, setSelectedId, getSelectedId } from "./core.js";

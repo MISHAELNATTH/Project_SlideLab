@@ -1,3 +1,9 @@
+/**
+ * dragDrop.js (editor)
+ * Implémente l'ajout d'éléments via glisser-déposer depuis la palette
+ * d'outils vers la zone de slide. Calcule la position en tenant compte
+ * du zoom et crée des éléments par défaut selon le type d'outil.
+ */
 // src/JS/editor/dragDrop.js
 import { slideEl } from "./dom.js";
 import { getZoom } from "./zoom.js";

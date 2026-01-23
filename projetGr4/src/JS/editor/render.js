@@ -1,3 +1,9 @@
+/**
+ * render.js (editor)
+ * Rendu principal de la slide : création des nœuds DOM pour chaque élément,
+ * liaison des toolbars, handles, upload d'images, et sauvegarde d'état.
+ * Sépare logique par type d'élément pour rester lisible et maintenable.
+ */
 // src/JS/editor/render.js
 import { getElementStyles, getElementClasses, getSlideBackgroundStyle } from "../styleHelper.js";
 import { slideEl, zoomChip } from "./dom.js";

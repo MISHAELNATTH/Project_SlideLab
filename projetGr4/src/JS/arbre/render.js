@@ -1,3 +1,8 @@
+/**
+ * render.js (arbre)
+ * Rendu du graphe : nodes et connexions SVG. Sépare clairement
+ * `renderNodes` et `renderConnections` pour faciliter le recalcul partiel.
+ */
 import { dom } from "./dom.js";
 import { appState } from "./state.js";
 import { linkToSlideIndex } from "./mapping.js";

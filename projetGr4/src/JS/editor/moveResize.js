@@ -1,3 +1,9 @@
+/**
+ * moveResize.js (editor)
+ * Gestion du déplacement et du redimensionnement des éléments sur la slide.
+ * Expose `startMove` et `startResize` utilisés par le rendu pour
+ * installer les listeners mousedown sur chaque élément.
+ */
 // src/JS/editor/moveResize.js
 import { getActive, clamp, getSelectedId, setSelectedId } from "./core.js";
 import { getZoom } from "./zoom.js";

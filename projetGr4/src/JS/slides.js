@@ -1,3 +1,10 @@
+/**
+ * slides.js
+ * Gestion des actions utilisateur sur les slides : ajout, duplication,
+ * export HTML, génération des miniatures, et utilitaires d'export.
+ * Ce fichier contient aussi des helpers locaux pour normaliser les href
+ * et produire le HTML final utilisé par l'application et pour l'export.
+ */
 import {thumbsEl, state, cryptoId, setSelectedId, render, getActive, slideId, setZoom, getZoom} from "./editor.js";
 import { generateExportStyle, getElementClasses, getSlideBackgroundStyle, getShapeWrapperStyles, stylesToString } from './styleHelper.js';
 

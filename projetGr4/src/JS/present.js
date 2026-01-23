@@ -1,3 +1,10 @@
+/**
+ * present.js
+ * Mode "présentation" : crée un overlay plein écran, rend les slides
+ * au format présentation et fournit la navigation (clavier, fullscreen,
+ * gestion du redimensionnement). Utilise les helpers de style pour
+ * reproduire fidèlement l'apparence de l'éditeur.
+ */
 import { thumbsEl, state, zoomChip, cryptoId, setSelectedId, render } from './editor.js';
 import { getElementStyles, getElementClasses, getSlideBackgroundStyle, px } from './styleHelper.js';
 

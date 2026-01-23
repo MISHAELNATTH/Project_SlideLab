@@ -1,3 +1,17 @@
+/**
+ * actions.js
+ * Ce fichier contient des utilitaires et actions manipulant l'état des "slides"
+ * et les données spécifiques au module "arbre" (titre, position, liens entre slides).
+ * Les fonctions exportées sont de petites opérations atomiques (ajout/suppression,
+ * mise à jour de propriété) et provoquent une sauvegarde / rebuild lorsque nécessaire.
+ *
+ * Principales fonctions:
+ * - uuid(): génère un identifiant unique pour slides/éléments
+ * - setSlideTitle, setSlidePos: mettent à jour le titre/position de la slide
+ * - setElementLinkInSlidesState: met à jour le lien d'un élément
+ * - cleanupLinksAfterSlideDelete: renumérote/clean les liens après suppression
+ * - deleteSlideByIndex, addSlide: suppriment/ajoutent des slides et déclenchent save
+ */
 import { appState } from "./state.js";
 import { requestSave, saveSlidesStateToLocalStorage } from "./storage.js";
 import { buildGraphFromSlidesState } from "./buildGraph.js";

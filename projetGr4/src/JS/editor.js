@@ -1,4 +1,11 @@
 // src/JS/editor.js
+/**
+ * editor.js
+ * Point d'entrée principal de l'éditeur : assembly des modules, initialisation
+ * de l'UI, chargement de l'état et premier rendu. Ce fichier importe et
+ * configure les sous-modules (UI, zoom, rendu, outils) et ré-exporte les
+ * fonctions/états partagés pour le reste de l'application.
+ */
 import { getElementStyles, getElementClasses, getSlideBackgroundStyle } from "./styleHelper.js";
 
 // --- Core state & helpers ---

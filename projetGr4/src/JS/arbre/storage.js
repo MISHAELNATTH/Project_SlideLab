@@ -1,3 +1,9 @@
+/**
+ * storage.js
+ * Chargement / sauvegarde du `slides_state` dans localStorage.
+ * Expose également un utilitaire `debounce` et `requestSave` pour
+ * regrouper les écritures et éviter d'écrire trop fréquemment.
+ */
 import { appState } from "./state.js";
 
 export const STORAGE_KEY = "slides_state";

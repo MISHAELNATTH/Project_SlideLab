@@ -1,3 +1,9 @@
+/**
+ * thumbs.js (editor)
+ * Génération des miniatures (thumbs) de chaque slide. Convertit les
+ * éléments en petits blocs stylés pour l'affichage horizontal et
+ * fournit la navigation vers la slide sélectionnée.
+ */
 // src/JS/editor/thumbs.js
 import { thumbsEl } from "./dom.js";
 import { state, setSelectedId } from "./core.js";

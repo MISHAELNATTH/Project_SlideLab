@@ -1,3 +1,9 @@
+/**
+ * main.js (arbre)
+ * Initialisation du sous-module 'arbre' : lecture du slides_state,
+ * installation des interactions, boutons et contrôle caméra, puis
+ * construction du graph initial.
+ */
 import { assertDom, dom } from "./dom.js";
 import { appState } from "./state.js";
 import { loadSlidesStateFromLocalStorage, requestSave } from "./storage.js";
