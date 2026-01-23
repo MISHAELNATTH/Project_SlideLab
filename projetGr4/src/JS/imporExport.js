@@ -606,3 +606,84 @@ if (downloadProjectBtn) {
     URL.revokeObjectURL(url);
   });
 }
+
+const exportPdfProjectBtn = document.getElementById("exportPdfProjectBtn");
+
+if (exportPdfProjectBtn) {
+  exportPdfProjectBtn.addEventListener("click", async () => {
+    const { jsPDF } = window.jspdf;
+
+    const slidesCount = state.slides.length;
+    if (!slidesCount) {
+      alert("Aucune slide à exporter");
+      return;
+    }
+
+    const prev = state.activeSlide;
+
+    const pdf = new jsPDF({
+      orientation: "landscape",
+      unit: "mm",
+      format: "a4",
+    });
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    // petit helper pour attendre que le DOM se mette à jour
+    const nextFrame = () => new Promise((r) => requestAnimationFrame(() => r()));
+    const waitDOM = async () => { await nextFrame(); await nextFrame(); };
+
+    for (let i = 0; i < slidesCount; i++) {
+      state.activeSlide = i;
+      render();
+      await waitDOM();
+
+      const slideEl = document.getElementById("slide");
+      if (!slideEl) {
+        console.warn("Élément #slide introuvable");
+        break;
+      }
+
+      // capture
+      const canvas = await html2canvas(slideEl, {
+        scale: 2,
+        backgroundColor: null,
+        useCORS: true,
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+
+      // calcul du scale pour rentrer dans A4
+      const imgRatio = canvas.width / canvas.height;
+      const pageRatio = pageWidth / pageHeight;
+
+      let renderW, renderH;
+      if (imgRatio > pageRatio) {
+        renderW = pageWidth;
+        renderH = pageWidth / imgRatio;
+      } else {
+        renderH = pageHeight;
+        renderW = pageHeight * imgRatio;
+      }
+
+      const x = (pageWidth - renderW) / 2;
+      const y = (pageHeight - renderH) / 2;
+
+      // ✅ IMPORTANT : on ajoute la page APRES avoir une image valide
+      if (i > 0) {
+        pdf.addPage();
+        pdf.setPage(pdf.getNumberOfPages());
+      } else {
+        pdf.setPage(1);
+      }
+
+      pdf.addImage(imgData, "PNG", x, y, renderW, renderH);
+    }
+
+    state.activeSlide = prev;
+    render();
+
+    pdf.save("SlideLab_projet.pdf");
+  });
+}
