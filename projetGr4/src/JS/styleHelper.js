@@ -81,7 +81,7 @@ export function getShapeWrapperStyles(el) {
 
   // Injecter min-width/min-height pour le losange via variables CSS
   if (el.type === "shape" && el.shapeType === "diamond") {
-    styles["--diamond-min-w"] = px(el.w * 2);
+    styles["--diamond-min-w"] = px(el.w);
     styles["--diamond-min-h"] = px(el.h);
   }
 
