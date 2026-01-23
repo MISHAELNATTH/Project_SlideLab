@@ -12,7 +12,7 @@ function App() {
     } else if (page === "arbre") {
       target = "src/html/arbre.html";
     } else if (page === "documentation") {
-      target = "docs/index.html";
+      target = "./docs/index.html";
     }
   
     window.location.href = `${import.meta.env.BASE_URL}${target}`;

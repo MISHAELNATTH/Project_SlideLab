@@ -139,6 +139,8 @@ npm run docs
 La documentation technique du projet est générée automatiquement à l’aide de **JSDoc**.  
 Elle décrit les fonctions, modules et structures principales du code.
 
+La documentation se trouve dans public/doc/
+
 ---
 
 ## Auteurs
