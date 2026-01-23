@@ -15,8 +15,7 @@ function clamp(n, a, b) {
   return Math.max(a, Math.min(b, n));
 }
 function escHtml(s = "") {
-  // IMPORTANT: on n’échappe PAS le HTML riche des textes (tu utilises innerHTML)
-  // Donc on ne s’en sert que si tu veux sécuriser des endroits précis.
+  
   return s
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -270,7 +269,6 @@ export function generateSlideHTML(slideIndex) {
   const slideBgAttr = slideBackgroundStyle ? ` style="background: ${slideBackgroundStyle};"` : "";
 
   // --- META qu’on veut sauvegarder dans le HTML ---
-  // Position par défaut 0,0 (comme demandé)
   // --- META toujours défini ---
   const meta = {
     title:
@@ -353,14 +351,7 @@ ${exportBaseCSS()}
       html += `      <div class="${classNames}" data-btn-id="${el.id}" data-id="${el.id}"${linkAttr} ${styleAttr}>${safeInner}</div>\n`;
     }
 
-    //   const inner = `      <div class="el button" data-btn-id="${el.id}" ${style}>${safeInner}</div>\n`;
-    //   // hrefFinal est déjà normalisé => wrap direct sans renormaliser
-    //   if (hrefFinal) {
-    //     html += `<a href="${hrefFinal}" style="text-decoration:none;color:inherit;display:contents;">${inner}</a>`;
-    //   } else {
-    //     html += inner;
-    //   }
-    // }
+    
 
     else if (el.type === "shape") {
       const linkAttr = el.link ? ` data-link="${el.link}"` : "";
@@ -411,7 +402,6 @@ ${exportBaseCSS()}
   }
 
   // On injecte le JSON dans le HTML exporté
-  // ⚠️ On doit échapper </script> au cas où
   const metaJson = meta
   ? JSON.stringify(meta).replace(/<\/script/gi, "<\\/script")
   : null;
