@@ -5,6 +5,7 @@ import { buildGraphFromSlidesState } from "./buildGraph.js";
 import { addSlide } from "./actions.js";
 import { exportJsonDownload } from "./io.js";
 import { installInteractions } from "./interactions.js";
+import { installCameraControls, applyCameraTransform } from "./camera.js";
 
 export function initArbre() {
   assertDom();
@@ -31,6 +32,8 @@ export function initArbre() {
   }
 
   buildGraphFromSlidesState();
+  installCameraControls();
+  applyCameraTransform();
 }
 
 initArbre();

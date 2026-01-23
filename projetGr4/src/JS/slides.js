@@ -177,6 +177,8 @@ function exportBaseCSS() {
 
   .el.shape.diamond .shape-content-wrapper{
     clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    min-width: var(--diamond-min-w, 0px);
+    min-height: var(--diamond-min-h, 0px);
     border-radius:0;
   }
 
