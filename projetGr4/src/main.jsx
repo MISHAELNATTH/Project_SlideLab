@@ -11,8 +11,10 @@ function App() {
       target = "src/html/editor.html";
     } else if (page === "arbre") {
       target = "src/html/arbre.html";
+    } else if (page === "documentation") {
+      target = "./docs/index.html";
     }
-
+  
     window.location.href = `${import.meta.env.BASE_URL}${target}`;
   };
 
@@ -37,8 +39,8 @@ return (
       </button>
     </div>
 
-    <footer className="home-quote">
-      « L’art ne reproduit pas le visible, il rend visible. »
+    <footer className="home-quote" onClick={() => goTo("documentation")}>
+      <a class="doc-link">DOCUMENTATION</a>
     </footer>
   </div>
 );

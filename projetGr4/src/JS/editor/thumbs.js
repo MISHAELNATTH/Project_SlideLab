@@ -1,9 +1,20 @@
+/**
+ * thumbs.js (editor)
+ * Génération des miniatures (thumbs) de chaque slide. Convertit les
+ * éléments en petits blocs stylés pour l'affichage horizontal et
+ * fournit la navigation vers la slide sélectionnée.
+ */
 // src/JS/editor/thumbs.js
 import { thumbsEl } from "./dom.js";
 import { state, setSelectedId } from "./core.js";
 import { getSlideBackgroundStyle, getElementStyles, getElementClasses } from "../styleHelper.js";
 
 let renderFn = null;
+/**
+ * configureThumbs({ render })
+ * Enregistre la fonction `render` utilisée pour déclencher le re-rendu
+ * depuis la miniature (quand l'utilisateur clique pour naviguer).
+ */
 export function configureThumbs({ render }) {
   renderFn = render;
 }
@@ -11,6 +22,13 @@ function rerender() {
   if (typeof renderFn === "function") renderFn();
 }
 
+/**
+ * renderThumbs()
+ * Reconstruit l'ensemble des miniatures à partir de `state.slides`.
+ * Le rendu est une version scalée de la slide (transform: scale)
+ * et utilise `getElementClasses` / `getElementStyles` pour assurer
+ * un rendu cohérent avec l'éditeur.
+ */
 export function renderThumbs() {
   thumbsEl.innerHTML = "";
   state.slides.forEach((sl, i) => {
@@ -90,7 +108,7 @@ export function renderThumbs() {
         node.appendChild(wrapper);
       }
 
-      node.style.pointerEvents = "none";
+      node.style.pointerEvents = "none"; // thumbs are non-interactive internement
       miniDiv.appendChild(node);
     });
 
@@ -105,6 +123,7 @@ export function renderThumbs() {
     `;
     t.appendChild(label);
 
+    // Au clic sur une miniature, on bascule la slide active et on rerender
     t.addEventListener("click", () => {
       state.activeSlide = i;
       setSelectedId(null);

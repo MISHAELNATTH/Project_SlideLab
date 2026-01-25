@@ -1,3 +1,9 @@
+/**
+ * ui.js (editor)
+ * Initialisation globale de l'interface utilisateur : listeners clavier,
+ * gestion des boutons d'import/export, redimensionneurs et navigation.
+ * Configure aussi le drag&drop et les raccourcis (zoom, suppression).
+ */
 // src/JS/editor/ui.js
 import { slideEl } from "./dom.js";
 import { getActive, setSelectedId, getSelectedId } from "./core.js";
@@ -7,11 +13,21 @@ import { initDragDrop, configureDragDrop } from "./dragDrop.js";
 
 configureDragDrop({ render });
 
+/**
+ * clearSelection()
+ * Désarçonne la sélection courante (met à null) et force un rendu.
+ * Appelée lorsqu'on clique sur le fond de la slide.
+ */
 function clearSelection() {
   setSelectedId(null);
   render();
 }
 
+/**
+ * deleteSelected()
+ * Supprime l'élément actuellement sélectionné de la slide active.
+ * Met à jour l'état en filtrant `elements` puis réaffiche.
+ */
 function deleteSelected() {
   const selectedId = getSelectedId();
   if (!selectedId) return;
@@ -21,6 +37,14 @@ function deleteSelected() {
   render();
 }
 
+/**
+ * initUI()
+ * Initialise les listeners globaux de l'éditeur : gestion des imports,
+ * suppression via clavier, raccourcis de zoom, redimensionneurs UI,
+ * boutons de navigation, et initialisation du drag&drop.
+ * Toutes les sous-fonctions liées aux resizers sont définies en scope
+ * local pour garder les handlers proches de leur logique.
+ */
 export function initUI() {
   // Unhandled promises (comme avant)
   window.addEventListener("unhandledrejection", (e) => {
@@ -119,6 +143,13 @@ export function initUI() {
   const resizerY = document.getElementById("resizerY");
   if (resizerY) resizerY.addEventListener("mousedown", initDragBottom);
 
+  /**
+   * initDragBottom / doDragBottom / stopDragBottom
+   * Contrôlent le redimensionnement vertical de la barre inférieure.
+   * - `initDragBottom`: attache les listeners globaux nécessaire au drag
+   * - `doDragBottom`: calcule la nouvelle hauteur en respectant des min/max
+   * - `stopDragBottom`: enlève les listeners et restaure le curseur
+   */
   function initDragBottom(e) {
     e.preventDefault();
     window.addEventListener("mousemove", doDragBottom);
@@ -149,6 +180,12 @@ export function initUI() {
 
   if (resizerX) resizerX.addEventListener("mousedown", initDragSide);
 
+  /**
+   * initDragSide / doDragSide / stopDragSide
+   * Mêmes responsabilités que le redimensionnement vertical mais pour
+   * la largeur de la sidebar latérale. Calcule la nouvelle largeur en
+   * ajoutant le delta au point de départ et respecte des bornes.
+   */
   function initDragSide(e) {
     e.preventDefault();
     dragStartX = e.clientX;

@@ -1,3 +1,10 @@
+/**
+ * present.js
+ * Mode "présentation" : crée un overlay plein écran, rend les slides
+ * au format présentation et fournit la navigation (clavier, fullscreen,
+ * gestion du redimensionnement). Utilise les helpers de style pour
+ * reproduire fidèlement l'apparence de l'éditeur.
+ */
 import { thumbsEl, state, zoomChip, cryptoId, setSelectedId, render } from './editor.js';
 import { getElementStyles, getElementClasses, getSlideBackgroundStyle, px } from './styleHelper.js';
 
@@ -53,11 +60,6 @@ function startPresentation() {
   window.addEventListener("resize", onWindowResize);
   document.addEventListener("keydown", handlePresentationKeys);
   document.addEventListener("fullscreenchange", onFullscreenChange);
-
-  // Cleanup on exit
-  //document.addEventListener("fullscreenchange", () => {
-  //  if (!document.fullscreenElement) closePresentation();
-  //});
 }
 
 // Separate function for resize to easily remove it later
@@ -140,18 +142,6 @@ function renderPresentationSlide(index, container) {
     // --- TEXT & BUTTON ---
     if (e.type === "text" || e.type === "button") {
       node.innerHTML = e.html || "";
-      // [FIX] Separate logic: Buttons use Flexbox for centering, Text uses default Block for alignment
-      // if (e.type === "button") {
-      //   node.style.display = "flex";
-      //   node.style.alignItems = "center";
-      //   node.style.justifyContent = "center";
-        
-      //   node.style.cursor = "pointer";
-      //   node.onclick = () => nextSlide();
-      // } else {
-      //   // Text elements must remain "block" for text-align to work (left/center/right)
-      //   node.style.display = "block";
-      // }
 
       if (e.type === "button") {
         node.style.cursor = "pointer";

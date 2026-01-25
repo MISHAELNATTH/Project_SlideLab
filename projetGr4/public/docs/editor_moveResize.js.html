@@ -1,0 +1,328 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> editor/moveResize.js</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    Documentation
+                </a>
+                
+                <a
+                    href="../index.html"
+                    class="link"
+                >
+                    Retour vers SlideLab
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Global</h3><ul><li><a href="global.html#addSlide">addSlide</a></li><li><a href="global.html#applyCameraTransform">applyCameraTransform</a></li><li><a href="global.html#applyTextFormatting">applyTextFormatting</a></li><li><a href="global.html#clamp">clamp</a></li><li><a href="global.html#cleanupLinksAfterSlideDelete">cleanupLinksAfterSlideDelete</a></li><li><a href="global.html#clearSelection">clearSelection</a></li><li><a href="global.html#configureDragDrop">configureDragDrop</a></li><li><a href="global.html#configureMoveResize">configureMoveResize</a></li><li><a href="global.html#configureThumbs">configureThumbs</a></li><li><a href="global.html#configureToolbars">configureToolbars</a></li><li><a href="global.html#createTextToolbar">createTextToolbar</a></li><li><a href="global.html#cryptoId">cryptoId</a></li><li><a href="global.html#debounce">debounce</a></li><li><a href="global.html#deleteSelected">deleteSelected</a></li><li><a href="global.html#deleteSlideByIndex">deleteSlideByIndex</a></li><li><a href="global.html#dom">dom</a></li><li><a href="global.html#endMove">endMove</a></li><li><a href="global.html#endResize">endResize</a></li><li><a href="global.html#getActive">getActive</a></li><li><a href="global.html#getElementClasses">getElementClasses</a></li><li><a href="global.html#getElementStyles">getElementStyles</a></li><li><a href="global.html#getSelectedId">getSelectedId</a></li><li><a href="global.html#getShapeWrapperStyles">getShapeWrapperStyles</a></li><li><a href="global.html#getSlideBackgroundStyle">getSlideBackgroundStyle</a></li><li><a href="global.html#getZoom">getZoom</a></li><li><a href="global.html#hrefToTarget">hrefToTarget</a></li><li><a href="global.html#initUI">initUI</a></li><li><a href="global.html#installCameraControls">installCameraControls</a></li><li><a href="global.html#installInteractions">installInteractions</a></li><li><a href="global.html#linkToSlideIndex">linkToSlideIndex</a></li><li><a href="global.html#loadSlidesStateFromLocalStorage">loadSlidesStateFromLocalStorage</a></li><li><a href="global.html#loadState">loadState</a></li><li><a href="global.html#lockPointerEvents">lockPointerEvents</a></li><li><a href="global.html#lockPointerEventsDeep">lockPointerEventsDeep</a></li><li><a href="global.html#onMove">onMove</a></li><li><a href="global.html#onResize">onResize</a></li><li><a href="global.html#px">px</a></li><li><a href="global.html#readSlideMeta">readSlideMeta</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#renderConnections">renderConnections</a></li><li><a href="global.html#renderNodes">renderNodes</a></li><li><a href="global.html#renderSidebar">renderSidebar</a></li><li><a href="global.html#renderThumbs">renderThumbs</a></li><li><a href="global.html#requestSave">requestSave</a></li><li><a href="global.html#saveSlidesStateToLocalStorage">saveSlidesStateToLocalStorage</a></li><li><a href="global.html#saveState">saveState</a></li><li><a href="global.html#searchEl">searchEl</a></li><li><a href="global.html#select">select</a></li><li><a href="global.html#setElementLinkInSlidesState">setElementLinkInSlidesState</a></li><li><a href="global.html#setSelectedId">setSelectedId</a></li><li><a href="global.html#setSlidePos">setSlidePos</a></li><li><a href="global.html#setSlideTitle">setSlideTitle</a></li><li><a href="global.html#setZoom">setZoom</a></li><li><a href="global.html#slideEl">slideEl</a></li><li><a href="global.html#slideId">slideId</a></li><li><a href="global.html#slideIndexToLink">slideIndexToLink</a></li><li><a href="global.html#startDrag">startDrag</a></li><li><a href="global.html#startMove">startMove</a></li><li><a href="global.html#startResize">startResize</a></li><li><a href="global.html#state">state</a></li><li><a href="global.html#stylesToString">stylesToString</a></li><li><a href="global.html#thumbsEl">thumbsEl</a></li><li><a href="global.html#zoomChip">zoomChip</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Source</p>
+                    <h1>editor/moveResize.js</h1>
+                </header>
+                
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * moveResize.js (editor)
+ * Gestion du déplacement et du redimensionnement des éléments sur la slide.
+ * Expose `startMove` et `startResize` utilisés par le rendu pour
+ * installer les listeners mousedown sur chaque élément.
+ */
+// src/JS/editor/moveResize.js
+import { getActive, clamp, getSelectedId, setSelectedId } from "./core.js";
+import { getZoom } from "./zoom.js";
+
+let renderFn = null;
+/**
+ * configureMoveResize({ render })
+ * Enregistre la fonction `render` transmise par le module appelant afin
+ * de pouvoir forcer le rendu lors des opérations de déplacement/redim.
+ */
+export function configureMoveResize({ render }) {
+  renderFn = render;
+}
+function rerender() {
+  if (typeof renderFn === "function") renderFn();
+}
+
+// Etat temporaire pour le drag / resize en cours
+let move = null;
+let resize = null;
+
+/**
+ * select(id)
+ * Sélectionne localement un élément si différent de la sélection courante
+ * et provoque un rerender. Centralise la logique de sélection utilisée
+ * par les handlers de move/resize.
+ */
+function select(id) {
+  if (getSelectedId() === id) return;
+  setSelectedId(id);
+  rerender();
+}
+
+/**
+ * startMove(ev, id)
+ * Démarre le déplacement d'un élément :
+ * - ignore les mousedown provenant des toolbars ou handles
+ * - empêche le drag si l'utilisateur est en train d'éditer du texte
+ * - capture la position de départ (clientX/clientY) et la position
+ *   originale de l'élément afin de calculer les deltas en `onMove`.
+ * - prend en compte le `zoom` actuel pour convertir correctement
+ *   les mouvements de la souris en déplacement sur la slide.
+ */
+export function startMove(ev, id) {
+  const target = ev.target.closest(".el");
+  if (!target) return;
+
+  // IMPORTANT: ne pas drag depuis les toolbars
+  if (
+    ev.target.closest(".text-toolbar") ||
+    ev.target.closest(".shape-controls") ||
+    ev.target.closest(".table-controls")
+  ) {
+    return;
+  }
+
+  if (ev.target.classList.contains("handle")) return;
+
+  const isEditable = target.classList.contains("text") || target.classList.contains("button");
+  const isTableCell = ev.target.tagName === "TD" || ev.target.tagName === "TH";
+
+  // Si l'utilisateur est en train de sélectionner/éditer du texte, on ne démarre pas le drag
+  if (isEditable &amp;&amp; document.activeElement === target &amp;&amp; window.getSelection()?.type === "Range") return;
+  if (isTableCell &amp;&amp; document.activeElement === ev.target) return;
+
+  select(id);
+
+  const z = getZoom();
+  const s = getActive();
+  const el = s.elements.find((e) => e.id === id);
+  if (!el) return;
+
+  // Stocke l'état initial pour pouvoir calculer le déplacement relatif
+  move = {
+    id,
+    startX: ev.clientX,
+    startY: ev.clientY,
+    origX: el.x,
+    origY: el.y,
+    zoom: z,
+  };
+
+  window.addEventListener("mousemove", onMove);
+  window.addEventListener("mouseup", endMove, { once: true });
+}
+
+/**
+ * onMove(ev)
+ * Calcul des nouvelles coordonnées pendant le drag. Le delta de la souris
+ * est divisé par le `zoom` capturé au démarrage pour obtenir le déplacement
+ * réel en coordonnées de la slide. Les valeurs sont clampées pour rester
+ * dans la zone 960x540 moins une marge.
+ */
+function onMove(ev) {
+  if (!move) return;
+  const s = getActive();
+  const el = s.elements.find((e) => e.id === move.id);
+  if (!el) return;
+
+  const dx = (ev.clientX - move.startX) / move.zoom;
+  const dy = (ev.clientY - move.startY) / move.zoom;
+
+  el.x = clamp(move.origX + dx, 0, 960 - 10);
+  el.y = clamp(move.origY + dy, 0, 540 - 10);
+  rerender();
+}
+
+/**
+ * endMove()
+ * Termine l'opération de déplacement : enlève le listener `mousemove`
+ * et réinitialise l'état temporaire.
+ */
+function endMove() {
+  window.removeEventListener("mousemove", onMove);
+  move = null;
+}
+
+/**
+ * startResize(ev, id, handle)
+ * Démarre un redimensionnement depuis un des handle (tl/tr/bl/br). Stocke
+ * la taille et position originales ainsi que le `handle` utilisé pour
+ * déterminer quels côtés bouger.
+ */
+export function startResize(ev, id, handle) {
+  ev.stopPropagation();
+  ev.preventDefault();
+  select(id);
+
+  const z = getZoom();
+  const s = getActive();
+  const el = s.elements.find((e) => e.id === id);
+  if (!el) return;
+
+  resize = {
+    id,
+    handle,
+    startX: ev.clientX,
+    startY: ev.clientY,
+    origX: el.x,
+    origY: el.y,
+    origW: el.w || 240,
+    origH: el.h || 54,
+    zoom: z,
+  };
+
+  window.addEventListener("mousemove", onResize);
+  window.addEventListener("mouseup", endResize, { once: true });
+}
+
+/**
+ * onResize(ev)
+ * Calcule la nouvelle largeur/hauteur et, si nécessaire, la nouvelle
+ * position (pour les handles gauche/haut). Utilise `clamp` pour maintenir
+ * des tailles raisonnables et empêche les éléments de sortir du canevas.
+ */
+function onResize(ev) {
+  if (!resize) return;
+  const s = getActive();
+  const el = s.elements.find((e) => e.id === resize.id);
+  if (!el) return;
+
+  const dx = (ev.clientX - resize.startX) / resize.zoom;
+  const dy = (ev.clientY - resize.startY) / resize.zoom;
+
+  let x = resize.origX,
+    y = resize.origY,
+    w = resize.origW,
+    h = resize.origH;
+
+  // Ajustements selon le handle (droite/gauche/bas/haut)
+  if (resize.handle.includes("r")) w = clamp(resize.origW + dx, 40, 960);
+  if (resize.handle.includes("l")) {
+    w = clamp(resize.origW - dx, 40, 960);
+    x = resize.origX + dx;
+  }
+  if (resize.handle.includes("b")) h = clamp(resize.origH + dy, 30, 540);
+  if (resize.handle.includes("t")) {
+    h = clamp(resize.origH - dy, 30, 540);
+    y = resize.origY + dy;
+  }
+
+  // On s'assure que la position reste dans le canevas
+  x = clamp(x, 0, 960 - 20);
+  y = clamp(y, 0, 540 - 20);
+
+  el.x = x;
+  el.y = y;
+  el.w = w;
+  el.h = h;
+  rerender();
+}
+
+/**
+ * endResize()
+ * Termine l'opération de redimensionnement et nettoie l'état.
+ */
+function endResize() {
+  window.removeEventListener("mousemove", onResize);
+  resize = null;
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+
+</body>
+</html>

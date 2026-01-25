@@ -1,0 +1,14 @@
+{
+  "source": {
+    "include": ["projetGr4/src"],
+    "includePattern": ".+\\.(js|mjs)$",
+    "excludePattern": "(^|\\/|\\\\)_(.+)|node_modules|dist|build|public"
+  },
+  "opts": {
+    "destination": "docs",
+    "recurse": true,
+    "template": "node_modules/better-docs",
+    "readme": "README.md"
+  },
+  "plugins": ["plugins/markdown"]
+}

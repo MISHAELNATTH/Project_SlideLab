@@ -1,6 +1,18 @@
+/**
+ * toolbars.js (editor)
+ * Fournit la logique de barres d'outils intégrées aux éléments (formatage
+ * texte, couleurs, dropdowns custom, contrôles de table, etc.). Les fonctions
+ * exposées créent des conteneurs DOM prêts à l'emploi et évitent la fuite
+ * d'événements vers l'éditeur principal.
+ */
 // src/JS/editor/toolbars.js
 
 let renderFn = null;
+/**
+ * configureToolbars({ render })
+ * Enregistre la fonction `render` pour permettre aux contrôles
+ * (ex: color picker change) de déclencher un rerender lorsque nécessaire.
+ */
 export function configureToolbars({ render }) {
   renderFn = render;
 }
@@ -11,6 +23,12 @@ function rerender() {
 // =====================================================
 //  TEXT FORMATTING HELPERS
 // =====================================================
+/**
+ * applyTextFormatting(command, value)
+ * Applique une commande de formatage via `document.execCommand` si
+ * une sélection texte est active. Utilisé pour gérer les formats inline
+ * lorsque l'utilisateur a sélectionné une portion de texte.
+ */
 function applyTextFormatting(command, value = null) {
   const selection = window.getSelection();
   if (!selection.toString()) return;
@@ -19,8 +37,13 @@ function applyTextFormatting(command, value = null) {
   else document.execCommand(command, false, null);
 }
 
+/**
+ * lockPointerEvents(el)
+ * Empêche la propagation de divers events pour un élément donné afin
+ * d'éviter que les interactions internes (ex: color pickers, dropdowns)
+ * déclenchent des handlers globaux (sélection, drag...).
+ */
 function lockPointerEvents(el) {
-  // Empêche les handlers parents (slide, startMove, click-outside) d'interférer
   ["pointerdown", "mousedown", "click"].forEach((evt) => {
     el.addEventListener(evt, (e) => {
       e.stopPropagation();
@@ -28,6 +51,12 @@ function lockPointerEvents(el) {
   });
 }
 
+/**
+ * lockPointerEventsDeep(root)
+ * Même principe que `lockPointerEvents` mais en capture pour empêcher
+ * complètement la bulle d'events depuis tout le subtree (utile pour
+ * les overlays de color picker injectés dynamiquement).
+ */
 function lockPointerEventsDeep(root) {
   const events = ["pointerdown", "pointermove", "pointerup", "mousedown", "mousemove", "mouseup", "click"];
   events.forEach((evt) => {
@@ -86,7 +115,14 @@ function createCustomDropdown(options, initialValue, onChange) {
   container.appendChild(menu);
   return container;
 }
-
+/**
+ * createTextToolbar(element)
+ * Crée la toolbar attachée aux éléments de type `text` ou `button`.
+ * Elle contient : color picker, font family dropdown, taille, bold/italic,
+ * alignements. Les actions appliquent soit un format sur la sélection
+ * (via execCommand) soit modifient directement les propriétés de `element`
+ * puis provoquent un rerender.
+ */
 export function createTextToolbar(element) {
   const toolbar = document.createElement("div");
   toolbar.className = "text-toolbar";
@@ -94,7 +130,9 @@ export function createTextToolbar(element) {
   toolbar.addEventListener("click", (ev) => ev.stopPropagation());
 
   function lockColorPickerOverlaySoon() {
-    // on attend que le picker soit injecté dans le DOM
+    // on attend que le picker soit injecté dans le DOM et on coupe
+    // la propagation pour éviter des événements qui déclencheraient
+    // des comportements globaux (ex: désélection).
     setTimeout(() => {
         const overlay =
         document.querySelector(".pcr-app") ||          // Pickr (très courant)

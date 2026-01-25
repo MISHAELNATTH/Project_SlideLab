@@ -1,3 +1,8 @@
+/**
+ * io.js (arbre)
+ * Import / export pour l'éditeur d'arbre (JSON). Fournit des utilitaires
+ * pour télécharger l'état courant et importer depuis un fichier JSON.
+ */
 import { appState } from "./state.js";
 import { requestSave } from "./storage.js";
 import { buildGraphFromSlidesState } from "./buildGraph.js";
@@ -36,3 +41,10 @@ export function importFromFile(file) {
   };
   reader.readAsText(file);
 }
+
+/**
+ * exportJsonDownload()
+ * Sérialise l'état `appState.slides_state` et déclenche le téléchargement
+ * d'un fichier JSON nommé `slides_state.json`. Utilise un `Blob` et crée
+ * un objet URL, puis le révoque après usage.
+ */

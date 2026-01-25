@@ -1,3 +1,8 @@
+/**
+ * dom.js (arbre)
+ * Sélecteurs DOM et petits helpers pour valider la présence des éléments
+ * essentiels de l'interface d'édition de graphe (canvas, layers, sidebar).
+ */
 export const dom = {
   nodesLayer: document.getElementById("nodes-layer"),
   svgLayer: document.getElementById("svg-layer"),
@@ -16,3 +21,10 @@ export function assertDom() {
     throw new Error("DOM manquant : nodes-layer/svg-layer/properties-content/sidebar-subtitle/canvas");
   }
 }
+
+/**
+ * assertDom()
+ * Vérifie que les éléments DOM essentiels pour l'éditeur d'arbre
+ * sont présents. Lance une exception explicite si l'un des éléments
+ * requis est manquant, facilitant le debug à l'initialisation.
+ */

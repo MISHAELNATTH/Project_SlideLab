@@ -1,0 +1,6338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> Global</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    Documentation
+                </a>
+                
+                <a
+                    href="../index.html"
+                    class="link"
+                >
+                    Retour vers SlideLab
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Global</h3><ul><li><a href="global.html#addSlide">addSlide</a></li><li><a href="global.html#applyCameraTransform">applyCameraTransform</a></li><li><a href="global.html#applyTextFormatting">applyTextFormatting</a></li><li><a href="global.html#clamp">clamp</a></li><li><a href="global.html#cleanupLinksAfterSlideDelete">cleanupLinksAfterSlideDelete</a></li><li><a href="global.html#clearSelection">clearSelection</a></li><li><a href="global.html#configureDragDrop">configureDragDrop</a></li><li><a href="global.html#configureMoveResize">configureMoveResize</a></li><li><a href="global.html#configureThumbs">configureThumbs</a></li><li><a href="global.html#configureToolbars">configureToolbars</a></li><li><a href="global.html#createTextToolbar">createTextToolbar</a></li><li><a href="global.html#cryptoId">cryptoId</a></li><li><a href="global.html#debounce">debounce</a></li><li><a href="global.html#deleteSelected">deleteSelected</a></li><li><a href="global.html#deleteSlideByIndex">deleteSlideByIndex</a></li><li><a href="global.html#dom">dom</a></li><li><a href="global.html#endMove">endMove</a></li><li><a href="global.html#endResize">endResize</a></li><li><a href="global.html#getActive">getActive</a></li><li><a href="global.html#getElementClasses">getElementClasses</a></li><li><a href="global.html#getElementStyles">getElementStyles</a></li><li><a href="global.html#getSelectedId">getSelectedId</a></li><li><a href="global.html#getShapeWrapperStyles">getShapeWrapperStyles</a></li><li><a href="global.html#getSlideBackgroundStyle">getSlideBackgroundStyle</a></li><li><a href="global.html#getZoom">getZoom</a></li><li><a href="global.html#hrefToTarget">hrefToTarget</a></li><li><a href="global.html#initUI">initUI</a></li><li><a href="global.html#installCameraControls">installCameraControls</a></li><li><a href="global.html#installInteractions">installInteractions</a></li><li><a href="global.html#linkToSlideIndex">linkToSlideIndex</a></li><li><a href="global.html#loadSlidesStateFromLocalStorage">loadSlidesStateFromLocalStorage</a></li><li><a href="global.html#loadState">loadState</a></li><li><a href="global.html#lockPointerEvents">lockPointerEvents</a></li><li><a href="global.html#lockPointerEventsDeep">lockPointerEventsDeep</a></li><li><a href="global.html#onMove">onMove</a></li><li><a href="global.html#onResize">onResize</a></li><li><a href="global.html#px">px</a></li><li><a href="global.html#readSlideMeta">readSlideMeta</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#renderConnections">renderConnections</a></li><li><a href="global.html#renderNodes">renderNodes</a></li><li><a href="global.html#renderSidebar">renderSidebar</a></li><li><a href="global.html#renderThumbs">renderThumbs</a></li><li><a href="global.html#requestSave">requestSave</a></li><li><a href="global.html#saveSlidesStateToLocalStorage">saveSlidesStateToLocalStorage</a></li><li><a href="global.html#saveState">saveState</a></li><li><a href="global.html#searchEl">searchEl</a></li><li><a href="global.html#select">select</a></li><li><a href="global.html#setElementLinkInSlidesState">setElementLinkInSlidesState</a></li><li><a href="global.html#setSelectedId">setSelectedId</a></li><li><a href="global.html#setSlidePos">setSlidePos</a></li><li><a href="global.html#setSlideTitle">setSlideTitle</a></li><li><a href="global.html#setZoom">setZoom</a></li><li><a href="global.html#slideEl">slideEl</a></li><li><a href="global.html#slideId">slideId</a></li><li><a href="global.html#slideIndexToLink">slideIndexToLink</a></li><li><a href="global.html#startDrag">startDrag</a></li><li><a href="global.html#startMove">startMove</a></li><li><a href="global.html#startResize">startResize</a></li><li><a href="global.html#state">state</a></li><li><a href="global.html#stylesToString">stylesToString</a></li><li><a href="global.html#thumbsEl">thumbsEl</a></li><li><a href="global.html#zoomChip">zoomChip</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p></p>
+                    <h1>Global</h1>
+                </header>
+                
+
+
+
+
+<section>
+
+<header>
+    
+        <h2></h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+    
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <div class='vertical-section'>
+            <h1>Members</h1>
+            <div class="members">
+            
+                <div class="member">
+
+<h4 class="name" id="dom">
+    <a class="href-link" href="#dom">#</a>
+    
+        
+            <span class='tag'>constant</span>
+        
+    
+    <span class="code-name">
+        dom
+    </span>
+    
+</h4>
+
+
+
+
+<div class="description">
+    <p>dom.js (arbre)
+Sélecteurs DOM et petits helpers pour valider la présence des éléments
+essentiels de l'interface d'édition de graphe (canvas, layers, sidebar).</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="arbre_dom.js.html" class="button">View Source</a>
+            <span>
+                <a href="arbre_dom.js.html">arbre/dom.js</a>, <a href="arbre_dom.js.html#line6">line 6</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+<h4 class="name" id="requestSave">
+    <a class="href-link" href="#requestSave">#</a>
+    
+        
+            <span class='tag'>constant</span>
+        
+    
+    <span class="code-name">
+        requestSave
+    </span>
+    
+</h4>
+
+
+
+
+<div class="description">
+    <p>requestSave
+Instance débouncée utilisée par les autres modules pour demander
+une sauvegarde asynchrone de <code>appState.slides_state</code>.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="arbre_storage.js.html" class="button">View Source</a>
+            <span>
+                <a href="arbre_storage.js.html">arbre/storage.js</a>, <a href="arbre_storage.js.html#line60">line 60</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+<h4 class="name" id="searchEl">
+    <a class="href-link" href="#searchEl">#</a>
+    
+        
+            <span class='tag'>constant</span>
+        
+    
+    <span class="code-name">
+        searchEl
+    </span>
+    
+</h4>
+
+
+
+
+<div class="description">
+    <p>Référence DOM: champ de recherche des outils.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_dom.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_dom.js.html">editor/dom.js</a>, <a href="editor_dom.js.html#line14">line 14</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+<h4 class="name" id="slideEl">
+    <a class="href-link" href="#slideEl">#</a>
+    
+        
+            <span class='tag'>constant</span>
+        
+    
+    <span class="code-name">
+        slideEl
+    </span>
+    
+</h4>
+
+
+
+
+<div class="description">
+    <p>Référence DOM: zone principale affichant la slide.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_dom.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_dom.js.html">editor/dom.js</a>, <a href="editor_dom.js.html#line8">line 8</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+<h4 class="name" id="state">
+    <a class="href-link" href="#state">#</a>
+    
+        
+            <span class='tag'>constant</span>
+        
+    
+    <span class="code-name">
+        state
+    </span>
+    
+</h4>
+
+
+
+
+<div class="description">
+    <p><code>state</code> - état applicatif de l'éditeur
+Structure minimale conservée en localStorage et utilisée partout.</p>
+<ul>
+<li><code>activeSlide</code>: index de la slide courante</li>
+<li><code>slides</code>: tableau des slides avec leurs éléments</li>
+</ul>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_core.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_core.js.html">editor/core.js</a>, <a href="editor_core.js.html#line48">line 48</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+<h4 class="name" id="thumbsEl">
+    <a class="href-link" href="#thumbsEl">#</a>
+    
+        
+            <span class='tag'>constant</span>
+        
+    
+    <span class="code-name">
+        thumbsEl
+    </span>
+    
+</h4>
+
+
+
+
+<div class="description">
+    <p>Référence DOM: conteneur des miniatures (thumbs).</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_dom.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_dom.js.html">editor/dom.js</a>, <a href="editor_dom.js.html#line11">line 11</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+<h4 class="name" id="zoomChip">
+    <a class="href-link" href="#zoomChip">#</a>
+    
+        
+            <span class='tag'>constant</span>
+        
+    
+    <span class="code-name">
+        zoomChip
+    </span>
+    
+</h4>
+
+
+
+
+<div class="description">
+    <p>Référence DOM: petit affichage du niveau de zoom.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_dom.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_dom.js.html">editor/dom.js</a>, <a href="editor_dom.js.html#line17">line 17</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+</div>
+            
+            </div>
+        </div>
+    
+
+    
+        <div class='vertical-section'>
+            <h1>Methods</h1>
+            <div class="members">
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="addSlide">
+        <a class="href-link" href="#addSlide">#</a>
+        
+        <span class="code-name">
+            
+                addSlide<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>addSlide()
+Ajoute une nouvelle slide par défaut à la fin de <code>slides_state.slides</code>.
+Initialise <code>arbre.title</code> et <code>arbre.pos</code> pour permettre son affichage
+immédiat dans la vue graphe. Déclenche <code>requestSave()</code> et rebuild.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="arbre_actions.js.html" class="button">View Source</a>
+            <span>
+                <a href="arbre_actions.js.html">arbre/actions.js</a>, <a href="arbre_actions.js.html#line137">line 137</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="applyCameraTransform">
+        <a class="href-link" href="#applyCameraTransform">#</a>
+        
+        <span class="code-name">
+            
+                applyCameraTransform<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>applyCameraTransform()
+Applique la transformation CSS (translate + scale) aux calques de nodes
+et du SVG afin de refléter la position et le zoom de la caméra.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="arbre_camera.js.html" class="button">View Source</a>
+            <span>
+                <a href="arbre_camera.js.html">arbre/camera.js</a>, <a href="arbre_camera.js.html#line31">line 31</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="applyTextFormatting">
+        <a class="href-link" href="#applyTextFormatting">#</a>
+        
+        <span class="code-name">
+            
+                applyTextFormatting<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>applyTextFormatting(command, value)
+Applique une commande de formatage via <code>document.execCommand</code> si
+une sélection texte est active. Utilisé pour gérer les formats inline
+lorsque l'utilisateur a sélectionné une portion de texte.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_toolbars.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_toolbars.js.html">editor/toolbars.js</a>, <a href="editor_toolbars.js.html#line32">line 32</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="clamp">
+        <a class="href-link" href="#clamp">#</a>
+        
+        <span class="code-name">
+            
+                clamp<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>clamp(n, a, b)
+Limite la valeur <code>n</code> entre <code>a</code> et <code>b</code> inclus. Utilisé pour fixer
+des bornes sur positions, tailles, et zooms afin d'éviter des valeurs
+invalides ou hors écran.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_core.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_core.js.html">editor/core.js</a>, <a href="editor_core.js.html#line38">line 38</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="cleanupLinksAfterSlideDelete">
+        <a class="href-link" href="#cleanupLinksAfterSlideDelete">#</a>
+        
+        <span class="code-name">
+            
+                cleanupLinksAfterSlideDelete<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Nettoie les links (elements[].link) après suppression d'une slide.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="arbre_actions.js.html" class="button">View Source</a>
+            <span>
+                <a href="arbre_actions.js.html">arbre/actions.js</a>, <a href="arbre_actions.js.html#line82">line 82</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="clearSelection">
+        <a class="href-link" href="#clearSelection">#</a>
+        
+        <span class="code-name">
+            
+                clearSelection<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>clearSelection()
+Désarçonne la sélection courante (met à null) et force un rendu.
+Appelée lorsqu'on clique sur le fond de la slide.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_ui.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_ui.js.html">editor/ui.js</a>, <a href="editor_ui.js.html#line21">line 21</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="configureDragDrop">
+        <a class="href-link" href="#configureDragDrop">#</a>
+        
+        <span class="code-name">
+            
+                configureDragDrop<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>configureDragDrop({ render })
+Enregistre une fonction <code>render</code> fournie par le module appelant afin de
+pouvoir déclencher un rerender lorsque des éléments sont ajoutés via
+drag&amp;drop. Ceci évite d'importer directement <code>render</code> et garde
+une dépendance plus légère.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_dragDrop.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_dragDrop.js.html">editor/dragDrop.js</a>, <a href="editor_dragDrop.js.html#line20">line 20</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="configureMoveResize">
+        <a class="href-link" href="#configureMoveResize">#</a>
+        
+        <span class="code-name">
+            
+                configureMoveResize<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>configureMoveResize({ render })
+Enregistre la fonction <code>render</code> transmise par le module appelant afin
+de pouvoir forcer le rendu lors des opérations de déplacement/redim.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_moveResize.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_moveResize.js.html">editor/moveResize.js</a>, <a href="editor_moveResize.js.html#line17">line 17</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="configureThumbs">
+        <a class="href-link" href="#configureThumbs">#</a>
+        
+        <span class="code-name">
+            
+                configureThumbs<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>configureThumbs({ render })
+Enregistre la fonction <code>render</code> utilisée pour déclencher le re-rendu
+depuis la miniature (quand l'utilisateur clique pour naviguer).</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_thumbs.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_thumbs.js.html">editor/thumbs.js</a>, <a href="editor_thumbs.js.html#line18">line 18</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="configureToolbars">
+        <a class="href-link" href="#configureToolbars">#</a>
+        
+        <span class="code-name">
+            
+                configureToolbars<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>configureToolbars({ render })
+Enregistre la fonction <code>render</code> pour permettre aux contrôles
+(ex: color picker change) de déclencher un rerender lorsque nécessaire.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_toolbars.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_toolbars.js.html">editor/toolbars.js</a>, <a href="editor_toolbars.js.html#line16">line 16</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="createTextToolbar">
+        <a class="href-link" href="#createTextToolbar">#</a>
+        
+        <span class="code-name">
+            
+                createTextToolbar<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>createTextToolbar(element)
+Crée la toolbar attachée aux éléments de type <code>text</code> ou <code>button</code>.
+Elle contient : color picker, font family dropdown, taille, bold/italic,
+alignements. Les actions appliquent soit un format sur la sélection
+(via execCommand) soit modifient directement les propriétés de <code>element</code>
+puis provoquent un rerender.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_toolbars.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_toolbars.js.html">editor/toolbars.js</a>, <a href="editor_toolbars.js.html#line126">line 126</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="cryptoId">
+        <a class="href-link" href="#cryptoId">#</a>
+        
+        <span class="code-name">
+            
+                cryptoId<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>cryptoId()
+Retourne un identifiant pseudo-unique utilisable pour les slides
+et éléments. Utilise <code>crypto.randomUUID</code> si disponible, sinon
+génère une chaîne probabiliste. Ne garantit pas l'unicité absolue
+mais est suffisante pour ce contexte d'éditeur côté client.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_core.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_core.js.html">editor/core.js</a>, <a href="editor_core.js.html#line19">line 19</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="debounce">
+        <a class="href-link" href="#debounce">#</a>
+        
+        <span class="code-name">
+            
+                debounce<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>debounce(fn, ms)
+Retourne une version débouncée de <code>fn</code> qui attend <code>ms</code> millisecondes
+après le dernier appel avant d'exécuter <code>fn</code>. Utilisé pour regrouper
+plusieurs modifications en une seule écriture localStorage.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="arbre_storage.js.html" class="button">View Source</a>
+            <span>
+                <a href="arbre_storage.js.html">arbre/storage.js</a>, <a href="arbre_storage.js.html#line47">line 47</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="deleteSelected">
+        <a class="href-link" href="#deleteSelected">#</a>
+        
+        <span class="code-name">
+            
+                deleteSelected<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>deleteSelected()
+Supprime l'élément actuellement sélectionné de la slide active.
+Met à jour l'état en filtrant <code>elements</code> puis réaffiche.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_ui.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_ui.js.html">editor/ui.js</a>, <a href="editor_ui.js.html#line31">line 31</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="deleteSlideByIndex">
+        <a class="href-link" href="#deleteSlideByIndex">#</a>
+        
+        <span class="code-name">
+            
+                deleteSlideByIndex<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>deleteSlideByIndex(deleteIndex)
+Supprime la slide à l'index <code>deleteIndex</code> dans <code>appState.slides_state.slides</code>.
+Procédure :</p>
+<ol>
+<li>retirer la slide</li>
+<li>renumérotation/nettoyage des liens internes via <code>cleanupLinksAfterSlideDelete</code></li>
+<li>forcer une sauvegarde synchrone via <code>saveSlidesStateToLocalStorage</code></li>
+<li>reset sélection et rebuild du graphe
+Cette fonction a des effets globaux sur l'état de l'application.</li>
+</ol>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="arbre_actions.js.html" class="button">View Source</a>
+            <span>
+                <a href="arbre_actions.js.html">arbre/actions.js</a>, <a href="arbre_actions.js.html#line115">line 115</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="endMove">
+        <a class="href-link" href="#endMove">#</a>
+        
+        <span class="code-name">
+            
+                endMove<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>endMove()
+Termine l'opération de déplacement : enlève le listener <code>mousemove</code>
+et réinitialise l'état temporaire.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_moveResize.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_moveResize.js.html">editor/moveResize.js</a>, <a href="editor_moveResize.js.html#line119">line 119</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="endResize">
+        <a class="href-link" href="#endResize">#</a>
+        
+        <span class="code-name">
+            
+                endResize<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>endResize()
+Termine l'opération de redimensionnement et nettoie l'état.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_moveResize.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_moveResize.js.html">editor/moveResize.js</a>, <a href="editor_moveResize.js.html#line203">line 203</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getActive">
+        <a class="href-link" href="#getActive">#</a>
+        
+        <span class="code-name">
+            
+                getActive<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>getActive()
+Renvoie la slide active (objet) depuis <code>state.slides</code>.
+Usage récurrent dans le rendu et les handlers pour manipuler la slide courante.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_core.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_core.js.html">editor/core.js</a>, <a href="editor_core.js.html#line143">line 143</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getElementClasses">
+        <a class="href-link" href="#getElementClasses">#</a>
+        
+        <span class="code-name">
+            
+                getElementClasses<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Returns the CSS class string for an element.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="styleHelper.js.html" class="button">View Source</a>
+            <span>
+                <a href="styleHelper.js.html">styleHelper.js</a>, <a href="styleHelper.js.html#line14">line 14</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getElementStyles">
+        <a class="href-link" href="#getElementStyles">#</a>
+        
+        <span class="code-name">
+            
+                getElementStyles<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Returns an object containing all CSS properties for an element.
+Used by Editor and Presenter to apply styles via JS.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="styleHelper.js.html" class="button">View Source</a>
+            <span>
+                <a href="styleHelper.js.html">styleHelper.js</a>, <a href="styleHelper.js.html#line26">line 26</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getSelectedId">
+        <a class="href-link" href="#getSelectedId">#</a>
+        
+        <span class="code-name">
+            
+                getSelectedId<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>getSelectedId()
+Renvoie l'identifiant de l'élément actuellement sélectionné, ou <code>null</code>
+s'il n'y a pas de sélection.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_core.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_core.js.html">editor/core.js</a>, <a href="editor_core.js.html#line164">line 164</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getShapeWrapperStyles">
+        <a class="href-link" href="#getShapeWrapperStyles">#</a>
+        
+        <span class="code-name">
+            
+                getShapeWrapperStyles<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Generates inline styles for shape wrapper element
+Matches presentation mode rendering exactly</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="styleHelper.js.html" class="button">View Source</a>
+            <span>
+                <a href="styleHelper.js.html">styleHelper.js</a>, <a href="styleHelper.js.html#line77">line 77</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getSlideBackgroundStyle">
+        <a class="href-link" href="#getSlideBackgroundStyle">#</a>
+        
+        <span class="code-name">
+            
+                getSlideBackgroundStyle<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Returns the background style for a slide</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="styleHelper.js.html" class="button">View Source</a>
+            <span>
+                <a href="styleHelper.js.html">styleHelper.js</a>, <a href="styleHelper.js.html#line133">line 133</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getZoom">
+        <a class="href-link" href="#getZoom">#</a>
+        
+        <span class="code-name">
+            
+                getZoom<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>getZoom()
+Lit le <code>transform: scale(...)</code> appliqué à <code>slideEl</code> et retourne
+la valeur numérique. Si aucun transform n'est trouvé, retourne <code>1</code>.
+Remarque: cette fonction parse la chaîne CSS ; ne modifie pas l'état.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_zoom.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_zoom.js.html">editor/zoom.js</a>, <a href="editor_zoom.js.html#line17">line 17</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="hrefToTarget">
+        <a class="href-link" href="#hrefToTarget">#</a>
+        
+        <span class="code-name">
+            
+                hrefToTarget<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Convertit un href vers une &quot;cible slide&quot; (si détectable)
+Supporte:</p>
+<ul>
+<li>&quot;slide-3.html&quot;</li>
+<li>&quot;#slide:3&quot;</li>
+<li>&quot;#slide-3&quot;</li>
+</ul>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="imporExport.js.html" class="button">View Source</a>
+            <span>
+                <a href="imporExport.js.html">imporExport.js</a>, <a href="imporExport.js.html#line59">line 59</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="initUI">
+        <a class="href-link" href="#initUI">#</a>
+        
+        <span class="code-name">
+            
+                initUI<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>initUI()
+Initialise les listeners globaux de l'éditeur : gestion des imports,
+suppression via clavier, raccourcis de zoom, redimensionneurs UI,
+boutons de navigation, et initialisation du drag&amp;drop.
+Toutes les sous-fonctions liées aux resizers sont définies en scope
+local pour garder les handlers proches de leur logique.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_ui.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_ui.js.html">editor/ui.js</a>, <a href="editor_ui.js.html#line48">line 48</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="installCameraControls">
+        <a class="href-link" href="#installCameraControls">#</a>
+        
+        <span class="code-name">
+            
+                installCameraControls<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>installCameraControls()
+Installe les handlers souris pour :</p>
+<ul>
+<li>panning (drag du fond) : capture mousedown/mousemove/mouseup</li>
+<li>zoom via molette : calcule un nouveau <code>camera.zoom</code> et recentre
+le zoom sous la souris pour un comportement naturel.</li>
+</ul>
+<p>Le recentrage se fait en convertissant la position souris en coordonnées
+&quot;monde&quot; avant la modification du zoom, puis en recalculant <code>camera.x/y</code>.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="arbre_camera.js.html" class="button">View Source</a>
+            <span>
+                <a href="arbre_camera.js.html">arbre/camera.js</a>, <a href="arbre_camera.js.html#line47">line 47</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="installInteractions">
+        <a class="href-link" href="#installInteractions">#</a>
+        
+        <span class="code-name">
+            
+                installInteractions<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Installe listeners globaux (mousemove/up) + expose startDrag pour render.js</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="arbre_interactions.js.html" class="button">View Source</a>
+            <span>
+                <a href="arbre_interactions.js.html">arbre/interactions.js</a>, <a href="arbre_interactions.js.html#line64">line 64</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="linkToSlideIndex">
+        <a class="href-link" href="#linkToSlideIndex">#</a>
+        
+        <span class="code-name">
+            
+                linkToSlideIndex<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>linkToSlideIndex(link)
+Parse une valeur de lien (string) et retourne l'index 0-based correspondant
+ou <code>null</code> si la valeur n'est pas un lien interne numérique valide.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="arbre_mapping.js.html" class="button">View Source</a>
+            <span>
+                <a href="arbre_mapping.js.html">arbre/mapping.js</a>, <a href="arbre_mapping.js.html#line19">line 19</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="loadSlidesStateFromLocalStorage">
+        <a class="href-link" href="#loadSlidesStateFromLocalStorage">#</a>
+        
+        <span class="code-name">
+            
+                loadSlidesStateFromLocalStorage<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>loadSlidesStateFromLocalStorage()
+Lit la clé <code>STORAGE_KEY</code> dans <code>localStorage</code> et tente de parser le JSON.
+Retourne l'objet parsé ou <code>null</code> si absent / invalide.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="arbre_storage.js.html" class="button">View Source</a>
+            <span>
+                <a href="arbre_storage.js.html">arbre/storage.js</a>, <a href="arbre_storage.js.html#line16">line 16</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="loadState">
+        <a class="href-link" href="#loadState">#</a>
+        
+        <span class="code-name">
+            
+                loadState<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>loadState()
+Tente de restaurer l'état depuis <code>localStorage</code>. Si un état valide
+est trouvé, remplace les propriétés principales (<code>activeSlide</code> et
+<code>slides</code>) et retourne <code>true</code>. Sinon retourne <code>false</code>.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_core.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_core.js.html">editor/core.js</a>, <a href="editor_core.js.html#line122">line 122</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="lockPointerEvents">
+        <a class="href-link" href="#lockPointerEvents">#</a>
+        
+        <span class="code-name">
+            
+                lockPointerEvents<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>lockPointerEvents(el)
+Empêche la propagation de divers events pour un élément donné afin
+d'éviter que les interactions internes (ex: color pickers, dropdowns)
+déclenchent des handlers globaux (sélection, drag...).</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_toolbars.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_toolbars.js.html">editor/toolbars.js</a>, <a href="editor_toolbars.js.html#line46">line 46</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="lockPointerEventsDeep">
+        <a class="href-link" href="#lockPointerEventsDeep">#</a>
+        
+        <span class="code-name">
+            
+                lockPointerEventsDeep<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>lockPointerEventsDeep(root)
+Même principe que <code>lockPointerEvents</code> mais en capture pour empêcher
+complètement la bulle d'events depuis tout le subtree (utile pour
+les overlays de color picker injectés dynamiquement).</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_toolbars.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_toolbars.js.html">editor/toolbars.js</a>, <a href="editor_toolbars.js.html#line60">line 60</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="onMove">
+        <a class="href-link" href="#onMove">#</a>
+        
+        <span class="code-name">
+            
+                onMove<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>onMove(ev)
+Calcul des nouvelles coordonnées pendant le drag. Le delta de la souris
+est divisé par le <code>zoom</code> capturé au démarrage pour obtenir le déplacement
+réel en coordonnées de la slide. Les valeurs sont clampées pour rester
+dans la zone 960x540 moins une marge.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_moveResize.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_moveResize.js.html">editor/moveResize.js</a>, <a href="editor_moveResize.js.html#line100">line 100</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="onResize">
+        <a class="href-link" href="#onResize">#</a>
+        
+        <span class="code-name">
+            
+                onResize<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>onResize(ev)
+Calcule la nouvelle largeur/hauteur et, si nécessaire, la nouvelle
+position (pour les handles gauche/haut). Utilise <code>clamp</code> pour maintenir
+des tailles raisonnables et empêche les éléments de sortir du canevas.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_moveResize.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_moveResize.js.html">editor/moveResize.js</a>, <a href="editor_moveResize.js.html#line162">line 162</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="px">
+        <a class="href-link" href="#px">#</a>
+        
+        <span class="code-name">
+            
+                px<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>styleHelper.js
+Contient les utilitaires pour produire les classes CSS et styles en ligne
+appliqués aux éléments de slide. Utilisé à la fois par l'éditeur
+et le mode présentation/export pour garantir un rendu identique.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="styleHelper.js.html" class="button">View Source</a>
+            <span>
+                <a href="styleHelper.js.html">styleHelper.js</a>, <a href="styleHelper.js.html#line7">line 7</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="readSlideMeta">
+        <a class="href-link" href="#readSlideMeta">#</a>
+        
+        <span class="code-name">
+            
+                readSlideMeta<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Lit le meta JSON si présent dans:</p>
+<script id="slide-meta" type="application/json">...</script>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="imporExport.js.html" class="button">View Source</a>
+            <span>
+                <a href="imporExport.js.html">imporExport.js</a>, <a href="imporExport.js.html#line110">line 110</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="render">
+        <a class="href-link" href="#render">#</a>
+        
+        <span class="code-name">
+            
+                render<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>render()
+Fonction principale qui reconstruit la DOM de la slide courante à partir
+de l'objet <code>state</code>. Pour chaque élément de <code>s.elements</code> on créé un
+conteneur avec les styles/classes appropriés puis on ajoute la logique
+spécifique selon le type (text/button/table/shape/image).</p>
+<p>Points importants :</p>
+<ul>
+<li>Les toolbars sont ajoutées dynamiquement pour l'édition inline</li>
+<li>Les handles tl/tr/bl/br déclenchent <code>startResize</code></li>
+<li>Les événements d'upload d'image et de drop sont gérés localement</li>
+<li>On sauvegarde l'état (<code>saveState</code>) à la fin du rendu</li>
+</ul>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_render.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_render.js.html">editor/render.js</a>, <a href="editor_render.js.html#line29">line 29</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="renderConnections">
+        <a class="href-link" href="#renderConnections">#</a>
+        
+        <span class="code-name">
+            
+                renderConnections<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>renderConnections()
+Parcourt chaque node et dessine les chemins SVG reliant un port
+à la slide cible identifiée par le lien. Ignore les liens invalides.
+Le tracé utilise une courbe de Bézier cubic pour une apparence fluide.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="arbre_render.js.html" class="button">View Source</a>
+            <span>
+                <a href="arbre_render.js.html">arbre/render.js</a>, <a href="arbre_render.js.html#line73">line 73</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="renderNodes">
+        <a class="href-link" href="#renderNodes">#</a>
+        
+        <span class="code-name">
+            
+                renderNodes<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>renderNodes()
+Construit et positionne les éléments visuels représentant chaque node.</p>
+<ul>
+<li>crée un élément .node pour chaque entrée dans <code>appState.nodes</code></li>
+<li>calcule la hauteur en fonction du nombre de ports</li>
+<li>ajoute un handler <code>mousedown</code> qui délègue à <code>__ARBRE_START_DRAG__</code></li>
+</ul>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="arbre_render.js.html" class="button">View Source</a>
+            <span>
+                <a href="arbre_render.js.html">arbre/render.js</a>, <a href="arbre_render.js.html#line28">line 28</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="renderSidebar">
+        <a class="href-link" href="#renderSidebar">#</a>
+        
+        <span class="code-name">
+            
+                renderSidebar<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>renderSidebar()
+Reconstruit le panneau latéral de propriétés pour la slide sélectionnée
+dans la vue graphe. Affiche :</p>
+<ul>
+<li>le champ de titre editable (met à jour <code>setSlideTitle</code>)</li>
+<li>bouton de suppression (supprime via <code>deleteSlideByIndex</code>)</li>
+<li>liste des connexions par élément permettant de choisir une target
+interne ou un lien externe (met à jour <code>setElementLinkInSlidesState</code>).</li>
+</ul>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="arbre_sidebar.js.html" class="button">View Source</a>
+            <span>
+                <a href="arbre_sidebar.js.html">arbre/sidebar.js</a>, <a href="arbre_sidebar.js.html#line22">line 22</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="renderThumbs">
+        <a class="href-link" href="#renderThumbs">#</a>
+        
+        <span class="code-name">
+            
+                renderThumbs<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>renderThumbs()
+Reconstruit l'ensemble des miniatures à partir de <code>state.slides</code>.
+Le rendu est une version scalée de la slide (transform: scale)
+et utilise <code>getElementClasses</code> / <code>getElementStyles</code> pour assurer
+un rendu cohérent avec l'éditeur.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_thumbs.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_thumbs.js.html">editor/thumbs.js</a>, <a href="editor_thumbs.js.html#line32">line 32</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="saveSlidesStateToLocalStorage">
+        <a class="href-link" href="#saveSlidesStateToLocalStorage">#</a>
+        
+        <span class="code-name">
+            
+                saveSlidesStateToLocalStorage<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>saveSlidesStateToLocalStorage(slides_state)
+Sérialise <code>slides_state</code> et l'écrit dans <code>localStorage</code>.
+Enrobe l'opération dans un try/catch pour éviter les erreurs (quota plein).</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="arbre_storage.js.html" class="button">View Source</a>
+            <span>
+                <a href="arbre_storage.js.html">arbre/storage.js</a>, <a href="arbre_storage.js.html#line32">line 32</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="saveState">
+        <a class="href-link" href="#saveState">#</a>
+        
+        <span class="code-name">
+            
+                saveState<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>saveState()
+Sauvegarde l'objet <code>state</code> dans <code>localStorage</code> sous la clé
+<code>slides_state</code>. Enrobe dans un try/catch pour éviter que
+l'application ne plante si l'espace est plein.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_core.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_core.js.html">editor/core.js</a>, <a href="editor_core.js.html#line107">line 107</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="select">
+        <a class="href-link" href="#select">#</a>
+        
+        <span class="code-name">
+            
+                select<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>select(id)
+Sélectionne localement un élément si différent de la sélection courante
+et provoque un rerender. Centralise la logique de sélection utilisée
+par les handlers de move/resize.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_moveResize.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_moveResize.js.html">editor/moveResize.js</a>, <a href="editor_moveResize.js.html#line34">line 34</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="setElementLinkInSlidesState">
+        <a class="href-link" href="#setElementLinkInSlidesState">#</a>
+        
+        <span class="code-name">
+            
+                setElementLinkInSlidesState<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>setElementLinkInSlidesState(srcSlideIndex, elementIndex, newLink)
+Met à jour la propriété <code>link</code> d'un élément donné (index d'élément)
+dans la slide <code>srcSlideIndex</code>. Vérifications : existence de la slide
+et du tableau <code>elements</code>.
+Effet de bord : <code>requestSave()</code>.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="arbre_actions.js.html" class="button">View Source</a>
+            <span>
+                <a href="arbre_actions.js.html">arbre/actions.js</a>, <a href="arbre_actions.js.html#line68">line 68</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="setSelectedId">
+        <a class="href-link" href="#setSelectedId">#</a>
+        
+        <span class="code-name">
+            
+                setSelectedId<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>setSelectedId(v)
+Définit l'identifiant sélectionné dans l'éditeur. Aucune autre
+logique n'est exécutée ici (le rendu se base sur <code>getSelectedId</code>).</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_core.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_core.js.html">editor/core.js</a>, <a href="editor_core.js.html#line155">line 155</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="setSlidePos">
+        <a class="href-link" href="#setSlidePos">#</a>
+        
+        <span class="code-name">
+            
+                setSlidePos<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>setSlidePos(srcSlideIndex, x, y)
+Met à jour la position stockée (<code>arbre.pos</code>) d'une slide utilisée
+pour l'affichage dans la vue graphe. Crée les structures manquantes
+si nécessaire puis appelle <code>requestSave()</code>.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="arbre_actions.js.html" class="button">View Source</a>
+            <span>
+                <a href="arbre_actions.js.html">arbre/actions.js</a>, <a href="arbre_actions.js.html#line50">line 50</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="setSlideTitle">
+        <a class="href-link" href="#setSlideTitle">#</a>
+        
+        <span class="code-name">
+            
+                setSlideTitle<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>setSlideTitle(srcSlideIndex, newTitle)
+Met à jour le titre interne (<code>arbre.title</code>) d'une slide identifiée
+par son index source <code>srcSlideIndex</code> dans <code>appState.slides_state.slides</code>.
+Effet de bord : déclenche <code>requestSave()</code> pour persister la modification
+de manière asynchrone.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="arbre_actions.js.html" class="button">View Source</a>
+            <span>
+                <a href="arbre_actions.js.html">arbre/actions.js</a>, <a href="arbre_actions.js.html#line35">line 35</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="setZoom">
+        <a class="href-link" href="#setZoom">#</a>
+        
+        <span class="code-name">
+            
+                setZoom<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>setZoom(z)
+Définit le zoom de l'éditeur en appliquant <code>transform: scale(z)</code> sur
+<code>slideEl</code>. La valeur est bornée via <code>clamp</code> pour éviter des extrêmes.
+Met à jour <code>zoomChip</code> si présent pour un retour visuel immédiat.
+Paramètre:</p>
+<ul>
+<li>z: nombre souhaité (ex: 1.2 pour 120%).</li>
+</ul>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_zoom.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_zoom.js.html">editor/zoom.js</a>, <a href="editor_zoom.js.html#line30">line 30</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="slideId">
+        <a class="href-link" href="#slideId">#</a>
+        
+        <span class="code-name">
+            
+                slideId<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>slideId()
+Génère un identifiant lisible pour un fichier slide (ex: &quot;slide-2.html&quot;).
+Incrémente un compteur local <code>id</code>. Utile pour duplication/création rapide.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_core.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_core.js.html">editor/core.js</a>, <a href="editor_core.js.html#line28">line 28</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="slideIndexToLink">
+        <a class="href-link" href="#slideIndexToLink">#</a>
+        
+        <span class="code-name">
+            
+                slideIndexToLink<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>slideIndexToLink(slideIndex)
+Convertit un index 0-based en la valeur de lien affichée (string &quot;1..N&quot;).</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="arbre_mapping.js.html" class="button">View Source</a>
+            <span>
+                <a href="arbre_mapping.js.html">arbre/mapping.js</a>, <a href="arbre_mapping.js.html#line10">line 10</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="startDrag">
+        <a class="href-link" href="#startDrag">#</a>
+        
+        <span class="code-name">
+            
+                startDrag<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>deselectAll(e)
+Handler utilisé lorsque l'utilisateur clique sur le canvas/fond.
+Si le clic cible le fond, on efface la sélection courante et on
+redessine la vue + la sidebar.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="arbre_interactions.js.html" class="button">View Source</a>
+            <span>
+                <a href="arbre_interactions.js.html">arbre/interactions.js</a>, <a href="arbre_interactions.js.html#line33">line 33</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="startMove">
+        <a class="href-link" href="#startMove">#</a>
+        
+        <span class="code-name">
+            
+                startMove<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>startMove(ev, id)
+Démarre le déplacement d'un élément :</p>
+<ul>
+<li>ignore les mousedown provenant des toolbars ou handles</li>
+<li>empêche le drag si l'utilisateur est en train d'éditer du texte</li>
+<li>capture la position de départ (clientX/clientY) et la position
+originale de l'élément afin de calculer les deltas en <code>onMove</code>.</li>
+<li>prend en compte le <code>zoom</code> actuel pour convertir correctement
+les mouvements de la souris en déplacement sur la slide.</li>
+</ul>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_moveResize.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_moveResize.js.html">editor/moveResize.js</a>, <a href="editor_moveResize.js.html#line50">line 50</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="startResize">
+        <a class="href-link" href="#startResize">#</a>
+        
+        <span class="code-name">
+            
+                startResize<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>startResize(ev, id, handle)
+Démarre un redimensionnement depuis un des handle (tl/tr/bl/br). Stocke
+la taille et position originales ainsi que le <code>handle</code> utilisé pour
+déterminer quels côtés bouger.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="editor_moveResize.js.html" class="button">View Source</a>
+            <span>
+                <a href="editor_moveResize.js.html">editor/moveResize.js</a>, <a href="editor_moveResize.js.html#line130">line 130</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="stylesToString">
+        <a class="href-link" href="#stylesToString">#</a>
+        
+        <span class="code-name">
+            
+                stylesToString<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Converts style object to inline CSS string</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="styleHelper.js.html" class="button">View Source</a>
+            <span>
+                <a href="styleHelper.js.html">styleHelper.js</a>, <a href="styleHelper.js.html#line111">line 111</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+            </div>
+        </div>
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+
+</body>
+</html>

@@ -1,9 +1,24 @@
+/**
+ * sidebar.js (arbre)
+ * Rend la colonne de propriétés pour la slide sélectionnée dans la
+ * vue "arbre" : titre, suppression, et gestion des connexions
+ * par élément (sélection d'une target interne ou lien externe).
+ */
 import { dom } from "./dom.js";
 import { appState } from "./state.js";
 import { slideIndexToLink } from "./mapping.js";
 import { deleteSlideByIndex, setElementLinkInSlidesState, setSlideTitle } from "./actions.js";
 import { renderConnections, renderNodes } from "./render.js";
 
+/**
+ * renderSidebar()
+ * Reconstruit le panneau latéral de propriétés pour la slide sélectionnée
+ * dans la vue graphe. Affiche :
+ * - le champ de titre editable (met à jour `setSlideTitle`)
+ * - bouton de suppression (supprime via `deleteSlideByIndex`)
+ * - liste des connexions par élément permettant de choisir une target
+ *   interne ou un lien externe (met à jour `setElementLinkInSlidesState`).
+ */
 export function renderSidebar() {
   if (!appState.selectedNodeId) {
     dom.sidebarSubtitle.innerText = "Aucune sélection";

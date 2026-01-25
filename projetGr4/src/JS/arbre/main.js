@@ -1,3 +1,9 @@
+/**
+ * main.js (arbre)
+ * Initialisation du sous-module 'arbre' : lecture du slides_state,
+ * installation des interactions, boutons et contrôle caméra, puis
+ * construction du graph initial.
+ */
 import { assertDom, dom } from "./dom.js";
 import { appState } from "./state.js";
 import { loadSlidesStateFromLocalStorage, requestSave } from "./storage.js";
@@ -20,7 +26,7 @@ export function initArbre() {
   if (dom.btnSave) {
     dom.btnSave.addEventListener("click", () => {
       requestSave();         // force save
-      exportJsonDownload();  // optionnel
+      exportJsonDownload();  // export JSON
     });
   }
 

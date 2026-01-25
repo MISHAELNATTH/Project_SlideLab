@@ -1,9 +1,22 @@
+/**
+ * dragDrop.js (editor)
+ * Implémente l'ajout d'éléments via glisser-déposer depuis la palette
+ * d'outils vers la zone de slide. Calcule la position en tenant compte
+ * du zoom et crée des éléments par défaut selon le type d'outil.
+ */
 // src/JS/editor/dragDrop.js
 import { slideEl } from "./dom.js";
 import { getZoom } from "./zoom.js";
 import { getActive, clamp, cryptoId, setSelectedId } from "./core.js";
 
 let renderFn = null;
+/**
+ * configureDragDrop({ render })
+ * Enregistre une fonction `render` fournie par le module appelant afin de
+ * pouvoir déclencher un rerender lorsque des éléments sont ajoutés via
+ * drag&drop. Ceci évite d'importer directement `render` et garde
+ * une dépendance plus légère.
+ */
 export function configureDragDrop({ render }) {
   renderFn = render;
 }
@@ -184,3 +197,12 @@ function addFromTool(toolType, x, y) {
     setSelectedId(el.id);
   }
 }
+
+/**
+ * addFromTool(toolType, x, y)
+ * Crée un élément par défaut (text/shape/button/image/table/structures
+ * composées) positionné aux coordonnées `x,y` (sous la coordonnée du slide,
+ * déjà convertie selon le zoom). La fonction prend soin d'utiliser `clamp`
+ * pour éviter de créer un élément hors du canevas et définit `setSelectedId`
+ * sur le nouvel élément pour que l'utilisateur puisse éditer immédiatement.
+ */

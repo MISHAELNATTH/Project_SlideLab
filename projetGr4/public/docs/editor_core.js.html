@@ -1,0 +1,288 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> editor/core.js</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    Documentation
+                </a>
+                
+                <a
+                    href="../index.html"
+                    class="link"
+                >
+                    Retour vers SlideLab
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Global</h3><ul><li><a href="global.html#addSlide">addSlide</a></li><li><a href="global.html#applyCameraTransform">applyCameraTransform</a></li><li><a href="global.html#applyTextFormatting">applyTextFormatting</a></li><li><a href="global.html#clamp">clamp</a></li><li><a href="global.html#cleanupLinksAfterSlideDelete">cleanupLinksAfterSlideDelete</a></li><li><a href="global.html#clearSelection">clearSelection</a></li><li><a href="global.html#configureDragDrop">configureDragDrop</a></li><li><a href="global.html#configureMoveResize">configureMoveResize</a></li><li><a href="global.html#configureThumbs">configureThumbs</a></li><li><a href="global.html#configureToolbars">configureToolbars</a></li><li><a href="global.html#createTextToolbar">createTextToolbar</a></li><li><a href="global.html#cryptoId">cryptoId</a></li><li><a href="global.html#debounce">debounce</a></li><li><a href="global.html#deleteSelected">deleteSelected</a></li><li><a href="global.html#deleteSlideByIndex">deleteSlideByIndex</a></li><li><a href="global.html#dom">dom</a></li><li><a href="global.html#endMove">endMove</a></li><li><a href="global.html#endResize">endResize</a></li><li><a href="global.html#getActive">getActive</a></li><li><a href="global.html#getElementClasses">getElementClasses</a></li><li><a href="global.html#getElementStyles">getElementStyles</a></li><li><a href="global.html#getSelectedId">getSelectedId</a></li><li><a href="global.html#getShapeWrapperStyles">getShapeWrapperStyles</a></li><li><a href="global.html#getSlideBackgroundStyle">getSlideBackgroundStyle</a></li><li><a href="global.html#getZoom">getZoom</a></li><li><a href="global.html#hrefToTarget">hrefToTarget</a></li><li><a href="global.html#initUI">initUI</a></li><li><a href="global.html#installCameraControls">installCameraControls</a></li><li><a href="global.html#installInteractions">installInteractions</a></li><li><a href="global.html#linkToSlideIndex">linkToSlideIndex</a></li><li><a href="global.html#loadSlidesStateFromLocalStorage">loadSlidesStateFromLocalStorage</a></li><li><a href="global.html#loadState">loadState</a></li><li><a href="global.html#lockPointerEvents">lockPointerEvents</a></li><li><a href="global.html#lockPointerEventsDeep">lockPointerEventsDeep</a></li><li><a href="global.html#onMove">onMove</a></li><li><a href="global.html#onResize">onResize</a></li><li><a href="global.html#px">px</a></li><li><a href="global.html#readSlideMeta">readSlideMeta</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#renderConnections">renderConnections</a></li><li><a href="global.html#renderNodes">renderNodes</a></li><li><a href="global.html#renderSidebar">renderSidebar</a></li><li><a href="global.html#renderThumbs">renderThumbs</a></li><li><a href="global.html#requestSave">requestSave</a></li><li><a href="global.html#saveSlidesStateToLocalStorage">saveSlidesStateToLocalStorage</a></li><li><a href="global.html#saveState">saveState</a></li><li><a href="global.html#searchEl">searchEl</a></li><li><a href="global.html#select">select</a></li><li><a href="global.html#setElementLinkInSlidesState">setElementLinkInSlidesState</a></li><li><a href="global.html#setSelectedId">setSelectedId</a></li><li><a href="global.html#setSlidePos">setSlidePos</a></li><li><a href="global.html#setSlideTitle">setSlideTitle</a></li><li><a href="global.html#setZoom">setZoom</a></li><li><a href="global.html#slideEl">slideEl</a></li><li><a href="global.html#slideId">slideId</a></li><li><a href="global.html#slideIndexToLink">slideIndexToLink</a></li><li><a href="global.html#startDrag">startDrag</a></li><li><a href="global.html#startMove">startMove</a></li><li><a href="global.html#startResize">startResize</a></li><li><a href="global.html#state">state</a></li><li><a href="global.html#stylesToString">stylesToString</a></li><li><a href="global.html#thumbsEl">thumbsEl</a></li><li><a href="global.html#zoomChip">zoomChip</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Source</p>
+                    <h1>editor/core.js</h1>
+                </header>
+                
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * core.js (editor)
+ * Fonctions et état de base pour l'éditeur : génération d'identifiants,
+ * gestion du `state` minimal (slides, activeSlide) et API pour sélection
+ * (`setSelectedId` / `getSelectedId`). C'est la source utility-level
+ * utilisée par les autres modules de l'éditeur.
+ */
+// src/JS/editor/core.js
+
+export let id = 1;
+
+/**
+ * cryptoId()
+ * Retourne un identifiant pseudo-unique utilisable pour les slides
+ * et éléments. Utilise `crypto.randomUUID` si disponible, sinon
+ * génère une chaîne probabiliste. Ne garantit pas l'unicité absolue
+ * mais est suffisante pour ce contexte d'éditeur côté client.
+ */
+export function cryptoId() {
+  return crypto?.randomUUID?.() || "id_" + Math.random().toString(16).slice(2);
+}
+
+/**
+ * slideId()
+ * Génère un identifiant lisible pour un fichier slide (ex: "slide-2.html").
+ * Incrémente un compteur local `id`. Utile pour duplication/création rapide.
+ */
+export function slideId() {
+  return "slide-" + id++ + ".html";
+}
+
+/**
+ * clamp(n, a, b)
+ * Limite la valeur `n` entre `a` et `b` inclus. Utilisé pour fixer
+ * des bornes sur positions, tailles, et zooms afin d'éviter des valeurs
+ * invalides ou hors écran.
+ */
+export function clamp(n, a, b) {
+  return Math.max(a, Math.min(b, n));
+}
+
+/**
+ * `state` - état applicatif de l'éditeur
+ * Structure minimale conservée en localStorage et utilisée partout.
+ * - `activeSlide`: index de la slide courante
+ * - `slides`: tableau des slides avec leurs éléments
+ */
+export const state = {
+  activeSlide: 0,
+  slides: [
+    {
+      id: cryptoId(),
+      backgroundColor: "#ffffff",
+      backgroundGradient: "",
+      elements: [
+        {
+          id: cryptoId(),
+          type: "text",
+          x: 90,
+          y: 80,
+          w: 520,
+          h: 70,
+          html: "Titre de la slide",
+          color: "#111827",
+          fontSize: 28,
+          fontWeight: 800,
+          fontFamily: "Arial",
+          textAlign: "left",
+        },
+        {
+          id: cryptoId(),
+          type: "shape",
+          x: 90,
+          y: 190,
+          w: 420,
+          h: 160,
+          shapeType: "rectangle",
+          fillColor: "#7c5cff",
+          borderColor: "#37d6ff",
+          opacity: 1,
+        },
+        {
+          id: cryptoId(),
+          type: "button",
+          x: 90,
+          y: 380,
+          w: 220,
+          h: 50,
+          html: "Clique ici",
+          color: "#ffffff",
+          fontSize: 16,
+          fontWeight: 700,
+          fontFamily: "Arial",
+          textAlign: "center",
+        },
+      ],
+    },
+  ],
+};
+
+/**
+ * saveState()
+ * Sauvegarde l'objet `state` dans `localStorage` sous la clé
+ * `slides_state`. Enrobe dans un try/catch pour éviter que
+ * l'application ne plante si l'espace est plein.
+ */
+export function saveState() {
+  try {
+    localStorage.setItem("slides_state", JSON.stringify(state));
+    console.log("✓ État sauvegardé");
+  } catch (e) {
+    console.error("Erreur lors de la sauvegarde:", e);
+  }
+}
+
+/**
+ * loadState()
+ * Tente de restaurer l'état depuis `localStorage`. Si un état valide
+ * est trouvé, remplace les propriétés principales (`activeSlide` et
+ * `slides`) et retourne `true`. Sinon retourne `false`.
+ */
+export function loadState() {
+  try {
+    const saved = localStorage.getItem("slides_state");
+    if (saved) {
+      const loaded = JSON.parse(saved);
+      state.activeSlide = loaded.activeSlide;
+      state.slides = loaded.slides;
+      console.log("✓ État restauré");
+      return true;
+    }
+  } catch (e) {
+    console.error("Erreur lors du chargement:", e);
+  }
+  return false;
+}
+
+/**
+ * getActive()
+ * Renvoie la slide active (objet) depuis `state.slides`.
+ * Usage récurrent dans le rendu et les handlers pour manipuler la slide courante.
+ */
+export function getActive() {
+  return state.slides[state.activeSlide];
+}
+
+// --- selection ---
+let selectedId = null;
+
+/**
+ * setSelectedId(v)
+ * Définit l'identifiant sélectionné dans l'éditeur. Aucune autre
+ * logique n'est exécutée ici (le rendu se base sur `getSelectedId`).
+ */
+export function setSelectedId(v) {
+  selectedId = v;
+}
+
+/**
+ * getSelectedId()
+ * Renvoie l'identifiant de l'élément actuellement sélectionné, ou `null`
+ * s'il n'y a pas de sélection.
+ */
+export function getSelectedId() {
+  return selectedId;
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+
+</body>
+</html>

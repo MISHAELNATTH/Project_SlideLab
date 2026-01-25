@@ -1,3 +1,17 @@
+/**
+ * actions.js
+ * Ce fichier contient des utilitaires et actions manipulant l'état des "slides"
+ * et les données spécifiques au module "arbre" (titre, position, liens entre slides).
+ * Les fonctions exportées sont de petites opérations atomiques (ajout/suppression,
+ * mise à jour de propriété) et provoquent une sauvegarde / rebuild lorsque nécessaire.
+ *
+ * Principales fonctions:
+ * - uuid(): génère un identifiant unique pour slides/éléments
+ * - setSlideTitle, setSlidePos: mettent à jour le titre/position de la slide
+ * - setElementLinkInSlidesState: met à jour le lien d'un élément
+ * - cleanupLinksAfterSlideDelete: renumérote/clean les liens après suppression
+ * - deleteSlideByIndex, addSlide: suppriment/ajoutent des slides et déclenchent save
+ */
 import { appState } from "./state.js";
 import { requestSave, saveSlidesStateToLocalStorage } from "./storage.js";
 import { buildGraphFromSlidesState } from "./buildGraph.js";
@@ -10,6 +24,14 @@ export function uuid() {
   });
 }
 
+/**
+ * setSlideTitle(srcSlideIndex, newTitle)
+ * Met à jour le titre interne (`arbre.title`) d'une slide identifiée
+ * par son index source `srcSlideIndex` dans `appState.slides_state.slides`.
+ * Effet de bord : déclenche `requestSave()` pour persister la modification
+ * de manière asynchrone.
+ */
+
 export function setSlideTitle(srcSlideIndex, newTitle) {
   const s = appState.slides_state?.slides?.[srcSlideIndex];
   if (!s) return;
@@ -17,6 +39,13 @@ export function setSlideTitle(srcSlideIndex, newTitle) {
   s.arbre.title = newTitle;
   requestSave();
 }
+
+/**
+ * setSlidePos(srcSlideIndex, x, y)
+ * Met à jour la position stockée (`arbre.pos`) d'une slide utilisée
+ * pour l'affichage dans la vue graphe. Crée les structures manquantes
+ * si nécessaire puis appelle `requestSave()`.
+ */
 
 export function setSlidePos(srcSlideIndex, x, y) {
   const s = appState.slides_state?.slides?.[srcSlideIndex];
@@ -27,6 +56,14 @@ export function setSlidePos(srcSlideIndex, x, y) {
   s.arbre.pos.y = y;
   requestSave();
 }
+
+/**
+ * setElementLinkInSlidesState(srcSlideIndex, elementIndex, newLink)
+ * Met à jour la propriété `link` d'un élément donné (index d'élément)
+ * dans la slide `srcSlideIndex`. Vérifications : existence de la slide
+ * et du tableau `elements`.
+ * Effet de bord : `requestSave()`.
+ */
 
 export function setElementLinkInSlidesState(srcSlideIndex, elementIndex, newLink) {
   const slide = appState.slides_state?.slides?.[srcSlideIndex];
@@ -64,6 +101,17 @@ export function cleanupLinksAfterSlideDelete(slides_state, deletedIndex) {
   });
 }
 
+/**
+ * deleteSlideByIndex(deleteIndex)
+ * Supprime la slide à l'index `deleteIndex` dans `appState.slides_state.slides`.
+ * Procédure :
+ *  1) retirer la slide
+ *  2) renumérotation/nettoyage des liens internes via `cleanupLinksAfterSlideDelete`
+ *  3) forcer une sauvegarde synchrone via `saveSlidesStateToLocalStorage`
+ *  4) reset sélection et rebuild du graphe
+ * Cette fonction a des effets globaux sur l'état de l'application.
+ */
+
 export function deleteSlideByIndex(deleteIndex) {
   if (!appState.slides_state?.slides?.length) return;
 
@@ -78,6 +126,13 @@ export function deleteSlideByIndex(deleteIndex) {
   appState.selectedNodeId = null;
   buildGraphFromSlidesState();
 }
+
+/**
+ * addSlide()
+ * Ajoute une nouvelle slide par défaut à la fin de `slides_state.slides`.
+ * Initialise `arbre.title` et `arbre.pos` pour permettre son affichage
+ * immédiat dans la vue graphe. Déclenche `requestSave()` et rebuild.
+ */
 
 export function addSlide() {
   if (!appState.slides_state) {
