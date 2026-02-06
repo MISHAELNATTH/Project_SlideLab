@@ -1,0 +1,185 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> arbre/storage.js</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    Documentation
+                </a>
+                
+                <a
+                    href="../index.html"
+                    class="link"
+                >
+                    Retour vers SlideLab
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Global</h3><ul><li><a href="global.html#addSlide">addSlide</a></li><li><a href="global.html#applyCameraTransform">applyCameraTransform</a></li><li><a href="global.html#applyTextFormatting">applyTextFormatting</a></li><li><a href="global.html#clamp">clamp</a></li><li><a href="global.html#cleanupLinksAfterSlideDelete">cleanupLinksAfterSlideDelete</a></li><li><a href="global.html#clearSelection">clearSelection</a></li><li><a href="global.html#configureDragDrop">configureDragDrop</a></li><li><a href="global.html#configureMoveResize">configureMoveResize</a></li><li><a href="global.html#configureThumbs">configureThumbs</a></li><li><a href="global.html#configureToolbars">configureToolbars</a></li><li><a href="global.html#createTextToolbar">createTextToolbar</a></li><li><a href="global.html#cryptoId">cryptoId</a></li><li><a href="global.html#debounce">debounce</a></li><li><a href="global.html#deleteSelected">deleteSelected</a></li><li><a href="global.html#deleteSlideByIndex">deleteSlideByIndex</a></li><li><a href="global.html#dom">dom</a></li><li><a href="global.html#endMove">endMove</a></li><li><a href="global.html#endResize">endResize</a></li><li><a href="global.html#getActive">getActive</a></li><li><a href="global.html#getElementClasses">getElementClasses</a></li><li><a href="global.html#getElementStyles">getElementStyles</a></li><li><a href="global.html#getSelectedId">getSelectedId</a></li><li><a href="global.html#getShapeWrapperStyles">getShapeWrapperStyles</a></li><li><a href="global.html#getSlideBackgroundStyle">getSlideBackgroundStyle</a></li><li><a href="global.html#getZoom">getZoom</a></li><li><a href="global.html#hrefToTarget">hrefToTarget</a></li><li><a href="global.html#initUI">initUI</a></li><li><a href="global.html#installCameraControls">installCameraControls</a></li><li><a href="global.html#installInteractions">installInteractions</a></li><li><a href="global.html#linkToSlideIndex">linkToSlideIndex</a></li><li><a href="global.html#loadSlidesStateFromLocalStorage">loadSlidesStateFromLocalStorage</a></li><li><a href="global.html#loadState">loadState</a></li><li><a href="global.html#lockPointerEvents">lockPointerEvents</a></li><li><a href="global.html#lockPointerEventsDeep">lockPointerEventsDeep</a></li><li><a href="global.html#onMove">onMove</a></li><li><a href="global.html#onResize">onResize</a></li><li><a href="global.html#px">px</a></li><li><a href="global.html#readSlideMeta">readSlideMeta</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#renderConnections">renderConnections</a></li><li><a href="global.html#renderNodes">renderNodes</a></li><li><a href="global.html#renderSidebar">renderSidebar</a></li><li><a href="global.html#renderThumbs">renderThumbs</a></li><li><a href="global.html#requestSave">requestSave</a></li><li><a href="global.html#saveSlidesStateToLocalStorage">saveSlidesStateToLocalStorage</a></li><li><a href="global.html#saveState">saveState</a></li><li><a href="global.html#searchEl">searchEl</a></li><li><a href="global.html#select">select</a></li><li><a href="global.html#setElementLinkInSlidesState">setElementLinkInSlidesState</a></li><li><a href="global.html#setSelectedId">setSelectedId</a></li><li><a href="global.html#setSlidePos">setSlidePos</a></li><li><a href="global.html#setSlideTitle">setSlideTitle</a></li><li><a href="global.html#setZoom">setZoom</a></li><li><a href="global.html#slideEl">slideEl</a></li><li><a href="global.html#slideId">slideId</a></li><li><a href="global.html#slideIndexToLink">slideIndexToLink</a></li><li><a href="global.html#startDrag">startDrag</a></li><li><a href="global.html#startMove">startMove</a></li><li><a href="global.html#startResize">startResize</a></li><li><a href="global.html#state">state</a></li><li><a href="global.html#stylesToString">stylesToString</a></li><li><a href="global.html#thumbsEl">thumbsEl</a></li><li><a href="global.html#zoomChip">zoomChip</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Source</p>
+                    <h1>arbre/storage.js</h1>
+                </header>
+                
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * storage.js
+ * Chargement / sauvegarde du `slides_state` dans localStorage.
+ * Expose également un utilitaire `debounce` et `requestSave` pour
+ * regrouper les écritures et éviter d'écrire trop fréquemment.
+ */
+import { appState } from "./state.js";
+
+export const STORAGE_KEY = "slides_state";
+
+/**
+ * loadSlidesStateFromLocalStorage()
+ * Lit la clé `STORAGE_KEY` dans `localStorage` et tente de parser le JSON.
+ * Retourne l'objet parsé ou `null` si absent / invalide.
+ */
+export function loadSlidesStateFromLocalStorage() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error("slides_state invalide dans localStorage (JSON parse):", e);
+    return null;
+  }
+}
+
+/**
+ * saveSlidesStateToLocalStorage(slides_state)
+ * Sérialise `slides_state` et l'écrit dans `localStorage`.
+ * Enrobe l'opération dans un try/catch pour éviter les erreurs (quota plein).
+ */
+export function saveSlidesStateToLocalStorage(slides_state) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(slides_state));
+    console.log("✓ slides_state sauvegardé");
+  } catch (e) {
+    console.error("Erreur save localStorage:", e);
+  }
+}
+
+/**
+ * debounce(fn, ms)
+ * Retourne une version débouncée de `fn` qui attend `ms` millisecondes
+ * après le dernier appel avant d'exécuter `fn`. Utilisé pour regrouper
+ * plusieurs modifications en une seule écriture localStorage.
+ */
+export function debounce(fn, ms = 200) {
+  let t = null;
+  return (...args) => {
+    if (t) clearTimeout(t);
+    t = setTimeout(() => fn(...args), ms);
+  };
+}
+
+/**
+ * requestSave
+ * Instance débouncée utilisée par les autres modules pour demander
+ * une sauvegarde asynchrone de `appState.slides_state`.
+ */
+export const requestSave = debounce(() => {
+  if (!appState.slides_state) return;
+  saveSlidesStateToLocalStorage(appState.slides_state);
+}, 200);
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+
+</body>
+</html>

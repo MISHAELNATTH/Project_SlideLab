@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#f8fafc">
+    <title>SlideLab - Arborescence</title>
+  <script type="module" crossorigin src="/Project_SlideLab/assets/arbre--jo2Z9Ql.js"></script>
+  <link rel="modulepreload" crossorigin href="/Project_SlideLab/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="stylesheet" crossorigin href="/Project_SlideLab/assets/arbre-C3enylWp.css">
+</head>
+<body>
+
+    <!-- Canvas Area -->
+    <main id="canvas" class="canvas-area">
+        <!-- SVG Layer for connections -->
+        <svg id="svg-layer">
+            <!-- Paths will be injected here -->
+        </svg>
+
+        <!-- HTML Layer for Nodes will be injected here via JS -->
+        <div id="nodes-layer"></div>
+        
+        <div class="help-text">
+            Cliquez sur un rectangle pour l'éditer. Glissez pour déplacer.
+        </div>
+        
+        <!-- Buttons Container -->
+        <div class="buttons-container">
+            <button id="btnAdd" class="btn-add">Ajouter une Slide Vide</button>
+            <button id="btnLoad" class="btn-imp">Editor</button>
+        </div>
+    </main>
+
+    <!-- Sidebar Properties Panel -->
+    <aside class="sidebar" id="sidebar">
+        
+        <div class="sidebar-header">
+            <h2 class="sidebar-title">Propriétés</h2>
+            <p class="sidebar-subtitle" id="sidebar-subtitle">Aucune sélection</p>
+        </div>
+
+        <div id="properties-content" class="sidebar-content">
+            <!-- Content injected via JS -->
+            <div class="sidebar-empty">
+                <p>Sélectionnez un rectangle pour voir ses options.</p>
+            </div>
+        </div>
+
+    </aside>
+
+</body>
+</html>

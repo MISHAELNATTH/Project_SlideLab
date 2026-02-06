@@ -1,0 +1,16 @@
+﻿################################################################################
+# Ce fichier .gitignore a été automatiquement créé par Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/slnx.sqlite
+/.vs/VSWorkspaceState.json
+/projetGr4/.vs/ProjectSettings.json
+/projetGr4/.vs/projetGr4.slnx/config/applicationhost.config
+/projetGr4/.vs/projetGr4.slnx/FileContentIndex/72ea3acf-0265-492f-b72a-28b934bbac80.vsidx
+/projetGr4/.vs/projetGr4.slnx/v18/.wsuo
+/projetGr4/.vs/projetGr4.slnx/v18/DocumentLayout.json
+/projetGr4/.vs/slnx.sqlite
+/projetGr4/.vs/VSWorkspaceState.json
+/projetGr4/src/JS/arbre.js
+/projetGr4/.vs/projetGr4.slnx/FileContentIndex/83ac1507-c00b-4009-b4df-6f3a5efc22b1.vsidx
+node_modules

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> Home</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    Documentation
+                </a>
+                
+                <a
+                    href="../index.html"
+                    class="link"
+                >
+                    Retour vers SlideLab
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Global</h3><ul><li><a href="global.html#addSlide">addSlide</a></li><li><a href="global.html#applyCameraTransform">applyCameraTransform</a></li><li><a href="global.html#applyTextFormatting">applyTextFormatting</a></li><li><a href="global.html#clamp">clamp</a></li><li><a href="global.html#cleanupLinksAfterSlideDelete">cleanupLinksAfterSlideDelete</a></li><li><a href="global.html#clearSelection">clearSelection</a></li><li><a href="global.html#configureDragDrop">configureDragDrop</a></li><li><a href="global.html#configureMoveResize">configureMoveResize</a></li><li><a href="global.html#configureThumbs">configureThumbs</a></li><li><a href="global.html#configureToolbars">configureToolbars</a></li><li><a href="global.html#createTextToolbar">createTextToolbar</a></li><li><a href="global.html#cryptoId">cryptoId</a></li><li><a href="global.html#debounce">debounce</a></li><li><a href="global.html#deleteSelected">deleteSelected</a></li><li><a href="global.html#deleteSlideByIndex">deleteSlideByIndex</a></li><li><a href="global.html#dom">dom</a></li><li><a href="global.html#endMove">endMove</a></li><li><a href="global.html#endResize">endResize</a></li><li><a href="global.html#getActive">getActive</a></li><li><a href="global.html#getElementClasses">getElementClasses</a></li><li><a href="global.html#getElementStyles">getElementStyles</a></li><li><a href="global.html#getSelectedId">getSelectedId</a></li><li><a href="global.html#getShapeWrapperStyles">getShapeWrapperStyles</a></li><li><a href="global.html#getSlideBackgroundStyle">getSlideBackgroundStyle</a></li><li><a href="global.html#getZoom">getZoom</a></li><li><a href="global.html#hrefToTarget">hrefToTarget</a></li><li><a href="global.html#initUI">initUI</a></li><li><a href="global.html#installCameraControls">installCameraControls</a></li><li><a href="global.html#installInteractions">installInteractions</a></li><li><a href="global.html#linkToSlideIndex">linkToSlideIndex</a></li><li><a href="global.html#loadSlidesStateFromLocalStorage">loadSlidesStateFromLocalStorage</a></li><li><a href="global.html#loadState">loadState</a></li><li><a href="global.html#lockPointerEvents">lockPointerEvents</a></li><li><a href="global.html#lockPointerEventsDeep">lockPointerEventsDeep</a></li><li><a href="global.html#onMove">onMove</a></li><li><a href="global.html#onResize">onResize</a></li><li><a href="global.html#px">px</a></li><li><a href="global.html#readSlideMeta">readSlideMeta</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#renderConnections">renderConnections</a></li><li><a href="global.html#renderNodes">renderNodes</a></li><li><a href="global.html#renderSidebar">renderSidebar</a></li><li><a href="global.html#renderThumbs">renderThumbs</a></li><li><a href="global.html#requestSave">requestSave</a></li><li><a href="global.html#saveSlidesStateToLocalStorage">saveSlidesStateToLocalStorage</a></li><li><a href="global.html#saveState">saveState</a></li><li><a href="global.html#searchEl">searchEl</a></li><li><a href="global.html#select">select</a></li><li><a href="global.html#setElementLinkInSlidesState">setElementLinkInSlidesState</a></li><li><a href="global.html#setSelectedId">setSelectedId</a></li><li><a href="global.html#setSlidePos">setSlidePos</a></li><li><a href="global.html#setSlideTitle">setSlideTitle</a></li><li><a href="global.html#setZoom">setZoom</a></li><li><a href="global.html#slideEl">slideEl</a></li><li><a href="global.html#slideId">slideId</a></li><li><a href="global.html#slideIndexToLink">slideIndexToLink</a></li><li><a href="global.html#startDrag">startDrag</a></li><li><a href="global.html#startMove">startMove</a></li><li><a href="global.html#startResize">startResize</a></li><li><a href="global.html#state">state</a></li><li><a href="global.html#stylesToString">stylesToString</a></li><li><a href="global.html#thumbsEl">thumbsEl</a></li><li><a href="global.html#zoomChip">zoomChip</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p></p>
+                    <h1>Home</h1>
+                </header>
+                
+
+
+
+    
+
+
+    <h3> </h3>
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+    <section>
+        <article><h1>SlideLab</h1>
+<h2>Lien du projet</h2>
+<p>👉 https://florian-glay.github.io/Projet-Informatique-S6-GR4/</p>
+<hr>
+<h2>Présentation</h2>
+<p>Ce projet a été développé dans le cadre du <strong>Projet Informatique – S6 (GR4)</strong>.<br>
+Il s’agit d’une application web (HTML / CSS / JS) utilisant <strong>Vite</strong>, <strong>React</strong> et <strong>Tailwind CSS</strong>, avec un système d’édition et de gestion de contenu, déployée sur <strong>GitHub Pages</strong>.</p>
+<hr>
+<h2>Résumé du produit</h2>
+<h3>Nom du concept</h3>
+<p><strong>Éditeur de présentations visuelles multiplans</strong></p>
+<h3>Pitch</h3>
+<p>Application web de création visuelle de présentations où chaque élément graphique peut servir de point d’entrée vers une nouvelle diapositive, permettant de construire des récits <strong>non linéaires et interactifs</strong>, à la manière d’un canevas dynamique.</p>
+<h3>Fonctionnalités clés</h3>
+<ul>
+<li><strong>Canevas libre</strong> : glisser-déposer d’éléments (formes, images, texte) sur un espace de travail infini.</li>
+<li><strong>Liens d’éléments</strong> : chaque élément peut être lié à une diapositive distincte ou à un sous-état, supportant des parcours utilisateur non linéaires.</li>
+<li><strong>Édition visuelle</strong> : modification des propriétés d’objet (taille, position, style) et contrôles de transformation (déplacement, redimensionnement, rotation).</li>
+<li><strong>Gestion de slides</strong> : création, duplication et navigation entre slides ou états liés aux éléments du canevas.</li>
+<li><strong>Export &amp; intégration</strong> : export des présentations et intégration possible via <strong>JSON / API</strong> (format de projet réutilisable).</li>
+<li><strong>Historique &amp; stockage</strong> : persistance locale ou serveur et historique d’actions (annuler / refaire).</li>
+</ul>
+<h3>Cas d’usage typiques</h3>
+<ul>
+<li>Présentations interactives non linéaires (ateliers, formations, démonstrations produit)</li>
+<li>Prototypage d’UX et d’interactions visuelles</li>
+<li>Cartographie d’idées où chaque nœud ouvre une vue détaillée</li>
+</ul>
+<h3>Valeur ajoutée / Avantage concurrentiel</h3>
+<ul>
+<li>Combine la souplesse d’un éditeur <strong>type canvas</strong> (créativité visuelle) avec un <strong>modèle de navigation par objets</strong>.</li>
+<li>Permet de créer des parcours interactifs sans scripting complexe.</li>
+<li>Idéal pour les <strong>concepteurs pédagogiques</strong>, <strong>product managers</strong> et <strong>formateurs</strong> souhaitant raconter des histoires à embranchements.</li>
+</ul>
+<h3>Technologie &amp; architecture (aperçu)</h3>
+<ul>
+<li>Application web front-end moderne en <strong>JavaScript</strong>, avec une structure modulaire (rendu, gestion d’état, interactions, stockage).</li>
+<li>Projets <strong>sérialisables en JSON</strong>, facilitant la réutilisation, la collaboration et l’intégration continue.</li>
+</ul>
+<hr>
+<h2>Prérequis</h2>
+<p>Avant de pouvoir utiliser ou modifier le projet, assure-toi d’avoir installé :</p>
+<ul>
+<li><strong>Node.js</strong> (version recommandée : 18 ou supérieure)</li>
+<li><strong>npm</strong> (fourni avec Node.js)</li>
+<li><strong>Git</strong></li>
+</ul>
+<hr>
+<h2>Installation du projet</h2>
+<h3>Cloner le dépôt</h3>
+<pre class="prettyprint source lang-bash"><code>git clone https://github.com/Florian-Glay/Projet-Informatique-S6-GR4.git
+cd Projet-Informatique-S6-GR4
+cd projetGr4
+</code></pre>
+<h3>Installer les dépendances</h3>
+<p>Depuis projetGr4/</p>
+<pre class="prettyprint source lang-bash"><code>npm install
+</code></pre>
+<p>Toutes les bibliothèques nécessaires seront installées automatiquement.</p>
+<h3>Bibliothèques principales utilisées</h3>
+<ul>
+<li><code>react</code></li>
+<li><code>react-dom</code></li>
+<li><code>vite</code></li>
+<li><code>@vitejs/plugin-react</code></li>
+<li><code>tailwindcss</code></li>
+<li><code>@tailwindcss/vite</code></li>
+<li><code>gh-pages</code> (pour le déploiement)</li>
+</ul>
+<hr>
+<h2>Lancer le projet en local</h2>
+<p>Pour démarrer le serveur de développement :</p>
+<pre class="prettyprint source lang-bash"><code>npm run dev
+</code></pre>
+<p>Puis ouvre ton navigateur à l’adresse indiquée dans le terminal (généralement) :</p>
+<pre class="prettyprint source"><code>http://localhost:5173
+</code></pre>
+<hr>
+<h2>Build du projet</h2>
+<p>Pour générer la version de production :</p>
+<pre class="prettyprint source lang-bash"><code>npm run build
+</code></pre>
+<p>Les fichiers générés seront placés dans le dossier <code>dist/</code>.</p>
+<hr>
+<h2>Déploiement sur GitHub Pages</h2>
+<p>Le projet est déployé grâce au package <strong>gh-pages</strong>.</p>
+<h3>Initialisation du dépôt (une seule fois)</h3>
+<pre class="prettyprint source lang-bash"><code>git init
+git add .
+git commit -m &quot;Initial commit&quot;
+
+git branch -M main
+git remote add origin https://github.com/Florian-Glay/Projet-Informatique-S6-GR4.git
+git push -u origin main
+</code></pre>
+<h3>Déployer une nouvelle version</h3>
+<p>À chaque nouvelle mise à jour du projet :</p>
+<pre class="prettyprint source lang-bash"><code>npm run deploy
+</code></pre>
+<hr>
+<h2>Documentation</h2>
+<p>La documentation technique du projet est générée automatiquement à l’aide de <strong>JSDoc</strong>.<br>
+Elle décrit les fonctions, modules et structures principales du code.</p>
+<hr>
+<h2>Auteurs</h2>
+<p>Projet réalisé par le groupe <strong>GR4</strong> dans le cadre du Projet d'Informatique semestre 6.</p></article>
+    </section>
+
+
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+
+</body>
+</html>
